@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+	<meta charset="utf-8">
+	
+	<title>Friday Night Funkin': Psych Engine</title>
+<base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/fnf/mcm/">	
+
+	<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="mobile-web-app-capable" content="yes">
+	<link rel="shortcut icon" type="image/png" href="./favicon.png">
+	<script type="text/javascript" src="./mcm.js"></script>
+	
+	<script>
+		window.addEventListener ("touchmove", function (event) { event.preventDefault (); }, { capture: false, passive: false });
+		if (typeof window.devicePixelRatio != 'undefined' && window.devicePixelRatio > 2) {
+			var meta = document.getElementById ("viewport");
+			meta.setAttribute ('content', 'width=device-width, initial-scale=' + (2 / window.devicePixelRatio) + ', user-scalable=no');
+		}
+		window.addEventListener("keydown", function(e) {if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {e.preventDefault(); }}, false);
+	</script>
+	
+	<style>
+		html,body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+		#openfl-content { background: #000000; width: 100%; height: 100%; }
+		@font-face {
+			font-family: 'Arial';
+			src: url('assets/fonts/ARIAL.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/ARIAL.woff') format('woff'),
+			url('assets/fonts/ARIAL.TTF') format('truetype'),
+			url('assets/fonts/ARIAL.svg#Arial') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'BadaBoom BB';
+			src: url('assets/fonts/badabb.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/badabb.TTF') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Krabby Patty';
+			src: url('assets/fonts/krabby.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/krabby.woff') format('woff'),
+			url('assets/fonts/krabby.ttf') format('truetype'),
+			url('assets/fonts/krabby.svg#Krabby%20Patty') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Next Sunday';
+			src: url('assets/fonts/nxtsunday.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/nxtsunday.woff') format('woff'),
+			url('assets/fonts/nxtsunday.ttf') format('truetype'),
+			url('assets/fonts/nxtsunday.svg#Next%20Sunday') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Pixel Arial 11 Bold';
+			src: url('assets/fonts/pixel.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/pixel.woff') format('woff'),
+			url('assets/fonts/pixel.otf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Saget Ngih';
+			src: url('assets/fonts/saget.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/saget.woff') format('woff'),
+			url('assets/fonts/saget.otf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'SpongeBob Intro Jumping On Letters Font 15';
+			src: url('assets/fonts/spi.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/spi.woff') format('woff'),
+			url('assets/fonts/spi.ttf') format('truetype'),
+			url('assets/fonts/spi.svg#SpongeBob%20Intro%20Jumping%20On%20Letters%20Font%2015') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'VCR OSD Mono';
+			src: url('assets/fonts/vcr.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/vcr.woff') format('woff'),
+			url('assets/fonts/vcr.ttf') format('truetype'),
+			url('assets/fonts/vcr.svg#VCR%20OSD%20Mono') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Nokia Cellphone FC Small';
+			src: url('flixel/fonts/nokiafc22.eot?#iefix') format('embedded-opentype'),
+			url('flixel/fonts/nokiafc22.woff') format('woff'),
+			url('flixel/fonts/nokiafc22.ttf') format('truetype'),
+			url('flixel/fonts/nokiafc22.svg#Nokia%20Cellphone%20FC%20Small') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Monsterrat';
+			src: url('flixel/fonts/monsterrat.eot?#iefix') format('embedded-opentype'),
+			url('flixel/fonts/monsterrat.woff') format('woff'),
+			url('flixel/fonts/monsterrat.ttf') format('truetype'),
+			url('flixel/fonts/monsterrat.svg#Monsterrat') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+
+	</style>
+	
+</head>
+<body>
+	
+	<noscript>This webpage makes extensive use of JavaScript. Please enable JavaScript in your web browser to view this page.</noscript>
+	
+	<div id="openfl-content"></div>
+	
+	<script type="text/javascript">
+		lime.embed ("PsychEngine", "openfl-content", 1280, 720, { parameters: {} });
+	</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"93fc9d3e49120833","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.4.0-1-g37f21b1","token":"b062b5bc397843a2b7cac03511be2721"}' crossorigin="anonymous"></script>
+</body>
+</html>
