@@ -75,6 +75,9 @@
             console.log("Redirect fetch:", key);
             return origFetch(mergedMap[key], options);
           }
+          if (resource.includes("StreamingAssets")) {
+            return origFetch((document.querySelector('base').href !== null ? document.querySelector('base').href+"/" : "") + "StreamingAssets/"+resource.split("/StreamingAssets/")[1])
+          }
         }
         return origFetch(resource, options);
       };
