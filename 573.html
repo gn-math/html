@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/genizy/cg-rip@main/man-runner-2048/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  </head>
+  <body style="margin:0;padding:0" class="noselect">
+    <div id="loading-text" style="color: black; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;">LOADING...</div>
+    <canvas id="unity-canvas"
+      style="position:fixed;top:0;left:0;width:100%;height:100%;outline:none"></canvas>
+    <script>
+ 
+    const canvas = document.querySelector("#unity-canvas");
+    const loaderUrl = "Build/706e3b7d12cde3d9b9f17e388a94214b.loader.js";
+    const config = {
+      dataUrl: "Build/f6c86730d1f0e9162acefbc380327e21.data",
+      frameworkUrl: "Build/fc45fdbdcee54ae8144d7a2834b15283.framework.js",
+      codeUrl: "Build/2edc523a1ff15134c3b554db0d33e63b.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Man Runner 2048",
+      productName: "Man Runner 2048",
+      productVersion: "1.0.0"
+    };
+    
+    var gameInstance;
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+      }).then((unityInstance) => {
+        gameInstance = unityInstance;
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+    document.body.appendChild(script);
+
+    function setFocus() {
+      window.focus();
+      canvas.focus();
+    }
+    window.addEventListener("touchstart", setFocus);
+    window.addEventListener("pointerdown", setFocus);
+    window.addEventListener("resize", setFocus);
+    </script>
+	<script>
+function resizeCanvas() {
+    const canvas = document.getElementById("unity-canvas");
+   
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+}
+window.addEventListener("load", resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
+</script>
+
+  </body>
+</html>

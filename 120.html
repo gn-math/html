@@ -1,106 +1,133 @@
 <!DOCTYPE html>
 <html lang="en-us">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/genizy/cg-rip@main/fortzone-battle-royale/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  </head>
+  <body style="margin:0;padding:0" class="noselect">
+    <div id="loading-text" style="color: black; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;">LOADING...</div>
+    <canvas id="unity-canvas"
+      style="position:fixed;top:0;left:0;width:100%;height:100%;outline:none"></canvas>
 
-<head>
-  
-  
-  
-  <base href="https://rawcdn.githack.com/gn-math/assets/main/120/">
-  <meta charset="utf-8">
-  <meta name="robots" content="noindex, nofollow">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Fortzone Battle Royale</title>
-  <link rel="stylesheet" href="TemplateData/style.css">
+    <script>
+    const SPLIT_MAP = {"CrazyGames.wasm": null, "CrazyGames.data": null};
+    </script>
 
-  <script>
-    const overlayBackgroundColor = "#555555";
-    const progressBarFillColor = "#f76426";
-    const progressBarBackgroundColor = "#000000";
-    const progressBarBorderColor = "#000000";
-  </script>
+    <script>
+    async function mergeParts(baseUrl) {
+      const parts = [];
+      for (let i = 1; i <= 99; i++) {
+        const testUrl = baseUrl + ".part" + i;
+        try {
+          const head = await fetch(testUrl, { method: "HEAD" });
+          if (!head.ok) break;
+          parts.push(testUrl);
+        } catch { break; }
+      }
+      if (parts.length === 0) return baseUrl;
 
-</head>
+      const buffers = await Promise.all(parts.map(async (u) => {
+        const r = await fetch(u);
+        if (!r.ok) throw new Error("Failed part " + u);
+        return new Uint8Array(await r.arrayBuffer());
+      }));
 
-<body class="light">
-  <div id="unity-container" class="unity-desktop">
-    <canvas id="unity-canvas"></canvas>
-  </div>
-  <div id="loading-cover" style="display:none;">
-    <div id="unity-loading-bar">
-      <div id="unity-logo"><img src="logo.png"></div>
-      <div id="unity-progress-bar-empty" style="display: none;">
-        <div id="unity-progress-bar-full"></div>
-      </div>
-      <div class="spinner"></div>
-    </div>
-  </div>
+      const total = buffers.reduce((a, b) => a + b.length, 0);
+      const merged = new Uint8Array(total);
+      let offset = 0;
+      for (const b of buffers) { merged.set(b, offset); offset += b.length; }
 
-  <script>
-    const buildUrl = "Build";
-    const loaderUrl = buildUrl + "/Frenzy_WebGL.loader.js";
-    const config = {
-      dataUrl: buildUrl + "/Frenzy_WebGL.data.unityweb",
-      frameworkUrl: buildUrl + "/Frenzy_WebGL.framework.js.unityweb",
-      codeUrl: buildUrl + "/Frenzy_WebGL.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "Fahrenheit Dev",
-      productName: "Fortzone Battle Royale",
-      productVersion: "0.8.5",
-    };
-
-    const container = document.querySelector("#unity-container");
-    const canvas = document.querySelector("#unity-canvas");
-    const loadingCover = document.querySelector("#loading-cover");
-    const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
-    const progressBarFull = document.querySelector("#unity-progress-bar-full");
-    const spinner = document.querySelector('.spinner');
-
-    if (overlayBackgroundColor !== "-" && overlayBackgroundColor !== " " && overlayBackgroundColor !== "")
-      canvas.style.background = overlayBackgroundColor;
-
-    if (progressBarFillColor !== "-" && progressBarFillColor !== " " && progressBarFillColor !== "")
-      progressBarFull.style.background = progressBarFillColor;
-
-    if (progressBarBackgroundColor !== "-" && progressBarBackgroundColor !== " " && progressBarBackgroundColor !== "")
-      progressBarEmpty.style.background = progressBarBackgroundColor;
-
-    if (progressBarBorderColor !== "-" && progressBarBorderColor !== " " && progressBarBorderColor !== "")
-      progressBarEmpty.style.border.color = progressBarBorderColor;
-
-
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      container.className = "unity-mobile";
+      return URL.createObjectURL(new Blob([merged]));
     }
 
-    loadingCover.style.display = "";
+    async function preMergeAll() {
+      const map = {};
+      const files = Object.entries(SPLIT_MAP);
+      const total = files.length;
+      let done = 0;
 
-    const unityLoader = document.createElement("script");
-    unityLoader.src = loaderUrl;
-    unityLoader.onload = async () => {
-      //await _gpAwaiter.ready;
-      createUnityInstance(canvas, config, (progress) => {
-        spinner.style.display = "none";
-        progressBarEmpty.style.display = "";
-        progressBarFull.style.width = `${100 * progress}%`;
-      }).then((unityInstance) => {
-        window.unityInstance = unityInstance;
-        //_unityAwaiter.done(unityInstance);
-        loadingCover.style.display = "none";
-      }).catch((message) => {
-        //_unityAwaiter.abort(message);
-        alert(message);
-      });
-    };
-    document.body.appendChild(unityLoader);
+      const loadingText = document.getElementById("loading-text");
 
-    document.addEventListener("pointerdown", () => {
-      container.focus();
-      window.focus();
-      canvas.focus();
-    });
+      for (const [file, _] of files) {
+        const merged = await mergeParts("Build/" + file);
+        map[file] = merged;
+        done++;
+        const percent = Math.floor((done / total) * 100);
+        loadingText.innerText = `LOADING... ${percent}%`;
+        console.log("Premerged:", file, "→", merged);
+      }
 
-  </script>
-</body>
+      loadingText.style.display = "none";
 
+      return map;
+    }
+
+    (async () => {
+      const mergedMap = await preMergeAll();
+      window.SPLIT_MAP = mergedMap;
+      const origFetch = window.fetch;
+      window.fetch = async function(resource, options) {
+        if (typeof resource === "string") {
+          const key = resource.split("/").pop();
+          if (mergedMap[key]) {
+            console.log("Redirect fetch:", key);
+            return origFetch(mergedMap[key], options);
+          }
+        }
+        return origFetch(resource, options);
+      };
+
+      const OrigXHR = window.XMLHttpRequest;
+      window.XMLHttpRequest = function() {
+        const xhr = new OrigXHR();
+        const origOpen = xhr.open;
+        xhr.open = function(method, url, ...rest) {
+          const key = url.split("/").pop();
+          if (mergedMap[key]) {
+            console.log("Redirect XHR:", key);
+            origOpen.call(xhr, method, mergedMap[key], ...rest);
+          } else {
+            origOpen.call(xhr, method, url, ...rest);
+          }
+        };
+        return xhr;
+      };
+
+      const canvas = document.querySelector("#unity-canvas");
+      const loaderUrl = "Build/CrazyGames.loader.js";
+      const config = {
+        dataUrl: "Build/CrazyGames.data",
+        frameworkUrl: "Build/CrazyGames.framework.js",
+        codeUrl: "Build/CrazyGames.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Fortzone Battle Royale",
+        productName: "Fortzone Battle Royale",
+        productVersion: "1.0.0"
+      };
+
+      const script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {}).then((unityInstance) => {
+          window.gameInstance = unityInstance;
+        }).catch((message) => alert(message));
+      };
+      document.body.appendChild(script);
+    })();
+    </script>
+
+    <script>
+    function resizeCanvas() {
+      const canvas = document.getElementById("unity-canvas");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+    }
+    window.addEventListener("load", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
+    </script>
+  </body>
 </html>
