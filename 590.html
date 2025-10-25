@@ -134,6 +134,20 @@
 		<textarea id="output" style="display: none;" rows="8"></textarea>
 
 		<script type="text/javascript">
+			    const ogxhr = window.XMLHttpRequest;
+
+    function xhrfunc() {
+        const xhr = new ogxhr();
+        const open = xhr.open;
+        xhr.open = function(method, url, ...rest) {
+            if (url.includes("version.txt")) {
+                return open.call(this, method, "updates/version.txt", ...rest);
+            }
+            return open.call(this, method, url, ...rest);
+        };
+        return xhr;
+    }
+    window.XMLHttpRequest = xhrfunc;
 			if ('serviceWorker' in navigator) {
 				navigator.serviceWorker.register('sw.js').then(function(registration) {
 					registration.addEventListener('updatefound', function() {

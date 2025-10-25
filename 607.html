@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tattletail</title>
+    <script src="Build/UnityLoader.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: black;
+      }
+
+      #gameContainer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div
+      id="loading-text"
+      style="
+        color: white;
+        font-size: 48px;
+        font-family: cursive;
+        text-align: center;
+        margin-top: 20px;
+      "
+    >
+      LOADING...
+    </div>
+    <div id="gameContainer" hidden></div>
+    <script>
+      const loadingText = document.querySelector("#loading-text");
+      let totalBytes = 64246251.52;
+      let loadedBytes = 0;
+
+      function formatSize(bytes) {
+        if (bytes > 1024 * 1024 * 1024) {
+          return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+        } else if (bytes > 1024 * 1024) {
+          return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+        } else if (bytes > 1024) {
+          return (bytes / 1024).toFixed(2) + " KB";
+        } else {
+          return bytes + " B";
+        }
+      }
+      async function fetchWithProgress(url) {
+        const response = await fetch(url);
+        const reader = response.body.getReader();
+        let chunks = [];
+        let received = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          received += value.length;
+          loadedBytes += value.length;
+          chunks.push(value);
+          const doneText = formatSize(loadedBytes);
+          const totalText = formatSize(totalBytes);
+          const percent =
+            totalBytes > 0
+              ? ((loadedBytes / totalBytes) * 100).toFixed(1)
+              : "?";
+          loadingText.textContent = `LOADING... ${doneText} / ${totalText} (${percent}%)`;
+        }
+        let fullBuffer = new Uint8Array(received);
+        let offset = 0;
+        for (let chunk of chunks) {
+          fullBuffer.set(chunk, offset);
+          offset += chunk.length;
+        }
+        return fullBuffer.buffer;
+      }
+      async function mergeFiles(parts) {
+        const buffers = await Promise.all(parts.map(fetchWithProgress));
+        return URL.createObjectURL(new Blob(buffers));
+      }
+
+      function getParts(file, count) {
+        let parts = [];
+        for (let i = 1; i <= count; i++) {
+          parts.push(file + ".part" + i);
+        }
+        return parts;
+      }
+      function resizeUnityContainer() {
+        var container = document.getElementById("gameContainer");
+        container.style.width = window.innerWidth + "px";
+        container.style.height = window.innerHeight + "px";
+      }
+      (async () => {
+        const dataParts = getParts("Build/WebGL.data.unityweb", 4);
+        const allParts = [...dataParts];
+        const [dataUrl] = await Promise.all([mergeFiles(dataParts)]);
+        var json = {
+          companyName: "Waygetter Electronics",
+          productName: "Tattletail",
+          dataUrl: dataUrl,
+          wasmCodeUrl: "WebGL.wasm.code.unityweb",
+          wasmFrameworkUrl: "WebGL.wasm.framework.unityweb",
+          TOTAL_MEMORY: 251658240,
+          graphicsAPI: ["WebGL 2.0", "WebGL 1.0"],
+          webglContextAttributes: { preserveDrawingBuffer: false },
+          splashScreenStyle: "Dark",
+          backgroundColor: "#000000",
+        };
+        let blob = new Blob([JSON.stringify(json)], {
+          type: "application/json",
+        });
+        let blobUrl = URL.createObjectURL(blob);
+        document.querySelector("#gameContainer").hidden = false;
+        var gameInstance = UnityLoader.instantiate("gameContainer", json, {
+          url: blobUrl,
+          Module: {
+            onRuntimeInitialized: function () {
+              resizeUnityContainer();
+              window.onresize = function () {
+                resizeUnityContainer();
+              };
+              document.querySelector("#loading-text").remove();
+            },
+          },
+        });
+      })();
+    </script>
+  </body>
+</html>
