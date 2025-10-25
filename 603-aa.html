@@ -78,13 +78,17 @@ const originalFetch = window.fetch;
 
 window.fetch = async function (...args) {
   let url = args[0];
-
+  if ((url+"").includes("StreamingAssets")) {
+    url = "https://cdn.jsdelivr.net/gh/genizy/cg-rip@main/growden.io/StreamingAssets"+url.split("StreamingAssets")[1]
+    args[0] = url;
+  }
   if (typeof url === "string" && url.includes("https://files.growden.io/static/17z53627584")) {
     const newUrl = url.replace(
       "https://files.growden.io/static/17z53627584",
-      "StreamingAssets/aa17z53627584/WebGL"
+      "https://cdn.jsdelivr.net/gh/genizy/cg-rip@main/growden.io/StreamingAssets/aa17z53627584/WebGL"
     );
     args[0] = newUrl;
+    return originalFetch.apply(this, args);
   }
 
   return originalFetch.apply(this, args);
