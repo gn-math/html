@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	
+	<meta charset="utf-8">
+	
+	<title>Game 24849</title>
+	<base href="https://cdn.jsdelivr.net/gh/bubbls/fnf-mods@main/dave-and-bambi-v3/">
+	<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	
+	<link rel="shortcut icon" type="image/png" href="./favicon.png">
+	
+	<script type="text/javascript" src="./VsDave2.js"></script>
+
+	<script>
+		window.addEventListener ("touchmove", function (event) { event.preventDefault (); }, { capture: false, passive: false });
+		if (typeof window.devicePixelRatio != 'undefined' && window.devicePixelRatio > 2) {
+			var meta = document.getElementById ("viewport");
+			meta.setAttribute ('content', 'width=device-width, initial-scale=' + (2 / window.devicePixelRatio) + ', user-scalable=no');
+		}
+		window.addEventListener("keydown", function(e) {if(["Tab","Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {e.preventDefault(); }}, false);
+	</script>
+	
+	<style>
+		html,body { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color:#000000}
+		#openfl-content { width: 100%; height: 100%; }
+		@font-face {
+			font-family: 'Arial Black';
+			src: url('assets/fonts/ariblk.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/ariblk.woff') format('woff'),
+			url('assets/fonts/ariblk.ttf') format('truetype'),
+			url('assets/fonts/ariblk.svg#Arial%20Black') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Libre Barcode 128 Regular';
+			src: url('assets/fonts/barcode.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/barcode.woff') format('woff'),
+			url('assets/fonts/barcode.ttf') format('truetype'),
+			url('assets/fonts/barcode.svg#Libre%20Barcode%20128%20Regular') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Cascadia Code PL Regular';
+			src: url('assets/fonts/cascode.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/cascode.woff') format('woff'),
+			url('assets/fonts/cascode.otf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Comic Sans MS Bold';
+			src: url('assets/fonts/comic.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/comic.woff') format('woff'),
+			url('assets/fonts/comic.ttf') format('truetype'),
+			url('assets/fonts/comic.svg#Comic%20Sans%20MS%20Bold') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Comic Sans MS';
+			src: url('assets/fonts/comic_normal.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/comic_normal.woff') format('woff'),
+			url('assets/fonts/comic_normal.ttf') format('truetype'),
+			url('assets/fonts/comic_normal.svg#Comic%20Sans%20MS') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Consolas';
+			src: url('assets/fonts/consola.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/consola.woff') format('woff'),
+			url('assets/fonts/consola.ttf') format('truetype'),
+			url('assets/fonts/consola.svg#Consolas') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Arial Bold';
+			src: url('assets/fonts/exploit/arial.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/arial.woff') format('woff'),
+			url('assets/fonts/exploit/arial.ttf') format('truetype'),
+			url('assets/fonts/exploit/arial.svg#Arial%20Bold') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+
+		@font-face {
+			font-family: 'Libre Barcode 128 Regular';
+			src: url('assets/fonts/exploit/barcode.eot');
+			src: url('assets/fonts/exploit/barcode.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/barcode.svg#my-font-family') format('svg'),
+			url('assets/fonts/exploit/barcode.woff') format('woff'),
+			url('assets/fonts/exploit/barcode.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}		@font-face {
+			font-family: 'Chalktastic';
+			src: url('assets/fonts/exploit/chalktastic.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/chalktastic.woff') format('woff'),
+			url('assets/fonts/exploit/chalktastic.ttf') format('truetype'),
+			url('assets/fonts/exploit/chalktastic.svg#Chalktastic') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Open Sans Bold';
+			src: url('assets/fonts/exploit/openSans.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/openSans.woff') format('woff'),
+			url('assets/fonts/exploit/openSans.ttf') format('truetype'),
+			url('assets/fonts/exploit/openSans.svg#Open%20Sans%20Bold') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Power Clear';
+			src: url('assets/fonts/exploit/pkmndp.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/pkmndp.woff') format('woff'),
+			url('assets/fonts/exploit/pkmndp.ttf') format('truetype'),
+			url('assets/fonts/exploit/pkmndp.svg#Power%20Clear') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'VCR OSD Mono';
+			src: url('assets/fonts/exploit/vcr.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/vcr.woff') format('woff'),
+			url('assets/fonts/exploit/vcr.ttf') format('truetype'),
+			url('assets/fonts/exploit/vcr.svg#VCR%20OSD%20Mono') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Webdings';
+			src: url('assets/fonts/exploit/webdings.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/exploit/webdings.woff') format('woff'),
+			url('assets/fonts/exploit/webdings.ttf') format('truetype'),
+			url('assets/fonts/exploit/webdings.svg#Webdings') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Fixedsys Excelsior 3.01';
+			src: url('assets/fonts/fixedsys.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/fixedsys.woff') format('woff'),
+			url('assets/fonts/fixedsys.ttf') format('truetype'),
+			url('assets/fonts/fixedsys.svg#Fixedsys%20Excelsior%203.01') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Five Nights at Freddy's Regular';
+			src: url('assets/fonts/fnaf.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/fnaf.woff') format('woff'),
+			url('assets/fonts/fnaf.ttf') format('truetype'),
+			url('assets/fonts/fnaf.svg#Five%20Nights%20at%20Freddy%27s%20Regular') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Pixel Arial 11 Bold';
+			src: url('assets/fonts/pixel.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/pixel.woff') format('woff'),
+			url('assets/fonts/pixel.otf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Pixel Operator Bold';
+			src: url('assets/fonts/PixelOperator-Bold.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/PixelOperator-Bold.woff') format('woff'),
+			url('assets/fonts/PixelOperator-Bold.ttf') format('truetype'),
+			url('assets/fonts/PixelOperator-Bold.svg#Pixel%20Operator%20Bold') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+
+		@font-face {
+			font-family: 'VCR OSD Mono';
+			src: url('assets/fonts/vcr.eot');
+			src: url('assets/fonts/vcr.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/vcr.svg#my-font-family') format('svg'),
+			url('assets/fonts/vcr.woff') format('woff'),
+			url('assets/fonts/vcr.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}		@font-face {
+			font-family: 'Wingdings';
+			src: url('assets/fonts/wingding.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/wingding.woff') format('woff'),
+			url('assets/fonts/wingding.ttf') format('truetype'),
+			url('assets/fonts/wingding.svg#Wingdings') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Nokia Cellphone FC Small';
+			src: url('flixel/fonts/nokiafc22.eot?#iefix') format('embedded-opentype'),
+			url('flixel/fonts/nokiafc22.woff') format('woff'),
+			url('flixel/fonts/nokiafc22.ttf') format('truetype'),
+			url('flixel/fonts/nokiafc22.svg#Nokia%20Cellphone%20FC%20Small') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Monsterrat';
+			src: url('flixel/fonts/monsterrat.eot?#iefix') format('embedded-opentype'),
+			url('flixel/fonts/monsterrat.woff') format('woff'),
+			url('flixel/fonts/monsterrat.ttf') format('truetype'),
+			url('flixel/fonts/monsterrat.svg#Monsterrat') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+
+	</style>
+	
+</head>
+<body>
+	
+	<noscript>This webpage makes extensive use of JavaScript. Please enable JavaScript in your web browser to view this page.</noscript>
+	
+	<div id="openfl-content"></div>
+	
+	<script type="text/javascript">
+		lime.embed ("VsDave", "openfl-content", 1280, 720, { parameters: {} });
+	</script>
+	
+	<!-- You can find the sources of the game on the website gamebanana.com -->
+	
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"cbcb16b92a904d9c9919cb8e471a8929","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
