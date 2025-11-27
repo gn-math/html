@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <base href="https://cdn.jsdelivr.net/gh/web-ports/doom-3@master/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>doom 3</title>
+    <style>
+        @font-face {
+            font-family: 'SteamConsole';
+            src: url('SteamConsole.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        canvas.emscripten {
+            border: 0px none;
+            background-color: black;
+            display: block;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
+
+        #status {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #787878;
+            font-family: 'SteamConsole', monospace;
+        }
+
+        #progress {
+            margin-top: 5px;
+            width: 300px;
+            height: 20px;
+            appearance: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress::-webkit-progress-bar {
+            background-color: #333;
+        }
+        #progress::-webkit-progress-value {
+            background-color: #bd2b0c;
+        }
+
+        .spinner {
+            height: 30px;
+            width: 30px;
+            -webkit-animation: rotation .8s linear infinite;
+            -moz-animation: rotation .8s linear infinite;
+            -o-animation: rotation .8s linear infinite;
+            animation: rotation 0.8s linear infinite;
+
+            border-left: 0px solid rgb(235, 235, 235);
+            border-right: 0px solid rgb(235, 235, 235);
+            border-bottom: 0px solid rgb(235, 235, 235);
+            border-top: 0px solid rgb(120, 120, 120);
+
+            border-radius: 100%;
+            background-color: transparent;
+        }
+
+        @-webkit-keyframes rotation { from { -webkit-transform: rotate(0deg); } to { -webkit-transform: rotate(360deg); } }
+        @-moz-keyframes rotation { from { -moz-transform: rotate(0deg); } to { -moz-transform: rotate(360deg); } }
+        @-o-keyframes rotation { from { -o-transform: rotate(0deg); } to { -o-transform: rotate(360deg); } }
+        @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #console {
+            position: absolute;
+            width: 600px; 
+            height: 400px; 
+            background-color: #4c584a; 
+            border: 1px solid #2c322b; 
+            z-index: 20;
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            font-family: 'SteamConsole', monospace;
+            font-size: 14px;
+        }
+
+        #console-header {
+            background-color: #2c322b; 
+            color: #d1d1d1;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            cursor: move;
+            border-bottom: 1px solid #3d453b; 
+        }
+
+        #console-close {
+            color: #d1d1d1;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+
+        #console-output {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            color: #d1d1d1;
+            white-space: pre-wrap;
+            background-color: #414c3e; 
+        }
+
+        #console-input-area {
+            display: flex;
+            padding: 5px;
+            border-top: 1px solid #636f61; 
+            background-color: #4c584a; 
+        }
+
+        #console-input {
+            flex-grow: 1;
+            background-color: #414c3e; 
+            border: 1px solid #2c322b; 
+            padding: 5px;
+            color: #d1d1d1;
+            outline: none;
+            font-family: 'SteamConsole', monospace;
+            font-size: 14px;
+        }
+
+        #console-submit {
+            background-color: #636f61; 
+            color: #2c322b; 
+            border: 1px solid #2c322b; 
+            padding: 5px 15px;
+            margin-left: 5px;
+            cursor: pointer;
+            font-family: 'SteamConsole', monospace;
+            font-size: 14px;
+        }
+        #console-submit:hover {
+            background-color: #738174; 
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner" id='spinner'></div>
+        <div id="status">Downloading...</div>
+        <progress value="0" max="100" id="progress" hidden="true"></progress>
+    </div>
+
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    <div id="console">
+        <div id="console-header">
+            <span>Console</span>
+            <span id="console-close">X</span>
+        </div>
+        <div id="console-output">
+            doom 3 consle baby<br>
+            <span id="console-log"></span>
+        </div>
+        <div id="console-input-area">
+            <input type="text" id="console-input" placeholder="Type command...">
+            <button id="console-submit">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script type='text/javascript'>
+  var statusElement = document.getElementById('status');
+  var progressElement = document.getElementById('progress');
+  var spinnerElement = document.getElementById('spinner');
+  var consoleElement = document.getElementById('console');
+  var consoleInput = document.getElementById('console-input');
+  var consoleLog = document.getElementById('console-log');
+  var consoleSubmit = document.getElementById('console-submit');
+  var consoleClose = document.getElementById('console-close');
+
+  function toggleConsole() {
+    var isVisible = consoleElement.style.display === 'flex';
+    if (isVisible) {
+        consoleElement.style.display = 'none';
+        Module.canvas.focus();
+    } else {
+        consoleElement.style.display = 'flex';
+        consoleInput.focus();
+    }
+  }
+
+  function handleConsoleInput() {
+    var command = consoleInput.value.trim();
+    if (command) {
+        var logEntry = document.createElement('div');
+        logEntry.innerHTML = ']' + command;
+        consoleLog.appendChild(logEntry);
+        consoleInput.value = '';
+        consoleLog.parentElement.scrollTop = consoleLog.parentElement.scrollHeight;
+    }
+  }
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === '`' || event.key === '~') {
+      event.preventDefault();
+      toggleConsole();
+    } else if (event.key === 'Enter' && consoleElement.style.display === 'flex') {
+      event.preventDefault();
+      handleConsoleInput();
+    }
+  });
+
+  consoleSubmit.addEventListener('click', handleConsoleInput);
+  consoleClose.addEventListener('click', toggleConsole);
+
+  var isDragging = false;
+  var currentX;
+  var currentY;
+  var initialX;
+  var initialY;
+  var xOffset = 0;
+  var yOffset = 0;
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    isDragging = true;
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      consoleElement.style.transform = 'translate(' + currentX + 'px, ' + currentY + 'px)';
+    }
+  }
+
+  document.getElementById('console-header').addEventListener('mousedown', dragStart);
+  document.addEventListener('mouseup', dragEnd);
+  document.addEventListener('mousemove', drag);
+
+
+  var Module = {
+    preRun: [],
+    postRun: [],
+    print: (function () {
+      return function (text) {
+        if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+        
+        var logEntry = document.createElement('div');
+        logEntry.innerHTML = text;
+        consoleLog.appendChild(logEntry);
+        
+        console.log(text);
+        consoleLog.parentElement.scrollTop = consoleLog.parentElement.scrollHeight;
+      };
+    })(),
+    printErr: function (text) {
+      if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+      console.error(text);
+    },
+    canvas: (function () {
+      var canvas = document.getElementById('canvas');
+
+      canvas.addEventListener("webglcontextlost", function (e) {
+        console.error('WebGL context lost. You will need to reload the page.');
+        e.preventDefault();
+      }, false);
+
+      return canvas;
+    })(),
+    hideStatus: function() {
+      document.getElementById('loading-overlay').style.display = "none";
+    },
+    showStatus: function() {
+      document.getElementById('loading-overlay').style.display = "flex";
+    },
+    setStatus: function (text) {
+      if (!Module.setStatus.last) Module.setStatus.last = {time: Date.now(), text: ''};
+      if (text === Module.setStatus.last.text) return;
+      var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+      var now = Date.now();
+      if (m && now - Module.setStatus.last.time < 30) return;
+      Module.setStatus.last.time = now;
+      Module.setStatus.last.text = text;
+      if (m) {
+        text = m[1];
+        progressElement.value = parseInt(m[2]) * 100;
+        progressElement.max = parseInt(m[4]) * 100;
+        progressElement.hidden = false;
+        spinnerElement.hidden = false;
+      } else {
+        progressElement.value = null;
+        progressElement.max = null;
+        progressElement.hidden = true;
+        if (!text) spinnerElement.style.display = 'none';
+      }
+      statusElement.innerHTML = text;
+    },
+    totalDependencies: 0,
+    monitorRunDependencies: function (left) {
+      this.totalDependencies = Math.max(this.totalDependencies, left);
+      Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+      if (!left) {
+        Module.hideStatus();
+      }
+      else {
+        Module.showStatus();
+      }
+    }
+  };
+  Module.setStatus('Downloading...');
+  window.onerror = function (event) {
+    Module.setStatus('Exception thrown, see JavaScript console');
+    spinnerElement.style.display = 'none';
+    Module.setStatus = function (text) {
+      if (text) Module.printErr('[post-exception status] ' + text);
+    };
+  };
+</script>
+<script async type="text/javascript" src="d3wasm.js"></script>
+</body>
+</html>
