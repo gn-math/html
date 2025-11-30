@@ -1,0 +1,30 @@
+<html lang="en-us">
+
+<head>
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/spelunky/">
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="viewport-fit=cover, width=device-width,
+            initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+  <title>SpelunkyClassicHD</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="style.css">
+  <script type="text/javascript" src="setup.js" defer></script>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1">
+  </canvas>
+  <div class="loading">
+    <div class="spinner" id="spinner"></div>
+  </div>
+  <script async type="text/javascript" src="runner.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("serviceWorker.js");
+    }
+  </script>
+</body>
+
+</html>
