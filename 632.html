@@ -1,0 +1,307 @@
+
+<html lang="en-us">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/New25Said/new25said.github.io@0d8f7bc91a54202f225dc78152649433108637ef/games/cave%20story/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Cave Story Web</title>
+	<meta content="Cave Story Web" property="og:title" />
+	<meta content="The freeware build of Cave Story 100% playable in the browser." property="og:description" />
+	<meta content="#000000" data-react-helmet="true" name="theme-color" />
+    <style>
+        /* --- VARIABLES CSS (Soporte Dark Mode Extremo) --- */
+        :root {
+            /* Modo Base (Oscuro Absoluto/OLED) */
+            --bg-color: #000000; /* Negro puro */
+            --text-color: #e8e8e8; /* Texto blanco suave */
+            --primary-color: #6f9cd6; /* Azul de Cave Story (Acento) */
+            --primary-glow: rgba(111, 156, 214, 0.4); /* Resplandor del color primario */
+            --secondary-bg: #111111; /* Fondo de contenedores (ligeramente más claro que el fondo) */
+            --border-color: #222222; /* Separadores */
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                /* Modo Claro (Minimalista) */
+                --bg-color: #ffffff;
+                --text-color: #1a1a1a;
+                --primary-color: #4b6691;
+                --primary-glow: rgba(75, 102, 145, 0.2); /* Resplandor más sutil en claro */
+                --secondary-bg: #f5f5f5;
+                --border-color: #eeeeee;
+            }
+        }
+
+        /* --- ESTILOS GENERALES Y TIPOGRAFÍA --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 30px 0 50px;
+            line-height: 1.5;
+            transition: background-color 0.5s, color 0.5s;
+            text-align: center;
+        }
+        
+        .main-content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* --- TÍTULOS (Ultra-Minimalista con Resplandor) --- */
+        .header-title {
+            font-size: 2.5em;
+            font-weight: 300;
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 0px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 8px var(--primary-glow); /* Resplandor en el título */
+        }
+
+        .header-subtitle {
+            font-size: 0.9em;
+            font-weight: 400;
+            text-align: center;
+            color: var(--text-color);
+            margin-top: 5px;
+            opacity: 0.7;
+            letter-spacing: 3px;
+        }
+        
+        h1 u {
+            text-decoration: none;
+        }
+        
+        /* --- SEPARADOR (HR) --- */
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 40px 0;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.05); /* Brillo sutil en el separador */
+        }
+
+        /* --- BOTÓN FULLSCREEN (Minimalista y Contraste con Resplandor) --- */
+        .fullscreen-button-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .fullscreen-button-container button {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 10px 30px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background-color 0.2s, opacity 0.2s, box-shadow 0.2s; /* Añadir transición para box-shadow */
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px var(--primary-glow); /* Resplandor inicial */
+        }
+
+        .fullscreen-button-container button:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 15px var(--primary-glow), 0 0 25px var(--primary-glow); /* Resplandor más intenso al pasar el ratón */
+        }
+        
+        .fullscreen-button-container button:active {
+            transform: scale(0.99);
+            box-shadow: 0 0 5px var(--primary-glow); /* Resplandor más tenue al hacer clic */
+        }
+
+        /* --- SECCIÓN DE INFORMACIÓN INFERIOR --- */
+        .info-section {
+            background-color: var(--secondary-bg);
+            padding: 25px;
+            border-radius: 0;
+            margin-top: 40px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            font-size: 0.85em;
+            line-height: 1.6;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.03); /* Brillo muy sutil en el contenedor */
+        }
+        
+        .info-section strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* --- ESTILOS EMSCRIPTEN/CANVAS (Máximo Minimalismo con Resplandor) --- */
+        .emscripten { 
+            margin-left: auto; 
+            margin-right: auto; 
+            display: block; 
+        }
+        div.emscripten { text-align: center; }
+        
+        canvas.emscripten { 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 0 15px var(--primary-glow); /* Resplandor prominente en el canvas */
+            background-color: black; 
+            display: block;
+            margin: 15px auto 0;
+            max-width: 100%; 
+            /* Propiedades de pixel-art */
+            -ms-interpolation-mode: nearest-neighbor; 
+            image-rendering: optimizeSpeed; 
+            image-rendering: -webkit-optimize-contrast; 
+            image-rendering: -moz-crisp-edges; 
+            image-rendering: -o-crisp-edges; 
+            image-rendering: crisp-edges; 
+            image-rendering: pixelated;
+        }
+        
+        /* Estilos del spinner */
+        #spinner {
+            margin-bottom: 20px;
+        }
+
+        #status, center strong {
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+        
+        .spinner {
+            border: 5px solid var(--primary-color);
+            border-top: 5px solid transparent; 
+            border-radius: 50%;
+            height: 40px;
+            width: 40px;
+            margin: 0 auto;
+            animation: rotation 1s linear infinite;
+            box-shadow: 0 0 8px var(--primary-glow); /* Resplandor en el spinner */
+        }
+        
+        /* ... (El resto de @keyframes y media queries para móviles permanecen igual) ... */
+    </style>
+  </head>
+  <body>
+    <div class="main-content-container">
+    <h1 class="header-title">CAVE STORY</h1>
+    <h4 class="header-subtitle">DOUKUTSU MONOGATARI</h4>
+    
+    <figure id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>EMSCRIPTEN</strong></center></figure>
+    
+    <div class="emscripten" id="status">DOWNLOADING...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    </div>
+
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+	  
+    <div class="fullscreen-button-container">
+        <button onclick="goFullScreen();">FULLSCREEN</button>
+    </div>
+
+ 
+
+    </div> <script type='text/javascript'>
+      function goFullScreen(){
+        var canvas = document.getElementById("canvas");
+        if(canvas.requestFullScreen)
+            canvas.requestFullScreen();
+        else if(canvas.webkitRequestFullScreen)
+            canvas.webkitRequestFullScreen();
+        else if(canvas.mozRequestFullScreen)
+            canvas.mozRequestFullScreen();
+      }
+      
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+      var spinnerElement = document.getElementById('spinner');
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('output');
+          if (element) element.value = '';
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight;
+            }
+          };
+        })(),
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) {
+            dump(text + '\n');
+          } else {
+            console.error(text);
+          }
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+          return canvas;
+        })(),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return;
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+            spinnerElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+            if (!text) spinnerElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        spinnerElement.style.display = 'none';
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
+        };
+      };
+
+      function resumeAudio(e) {
+	  if (typeof Module === 'undefined'
+	      || typeof Module.SDL2 == 'undefined'
+	      || typeof Module.SDL2.audioContext == 'undefined')
+	      return;
+	  if (Module.SDL2.audioContext.state == 'suspended') {
+	      Module.SDL2.audioContext.resume();
+	  }
+	  if (Module.SDL2.audioContext.state == 'running') {
+	      document.getElementById('canvas').removeEventListener('click', resumeAudio);
+	      document.removeEventListener('keydown', resumeAudio);
+	  }
+      }
+      document.getElementById('canvas').addEventListener('click', resumeAudio);
+      document.addEventListener('keydown', resumeAudio);
+    </script>
+    <script async type="text/javascript" src="CSE2.js"></script>
+  </body>
+</html>
