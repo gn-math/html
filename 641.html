@@ -1,0 +1,181 @@
+<html lang="en">
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/ugss@main/idkgodzila/">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>really cool flash game </title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    #flash-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+    }
+    ruffle-player {
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: block;
+    }
+    #loading-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      text-align: center;
+      z-index: 1000;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@ruffle-rs/ruffle@0.2.0-nightly.2025.10.2/ruffle.min.js"></script>
+</head>
+<body>
+  <div id="loading-text">Loading game... 0%</div>
+  <div id="flash-container"></div>
+  <script>
+    const container = document.getElementById("flash-container");
+    const loadingText = document.getElementById("loading-text");
+
+    function mergeSWFParts(fileParts) {
+      return new Promise((resolve, reject) => {
+        let buffers = [];
+        let totalSize = 0;
+        let loadedSize = 0;
+
+        function updateProgress() {
+          if (totalSize > 0) {
+            const pct = Math.round((loadedSize / totalSize) * 100);
+            if (loadingText) {
+              loadingText.textContent = `Loading game... ${pct}%`;
+            }
+          }
+        }
+
+        function fetchPart(i) {
+          if (i >= fileParts.length) {
+            if (loadingText) {
+              loadingText.textContent = 'Merging files...';
+            }
+            let mergedBlob = new Blob(buffers, { type: 'application/x-shockwave-flash' });
+            let mergedUrl = URL.createObjectURL(mergedBlob);
+            resolve(mergedUrl);
+            return;
+          }
+
+          fetch(fileParts[i])
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`Failed to load ${fileParts[i]}: ${response.status}`);
+              }
+              const contentLength = response.headers.get('content-length');
+              if (contentLength) {
+                totalSize += parseInt(contentLength);
+              }
+              return response.arrayBuffer();
+            })
+            .then(data => {
+              buffers.push(data);
+              loadedSize += data.byteLength;
+              updateProgress();
+              fetchPart(i + 1);
+            })
+            .catch(reject);
+        }
+
+        fetchPart(0);
+      });
+    }
+
+    function getSWFParts(baseFile, start, end) {
+      let arr = [];
+      for (let i = start; i <= end; i++) {
+        arr.push(`${baseFile}.part${i}`);
+      }
+      return arr;
+    }
+
+    function resizeGame() {
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const aspectRatio = 4 / 3;
+      let width = Math.floor(windowWidth);
+      let height = Math.floor(windowWidth / aspectRatio);
+      if (height > windowHeight) {
+        height = Math.floor(windowHeight);
+        width = Math.floor(height * aspectRatio);
+      }
+      container.style.width = `${width}px`;
+      container.style.height = `${height}px`;
+    }
+
+    window.addEventListener("resize", resizeGame);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      resizeGame();
+      
+      console.log('Starting SWF merge...');
+      
+      const swfParts = getSWFParts('gdbr.swf', 1, 3); 
+      
+      const useSingleFile = false; 
+      const singleFileUrl = "gdbr.swf";
+
+      const loadPromise = useSingleFile 
+        ? Promise.resolve(singleFileUrl)
+        : mergeSWFParts(swfParts);
+
+      loadPromise
+        .then(swfUrl => {
+          console.log('SWF ready, loading into Ruffle...');
+          if (loadingText) {
+            loadingText.textContent = 'Starting game...';
+          }
+
+          const ruffle = window.RufflePlayer?.newest() || window.RufflePlayer?.createPlayer();
+          if (ruffle && container) {
+            const player = ruffle.createPlayer();
+            player.style.width = "100%";
+            player.style.height = "100%";
+            player.style.background = "black";
+            container.appendChild(player);
+            
+            player.load(swfUrl).then(() => {
+              console.log('Game loaded successfully');
+              if (loadingText) {
+                loadingText.remove();
+              }
+            }).catch(err => {
+              console.error('Ruffle load error:', err);
+              if (loadingText) {
+                loadingText.textContent = 'Error loading game: ' + err.message;
+              }
+            });
+          } else {
+            console.error('Ruffle not available');
+            if (loadingText) {
+              loadingText.textContent = "Ruffle failed to load.";
+            }
+          }
+        })
+        .catch(err => {
+          console.error('SWF merge error:', err);
+          if (loadingText) {
+            loadingText.textContent = 'Error loading game files: ' + err.message;
+          }
+        });
+    });
+  </script>
+</body>
+</html>
