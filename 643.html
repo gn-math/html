@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/rio-rex/">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Rio Rex on Silvergames.com</title>
+  <meta name="robots" content="noindex">
+
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css"> 
+  <script src="TemplateData/UnityProgress.js"></script>
+  <script src="Build/UnityLoader.js"></script>
+  <script>
+    var gameInstance = UnityLoader.instantiate("gameContainer", "Build/webgl_silvergames.json", {
+      onProgress: UnityProgress
+    });
+  </script>
+  <script type="text/javascript" src="https://a.silvergames.com/js/jquery-2.1.1.min.js"></script>
+</head>
+
+<body>
+  <div class="webgl-content">
+    <div id="gameContainer" style="width: 100vw; height: 100vh"></div>
+  </div>
+
+  <script defer src="https://www.silvergames.com/js/sg.min.js"></script>
+</body>
+
+</html>
