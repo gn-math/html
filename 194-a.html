@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--comment-->
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/ugss@main/people-playground/">
+    <title>people playground.</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <style>
+      #xp-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 260px;
+        background: #ece9d8;
+        border: 2px solid #3a6ea5;
+        box-shadow: 0 0 0 3px #ffffff inset;
+        font-family: Tahoma, sans-serif;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #xp-loader-title {
+        background: linear-gradient(#2b74c7, #1a4a9c);
+        color: white;
+        padding: 4px 8px;
+        font-size: 14px;
+      }
+      #xp-loader-bar {
+        width: 100%;
+        height: 18px;
+        border: 1px solid #3a6ea5;
+        background: white;
+        overflow: hidden;
+      }
+      #xp-loader-fill {
+        width: 0%;
+        height: 100%;
+        background: #4a8be0;
+      }
+      #unity-loading-bar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="xp-loader">
+      <div id="xp-loader-title">Loading..</div>
+      <div id="xp-loader-bar"><div id="xp-loader-fill"></div></div>
+      <div id="xp-loader-text">0%</div>
+    </div>
+
+    <div id="unity-container">
+      <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+      <div id="unity-warning"></div>
+    </div>
+    <script>
+      window.fileMergerConfig = {
+        files: [
+          { name: 'pggbog.data', parts: 7 },
+          { name: 'pggbog.wasm', parts: 3 }
+        ],
+        basePath: 'Build/',
+        debug: true
+      };  
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
+    <script>
+      window.addEventListener("load", function () {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("ServiceWorker.js");
+        }
+      });
+
+      var canvas = document.querySelector("#unity-canvas");
+      var xpBox = document.querySelector("#xp-loader");
+      var xpFill = document.querySelector("#xp-loader-fill");
+      var xpText = document.querySelector("#xp-loader-text");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/pggbog.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/pggbog.data",
+        frameworkUrl: buildUrl + "/pggbog.framework.js",
+        codeUrl: buildUrl + "/pggbog.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Studio Minus",
+        productName: "People Playground",
+        productVersion: "1",
+        showBanner: unityShowBanner
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+      }
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          var p = Math.round(progress * 100);
+          xpFill.style.width = p + "%";
+          xpText.textContent = p + "%";
+        }).then((unityInstance) => {
+          xpBox.style.display = "none";
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
