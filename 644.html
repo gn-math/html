@@ -1,0 +1,100 @@
+<!-- made by msconfig0 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Friday Night Funkin' Vs Nonsense</title>
+        <base href="https://cdn.jsdelivr.net/gh/mll-enh/die@fe0e5b08118dacdefc79f2b1427b283be80a9447/nonsence/">
+        <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="shortcut icon" type="image/png" href="./favicon.png">
+	
+	<style>
+		@font-face {
+			font-family: 'Pixel Arial 11 Bold';
+			src: url('assets/fonts/pixel.eot?#iefix') format('embedded-opentype'),
+				url('assets/fonts/pixel.woff') format('woff'),
+				url('assets/fonts/pixel.otf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'VCR OSD Mono';
+			src: url('assets/fonts/vcr.eot?#iefix') format('embedded-opentype'),
+				url('assets/fonts/vcr.woff') format('woff'),
+				url('assets/fonts/vcr.ttf') format('truetype'),
+				url('assets/fonts/vcr.svg#VCR%20OSD%20Mono') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Nokia Cellphone FC Small';
+			src: url('flixel/fonts/nokiafc22.eot?#iefix') format('embedded-opentype'),
+				url('flixel/fonts/nokiafc22.woff') format('woff'),
+				url('flixel/fonts/nokiafc22.ttf') format('truetype'),
+				url('flixel/fonts/nokiafc22.svg#Nokia%20Cellphone%20FC%20Small') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Monsterrat';
+			src: url('flixel/fonts/monsterrat.eot?#iefix') format('embedded-opentype'),
+				url('flixel/fonts/monsterrat.woff') format('woff'),
+				url('flixel/fonts/monsterrat.ttf') format('truetype'),
+				url('flixel/fonts/monsterrat.svg#Monsterrat') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		html, body {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: #000;
+		}
+		
+		#openfl-content {
+			width: 100%;
+			height: 100%;
+			background: #000;
+		}
+		
+		noscript {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: 100%;
+			color: #fff;
+			font-family: Arial, sans-serif;
+			text-align: center;
+			padding: 20px;
+		}
+	</style>
+	
+	<script src="./Vs Nonsense.js"></script>
+</head>
+<body>
+	<noscript>This webpage requires JavaScript. Please enable it in your browser settings.</noscript>
+	<div id="openfl-content"></div>
+	
+	<script>
+		window.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+		
+		if (window.devicePixelRatio > 2) {
+			const meta = document.getElementById('viewport');
+			meta.setAttribute('content', `width=device-width, initial-scale=${2 / window.devicePixelRatio}, user-scalable=no`);
+		}
+		
+		window.addEventListener('load', () => {
+			lime.embed('Vs Nonsense', 'openfl-content', 1280, 720, { parameters: {} });
+		});
+	</script>
+</body>
+</html>
