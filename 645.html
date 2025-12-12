@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+
+<!-- Ultimate Game Stash file--> 
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/ports@89abf1665a415434935039694dccc55678c0f2d2/arthurs-nightmare/">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Arthur's Nightmare</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico"> 
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script>
+// Global fetch interceptor - catches ALL requests
+(function() {
+  const originalFetch = window.fetch;
+  window.fetch = function(...args) {
+    let url = args[0];
+   
+    if (typeof url === 'string' && url.includes('StreamingAssets/')) {
+      const filename = url.split('StreamingAssets/').pop();
+      url = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+      args[0] = url;
+      console.log('[Fetch Intercepted] Redirecting to:', url);
+    }
+    
+    return originalFetch.apply(this, args);
+  };
+
+  const originalOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+    if (typeof url === 'string' && url.includes('StreamingAssets/')) {
+      const filename = url.split('StreamingAssets/').pop();
+      url = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+      console.log('[XHR Intercepted] Redirecting to:', url);
+    }
+    
+    return originalOpen.call(this, method, url, ...rest);
+  };
+
+  // Intercept video/audio element sources
+  const originalCreateElement = document.createElement;
+  document.createElement = function(tagName) {
+    const element = originalCreateElement.call(document, tagName);
+    
+    if (tagName.toLowerCase() === 'video' || tagName.toLowerCase() === 'audio') {
+      const originalSetAttribute = element.setAttribute;
+      element.setAttribute = function(name, value) {
+        if (name === 'src' && typeof value === 'string' && value.includes('StreamingAssets/')) {
+          const filename = value.split('StreamingAssets/').pop();
+          value = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+          console.log('[Media Element Intercepted] Redirecting to:', value);
+        }
+        return originalSetAttribute.call(this, name, value);
+      };
+      
+      Object.defineProperty(element, 'src', {
+        set: function(value) {
+          if (typeof value === 'string' && value.includes('StreamingAssets/')) {
+            const filename = value.split('StreamingAssets/').pop();
+            value = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+            console.log('[Media src Intercepted] Redirecting to:', value);
+          }
+          this.setAttribute('src', value);
+        },
+        get: function() {
+          return this.getAttribute('src');
+        }
+      });
+    }
+    
+    return element;
+  };
+})();
+</script>
+    <script src="TemplateData/UnityProgress.js"></script>  
+    <script>
+    window.fileMergerConfig = {
+      files: [
+        { name: 'web.data.unityweb', parts: 2 },
+        { name: 'web.asm.code.unityweb', parts: 2 },
+      ],
+      basePath: 'Build/',
+      debug: true
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js" ></script>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/web.json", {onProgress: UnityProgress});
+    </script>
+  </head>
+  <body>
+    <div class="webgl-content">
+      <style>
+        body {
+          margin: 0;
+          overflow: hidden;
+        }
+      </style>
+      <div id="gameContainer" style="width: 100vw; height: 100vh;"></div>
+      <div class="footer">
+        <div class="webgl-logo"></div>
+        <div class="fullscreen" onclick="gameInstance.SetFullscreen(1)"></div>
+        <div class="title">Arthur's Nightmare</div>
+      </div>
+    </div>
+  </body>
+</html>
