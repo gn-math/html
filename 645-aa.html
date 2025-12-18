@@ -3,7 +3,7 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
-    <base href="https://cdn.jsdelivr.net/gh/bubbls/ports@latest/arthurs-nightmare/">
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Arthur's Nightmare</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico"> 
@@ -16,7 +16,7 @@
    
     if (typeof url === 'string' && url.includes('StreamingAssets/')) {
       const filename = url.split('StreamingAssets/').pop();
-      url = 'https://cdn.jsdelivr.net/gh/bubbls/ports@latest/arthurs-nightmare/StreamingAssets/' + filename;
+      url = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
       args[0] = url;
       console.log('[Fetch Intercepted] Redirecting to:', url);
     }
