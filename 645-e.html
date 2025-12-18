@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
@@ -35,7 +34,6 @@
     return originalOpen.call(this, method, url, ...rest);
   };
 
-  // Intercept video/audio element sources
   const originalCreateElement = document.createElement;
   document.createElement = function(tagName) {
     const element = originalCreateElement.call(document, tagName);
@@ -70,22 +68,6 @@
   };
 })();
 </script>
-    <script src="TemplateData/UnityProgress.js"></script>  
-    <script>
-    window.fileMergerConfig = {
-      files: [
-        { name: 'web.data.unityweb', parts: 2 },
-        { name: 'web.asm.code.unityweb', parts: 2 },
-      ],
-      basePath: 'Build/',
-      debug: true
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@latest/merge.js" ></script>
-    <script src="Build/UnityLoader.js"></script>
-    <script>
-      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/web.json", {onProgress: UnityProgress});
-    </script>
   </head>
   <body>
     <div class="webgl-content">
@@ -102,5 +84,24 @@
         <div class="title">Arthur's Nightmare</div>
       </div>
     </div>
+
+    <script src="TemplateData/UnityProgress.js"></script>  
+    <script>
+      window.fileMergerConfig = {
+        files: [
+          { name: 'web.data.unityweb', parts: 2 },
+          { name: 'web.asm.code.unityweb', parts: 2 },
+        ],
+        basePath: 'Build/',
+        debug: true
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      setTimeout(function() {
+        var gameInstance = UnityLoader.instantiate("gameContainer", "Build/web.json", {onProgress: UnityProgress});
+      }, 1000);
+    </script>
   </body>
 </html>
