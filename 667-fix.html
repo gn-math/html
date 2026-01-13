@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-	<base href="https://cdn.jsdelivr.net/gh/web-ports/in-stars-and-time@cda987ac7c6e651f8146b9c6949ff199cd698a94/">
+	<base href="https://cdn.jsdelivr.net/gh/web-ports/in-stars-and-time@3a5cc49c0cbbefa7740c5bb88eb196ee089fd3b0/">
         <meta charset="UTF-8">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -128,6 +128,10 @@
                 }
             }, 100);
         })();
+
+		fetch("data/Translations.json").then(res => res.json()).then(json => {
+			window.$dataTranslations = json;
+		});
     </script>
     </body>
 </html>
