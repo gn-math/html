@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+	<base href="https://cdn.jsdelivr.net/gh/web-ports/terraria@main/">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="./app.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta property="og:title" content="Terrarium" />
+		<meta
+			property="og:description"
+			content="Terraria port for WebAssembly. Play Terraria online in the browser."
+		/>
+		<meta
+			name="description"
+			content="Terraria port for WebAssembly. Play Terraria online in the browser."
+		/>
+		<style>
+			html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#game-container, iframe, canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+		</style>
+		<link rel="canonical" href="https://terraria.mercurywork.shop" />
+		<title>Terrarium</title>
+		<script type="module" crossorigin src="main.js"></script>
+	</head>
+
+	<body>
+		<div id="app"></div>
+		<canvas id="canvas" style="width: 100%">
+
+		</canvas>
+	</body>
+</html>
