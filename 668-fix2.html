@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <base href="https://cdn.jsdelivr.net/gh/web-ports/gorilla-tag@main/">
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/gorilla-tag@latest/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | gorilla tag web</title>
@@ -57,7 +57,7 @@
                 loadedBytes += value.length;
                 chunks.push(value);
                 let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
-                let mbTotal = '175.89';
+                let mbTotal = '150.89';
                 loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
             }
             let fullBuffer = new Uint8Array(received);
@@ -84,16 +84,15 @@
             return parts;
         }
         (async () => {
-            const [dataUrl, wasmurl] = await Promise.all([
-                mergeFiles(getParts("Build/gtag.data.gz", 1, 7), "gtag.data.gz"),
-                mergeFiles(getParts("Build/gtag.wasm.gz", 1, 2), "gtag.wasm.gz"),
+            const [dataUrl] = await Promise.all([
+                mergeFiles(getParts("Build/gtagwebR2.data.unityweb", 1, 8), "gtagwebR2.data.unityweb"),
             ]);
             var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/gtag.loader.js";
+      var loaderUrl = buildUrl + "/gtagwebR2.loader.js";
       var config = {
         dataUrl: dataUrl,
-        frameworkUrl: buildUrl + "/gtag.framework.js",
-        codeUrl: wasmurl,
+        frameworkUrl: buildUrl + "/gtagwebR2.framework.js.unityweb",
+        codeUrl: buildUrl + "/gtagwebR2.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "boolonx",
         productName: "gorilla tag web",
