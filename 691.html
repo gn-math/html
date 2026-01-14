@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/fnf@main/redux/">
+
+	
+	<meta charset="utf-8">
+	
+	<title>Heartbreak Havoc</title>
+	
+	<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	
+	
+	<link rel="shortcut icon" type="image/png" href="./favicon.png">
+	
+	
+	<script type="text/javascript" src="./PsychEngine.js"></script>
+	
+	<script>
+		window.addEventListener ("touchmove", function (event) { event.preventDefault (); }, { capture: false, passive: false });
+		if (typeof window.devicePixelRatio != 'undefined' && window.devicePixelRatio > 2) {
+			var meta = document.getElementById ("viewport");
+			meta.setAttribute ('content', 'width=device-width, initial-scale=' + (2 / window.devicePixelRatio) + ', user-scalable=no');
+		}
+	</script>
+	
+	<style>
+		html,body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+		#openfl-content { background: #000000; width: 100%; height: 100%; }
+		@font-face {
+			font-family: 'DS-Digital';
+			src: url('assets/fonts/DS-DIGI.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/DS-DIGI.TTF') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Edgar No 9 W01 Regular';
+			src: url('assets/fonts/edgar.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/edgar.woff') format('woff'),
+			url('assets/fonts/edgar.ttf') format('truetype'),
+			url('assets/fonts/edgar.svg#Edgar%20No%209%20W01%20Regular') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Eina 01 SemiBold';
+			src: url('assets/fonts/Eina01-SemiBold.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/Eina01-SemiBold.woff') format('woff'),
+			url('assets/fonts/Eina01-SemiBold.otf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Inconsolata Black';
+			src: url('assets/fonts/Inconsolata-Black.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/Inconsolata-Black.woff') format('woff'),
+			url('assets/fonts/Inconsolata-Black.ttf') format('truetype'),
+			url('assets/fonts/Inconsolata-Black.svg#Inconsolata%20Black') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Inconsolata Bold';
+			src: url('assets/fonts/Inconsolata-Bold.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/Inconsolata-Bold.woff') format('woff'),
+			url('assets/fonts/Inconsolata-Bold.ttf') format('truetype'),
+			url('assets/fonts/Inconsolata-Bold.svg#Inconsolata%20Bold') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Neo-Syber Italic';
+			src: url('assets/fonts/Neo-Syber-Italic.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/Neo-Syber-Italic.woff') format('woff'),
+			url('assets/fonts/Neo-Syber-Italic.ttf') format('truetype'),
+			url('assets/fonts/Neo-Syber-Italic.svg#Neo-Syber%20Italic') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Planet-Joy';
+			src: url('assets/fonts/Planet-Joy.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/Planet-Joy.woff') format('woff'),
+			url('assets/fonts/Planet-Joy.ttf') format('truetype'),
+			url('assets/fonts/Planet-Joy.svg#Planet-Joy') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Quantico';
+			src: url('assets/fonts/Quantico-Regular.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/Quantico-Regular.woff') format('woff'),
+			url('assets/fonts/Quantico-Regular.ttf') format('truetype'),
+			url('assets/fonts/Quantico-Regular.svg#Quantico') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Quantico';
+			src: url('assets/fonts/quantico.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/quantico.woff') format('woff'),
+			url('assets/fonts/quantico.ttf') format('truetype'),
+			url('assets/fonts/quantico.svg#Quantico') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Quantico-Bold';
+			src: url('assets/fonts/quanticob.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/quanticob.woff') format('woff'),
+			url('assets/fonts/quanticob.ttf') format('truetype'),
+			url('assets/fonts/quanticob.svg#Quantico-Bold') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: '02.10 fenotype';
+			src: url('assets/fonts/sky.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/sky.woff') format('woff'),
+			url('assets/fonts/sky.ttf') format('truetype'),
+			url('assets/fonts/sky.svg#02.10%20fenotype') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Krabby Patty';
+			src: url('assets/fonts/spog.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/spog.woff') format('woff'),
+			url('assets/fonts/spog.ttf') format('truetype'),
+			url('assets/fonts/spog.svg#Krabby%20Patty') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'VCR OSD Mono';
+			src: url('assets/fonts/vcr.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/vcr.woff') format('woff'),
+			url('assets/fonts/vcr.ttf') format('truetype'),
+			url('assets/fonts/vcr.svg#VCR%20OSD%20Mono') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'VCR OSD Mono';
+			src: url('assets/fonts/vcr2.eot?#iefix') format('embedded-opentype'),
+			url('assets/fonts/vcr2.woff') format('woff'),
+			url('assets/fonts/vcr2.ttf') format('truetype'),
+			url('assets/fonts/vcr2.svg#VCR%20OSD%20Mono') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Nokia Cellphone FC Small';
+			src: url('flixel/fonts/nokiafc22.eot?#iefix') format('embedded-opentype'),
+			url('flixel/fonts/nokiafc22.woff') format('woff'),
+			url('flixel/fonts/nokiafc22.ttf') format('truetype'),
+			url('flixel/fonts/nokiafc22.svg#Nokia%20Cellphone%20FC%20Small') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'Monsterrat';
+			src: url('flixel/fonts/monsterrat.eot?#iefix') format('embedded-opentype'),
+			url('flixel/fonts/monsterrat.woff') format('woff'),
+			url('flixel/fonts/monsterrat.ttf') format('truetype'),
+			url('flixel/fonts/monsterrat.svg#Monsterrat') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+
+	</style>
+	
+</head>
+<body>
+	
+	<noscript>This webpage makes extensive use of JavaScript. Please enable JavaScript in your web browser to view this page.</noscript>
+	
+	<div id="openfl-content"></div>
+	
+	<script type="text/javascript">
+		lime.embed ("PsychEngine", "openfl-content", 1280, 720, { parameters: {} });
+	</script>
+	
+</body>
+</html>
