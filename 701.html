@@ -1,0 +1,149 @@
+<html lang="en-us">
+
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NMNKZYDPP8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-NMNKZYDPP8');
+</script>
+  <meta charset="utf-8">
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/flight%20sim/">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | George and the Printer</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <script src="Build/UnityLoader.js"></script>
+  <script>
+    function mergeFiles(fileParts) {
+      return new Promise((resolve, reject) => {
+        let buffers = [];
+        function fetchPart(i) {
+          if (i >= fileParts.length) {
+            let mergedBlob = new Blob(buffers);
+            resolve(mergedBlob);
+            return;
+          }
+          fetch(fileParts[i])
+            .then(r => r.arrayBuffer())
+            .then(data => {
+              buffers.push(data);
+              fetchPart(i + 1);
+            })
+            .catch(reject);
+        }
+        fetchPart(0);
+      });
+    }
+
+    function getParts(file, start, end) {
+      let arr = [];
+      for (let i = start; i <= end; i++) {
+        arr.push(file + ".part" + i);
+      }
+      return arr;
+    }
+
+    function resizeUnityContainer() {
+      var container = document.getElementById("gameContainer");
+      if (container) {
+        container.style.width = window.innerWidth + "px";
+        container.style.height = window.innerHeight + "px";
+      }
+    }
+
+    window.addEventListener('resize', resizeUnityContainer);
+
+    function UnityProgress(gameInstance, progress) {
+      try {
+        if (progress === 'complete') {
+          return;
+        }
+        var pct = 0;
+        if (typeof progress === 'number') pct = progress;
+        else if (progress && progress.total && progress.loaded) pct = progress.loaded / progress.total;
+        var txt = document.getElementById('loading-text');
+        if (txt) txt.textContent = 'Loading... ' + Math.round(pct * 100) + '%';
+      } catch (e) {
+        console.error('Progress error:', e);
+      }
+    }
+
+    window.addEventListener("load", function () {
+      window.unityMergedFiles = {};
+      
+      Promise.all([
+        mergeFiles(getParts("Build/game.data.unityweb", 1, 2)),
+        mergeFiles(getParts("Build/game.asm.code.unityweb", 1, 1)), 
+        mergeFiles(getParts("Build/game.asm.memory.unityweb", 1, 1)),
+        mergeFiles(getParts("Build/game.asm.framework.unityweb", 1, 1))
+      ]).then(([dataBlob, wasmCodeBlob, wasmMemoryBlob, wasmFrameworkBlob]) => {
+        window.unityMergedFiles['Build/game.data.unityweb'] = URL.createObjectURL(dataBlob);
+        window.unityMergedFiles['Build/game.asm.code.unityweb'] = URL.createObjectURL(wasmCodeBlob);
+        window.unityMergedFiles['Build/game.asm.memory.unityweb'] = URL.createObjectURL(wasmMemoryBlob);
+        window.unityMergedFiles['Build/game.asm.framework.unityweb'] = URL.createObjectURL(wasmFrameworkBlob);
+        
+        console.log("Merged files ready:", Object.keys(window.unityMergedFiles));
+        
+        const originalFetch = window.fetch;
+        window.fetch = function(url, ...args) {
+          if (typeof url === 'string' && window.unityMergedFiles[url]) {
+            console.log("Redirecting fetch to merged file:", url);
+            return originalFetch(window.unityMergedFiles[url], ...args);
+          }
+          return originalFetch(url, ...args);
+        };
+        
+        const OriginalXHR = window.XMLHttpRequest;
+        window.XMLHttpRequest = function() {
+          const xhr = new OriginalXHR();
+          const originalOpen = xhr.open;
+          
+          xhr.open = function(method, url, ...args) {
+            if (typeof url === 'string' && window.unityMergedFiles[url]) {
+              console.log("Redirecting XHR to merged file:", url);
+              return originalOpen.call(this, method, window.unityMergedFiles[url], ...args);
+            }
+            return originalOpen.call(this, method, url, ...args);
+          };
+          
+          return xhr;
+        };
+        
+        // Load Unity
+        window.gameInstance = UnityLoader.instantiate("gameContainer", "Build/game.json", {
+          onProgress: UnityProgress,
+          Module: {
+            onRuntimeInitialized: function () {
+              resizeUnityContainer();
+              let loadingText = document.querySelector("#loading-text");
+              if (loadingText) loadingText.remove();
+              UnityProgress(window.gameInstance, 'complete');
+            }
+          }
+        });
+      })
+      .catch(err => {
+        console.error("Unity load failed:", err);
+        let txt = document.getElementById('loading-text');
+        if (txt) txt.textContent = 'Loading failed: ' + err.message;
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="webgl-content">
+    <div id="gameContainer" style="width: 960px; height: 600px">
+      <p id="loading-text">Loading...</p>
+    </div>
+    <div class="footer">
+      <div class="webgl-logo"></div>
+      <div class="fullscreen" onclick="window.gameInstance && window.gameInstance.SetFullscreen(1)"></div>
+    </div>
+  </div>
+</body>
+
+</html>
