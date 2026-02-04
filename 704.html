@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<base href="https://cdn.jsdelivr.net/gh/web-ports/fnaf-world-refreshed@main/">
+<style type="text/css">
+  h1 {
+	  font-family: Arial, Helvetica, sans-serif;
+	  color: #F00;
+	  font-size: x-large;
+  }
+  p {
+	  font-family: Arial, Helvetica, sans-serif;
+	  color: #000;
+	  font-size: small;
+  }
+  body {
+	  background-color: #FFF;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+  }
+  #bloctxt {
+	  border-left-width: 5px;
+	  border-left-style: solid;
+	  border-left-color: #F00;
+	  padding-left: 10px;
+	  position: absolute;
+	  left: 50%%;
+	  width: 600px;
+	  margin-left: -260px
+  }
+</style>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+  <!-- Enables full-screen on iOS devices -->
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="HandheldFriendly" content="true" />
+
+  <title>Clickteam Fusion Developer 2.5+ HTML5 Runtime</title>
+
+  	<!-- EXTRASOURCES -->
+    <!-- Loads the Javascript code...-->
+    <script src="src/Runtime.js"></script>
+</head>
+
+<body>
+
+<div style="display: inline-block; -webkit-user-select: none; text-align: left;">
+    <canvas id="MMFCanvas" width="800" height="480">
+    	Your browser does not support Canvas.
+    </canvas>
+</div>
+
+<script>
+    // RUNTIMESTART
+    // This is where the HTML5 runtime is actually started
+    window.addEventListener("load", windowLoaded, false);
+    function windowLoaded()
+    {
+        // Calls the runtime
+        // First parameter : name of the canvas element
+        // Second parameter : path to the cch file. Images and sounds must lay beside this file
+        new Runtime("MMFCanvas", "resources/fnaf-world-refreshed.cch");
+    }
+    // RUNTIMESTARTEND
+</script>
+
+</body>
+</html>
