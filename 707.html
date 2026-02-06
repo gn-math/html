@@ -2,10 +2,10 @@
 <html lang="en-us">
 
 <head>
-  <base href="https://cdn.jsdeivr.net/gh/web-ports/iron-lung@main/">
+    <base href="https://cdn.jsdelivr.net/gh/genizy/traffic-racer@main/">
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>IRON LUNG</title>
+  <title>traffic racer</title>
   <style>
     html,
     body {
@@ -54,7 +54,7 @@
     style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
   </div>
   <canvas id="unity-canvas"></canvas>
-  <script src="Build/built.loader.js"></script>
+  <script src="Build/7a2dbded24d57e056180125b1583e7c4.loader.js"></script>
   <script>var loadingText = document.querySelector("#loading-text");
     let totalBytes = 0;
     let loadedBytes = 0;
@@ -102,8 +102,8 @@
     }
     (async () => {
       const [dataUrl, wasmUrl] = await Promise.all([
-        mergeFiles(getParts("Build/built.data", 1, 2), "built.data"),
-        mergeFiles(getParts("Build/built.wasm", 1, 2), "built.wasm"),
+        mergeFiles(getParts("Build/6d41885525432ff3b29106e00c136a2e.data.br", 1, 3), "6d41885525432ff3b29106e00c136a2e.data.br"),
+        mergeFiles(getParts("Build/253cc6f68dece82b7c6005da0838880d.wasm.br", 1, 3), "253cc6f68dece82b7c6005da0838880d.wasm.br"),
       ]);
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var phoneScreenFixer = document.createElement('meta');
@@ -116,11 +116,11 @@
 
       createUnityInstance(hugeCanvas, {
         dataUrl: dataUrl,
-        frameworkUrl: "Build/built.framework.js",
+        frameworkUrl: "Build/97bcf5a3640d35b4615548522a7c02fa.framework.js.br",
         codeUrl: wasmUrl,
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "98Corbins",
-        productName: "Iron Lung",
+        companyName: "madkidgames.com",
+        productName: "Traffic Racer",
         productVersion: "1.0",
       });
       loadingText.remove();
