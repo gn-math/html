@@ -89,7 +89,7 @@
       const buffers = await Promise.all(
         fileParts.map(part => fetchWithProgress(part))
       );
-      const mergedBlob = new Blob(buffers);
+       const mergedBlob = new Blob(buffers);
       return URL.createObjectURL(mergedBlob);
     }
 
@@ -116,7 +116,7 @@
 
       createUnityInstance(hugeCanvas, {
         dataUrl: dataUrl,
-        frameworkUrl: "Build/97bcf5a3640d35b4615548522a7c02fa.framework.js.br",
+        frameworkUrl: "Build/97bcf5a3640d35b4615548522a7c02fa.framework.js",
         codeUrl: wasmUrl,
         streamingAssetsUrl: "StreamingAssets",
         companyName: "madkidgames.com",
