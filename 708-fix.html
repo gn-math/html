@@ -2,7 +2,7 @@
 <html lang="en-us">
 
 <head>
-    <base href="https://cdn.jsdelivr.net/gh/web-ports/needy-streamer-overload@main/">
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/needy-streamer-overload@latest/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Windose</title>
@@ -277,6 +277,12 @@
                     } else {
                         input = window.randombundle;
                     }
+                } else if (urlString.includes("StreamingAssets")){
+                    if (input instanceof Request) {
+                        input = new Request("StreamingAssets/"+urlString.split("StreamingAssets/")[1], input);
+                    } else {
+                        input = "StreamingAssets/"+urlString.split("StreamingAssets/")[1];
+                    }
                 }
 
                 return originalFetch(input, init);
@@ -286,6 +292,8 @@
             XMLHttpRequest.prototype.open = function(method, url, ...rest) {
                 if (url.includes("8229333135472637d0c8686ab331006d_ef7237aa9eb549052053aced3806fcb4.bundle_assets_all_ef7237aa9eb549052053aced3806fcb4.bundle")) {
                     url = window.randombundle;
+                } else if (url.includes("StreamingAssets")){
+                    url = "StreamingAssets/"+url.split("StreamingAssets/")[1];
                 }
                 return originalOpen.call(this, method, url, ...rest);
             };
@@ -309,7 +317,7 @@
             var loaderUrl = buildUrl + "/nsoweather2.loader.js";
             var config = {
                 dataUrl: dataUrl,
-                frameworkUrl: buildUrl + "/nsoweather2.framework.js.unityweb",
+                frameworkUrl: buildUrl + "/framework.js",
                 codeUrl: buildUrl + "/nsoweather2.wasm.unityweb",
                 streamingAssetsUrl: "StreamingAssets",
                 companyName: "WSS playground",
