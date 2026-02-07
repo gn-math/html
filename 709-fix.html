@@ -2,6 +2,7 @@
 <html lang="en-us">
 
 <head>
+  <base href="https://cdn.jsdelivr.ner/gh/genizy/survivor@main/">
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>survivor.io</title>
@@ -73,7 +74,7 @@
         loadedBytes += value.length;
         chunks.push(value);
         let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
-        let mbTotal = '60.7';
+        let mbTotal = '87.7';
         loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
       }
       let fullBuffer = new Uint8Array(received);
