@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <base href="https://cdn.jsdelivr.net/gh/web-ports/fnae@afd4e5071add297d6169665a4f999d62f312532e/">
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/fnae@c9c8b513a27155bf37c4ab3dee74e99b12b895ba/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity Web Player | Five Night's at BIG E</title>
@@ -41,7 +41,7 @@ var loadingText = document.querySelector("#loading-text");
         loadedBytes += value.length;
         chunks.push(value);
         let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
-        let mbTotal = '139.53';
+        let mbTotal = '155.84';
         loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
       }
       let fullBuffer = new Uint8Array(received);
@@ -71,7 +71,7 @@ var loadingText = document.querySelector("#loading-text");
     (async () => {
       const [dataUrl, wasmUrl, webm] = await Promise.all([
         mergeFiles(getParts("Build/fnae.data", 1, 3), "fnae.data"),
-        mergeFiles(getParts("Build/fnae.wasm", 1, 2), "fnae.wasm"),
+        mergeFiles(getParts("Build/fnae.wasm", 1, 3), "fnae.wasm"),
         mergeFiles(getParts("StreamingAssets/202512191935.webm", 1, 3), "202512191935.webm"),
       ]);
 
@@ -83,7 +83,7 @@ const realSrc = Object.getOwnPropertyDescriptor(
 
 Object.defineProperty(HTMLMediaElement.prototype, "src", {
   set(value) {
-    if (typeof value === "string" && value.includes("202512191935.mp4")) {
+    if (typeof value === "string" && value.includes("202512191935.mp4") || value.includes("202512191935.webm")) {
       value = window.randomwebm;
     }
     return realSrc.set.call(this, value);
@@ -137,7 +137,6 @@ Object.defineProperty(HTMLMediaElement.prototype, "src", {
           loadingBar.style.display = "none";
           loadingText.remove();
         }).catch((message) => {
-          alert(message);
         });
       };
       document.body.appendChild(script);
