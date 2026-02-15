@@ -129,11 +129,12 @@
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
           loadingBar.style.display = "none";
+          loadingText.remove();
         }).catch((message) => {
         });
       };
-    })();
       document.body.appendChild(script);
+    })();
     </script>
   </body>
 </html>
