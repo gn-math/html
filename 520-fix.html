@@ -197,14 +197,8 @@ window.gnMathIsTheBestGameSiteEver = {
 		// override ProgressView to create your own loader. See dmloader.js for more details.
 	</script>
   <script id="engine-start" type="text/javascript">
-		var runningFromFileWarning = document.getElementById("running-from-file-warning");
-		if (window.location.href.startsWith("file://")) {
-			runningFromFileWarning.style.display = "block";
-		}
-		else {
-			EngineLoader.load("canvas", "DanTheManDefold");
-			runningFromFileWarning.parentNode.removeChild(runningFromFileWarning);
-		}
+		EngineLoader.load("canvas", "DanTheManDefold");
+		runningFromFileWarning.parentNode.removeChild(runningFromFileWarning);
 	</script>
  </body>
 </html>

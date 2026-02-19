@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,user-scalable=no">
+  <title>Unity WebGL Player | Stick With It</title>
+  <style>
+    html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:#231F20}
+    #unity-canvas{width:100vw;height:100vh;display:block;background:#231F20}
+  </style>
+</head>
+<body>
+  <canvas id="unity-canvas" tabindex="-1"></canvas>
+  <script>
+    const BASE_URL = "https://cdn.jsdelivr.net/gh/shayderrr/portsv4@6542ad4a02294cc773642ca7f7a8f75683c45fe7/stick/Build/";
+    const canvas = document.getElementById("unity-canvas");
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    async function fetchAndMerge(fileParts) {
+      const blobs = await Promise.all(fileParts.map(part => 
+        fetch(BASE_URL + part).then(res => {
+          if (!res.ok) throw new Error("Failed to load part");
+          return res.blob();
+        })
+      ));
+      return URL.createObjectURL(new Blob(blobs));
+    }
+
+    (async () => {
+      try {
+        const dataParts = ["StickWithItPort.data.part1", "StickWithItPort.data.part2"];
+        const wasmParts = ["StickWithItPort.wasm.part1", "StickWithItPort.wasm.part2"];
+
+        const [mergedDataUrl, mergedWasmUrl] = await Promise.all([
+          fetchAndMerge(dataParts),
+          fetchAndMerge(wasmParts)
+        ]);
+
+        const script = document.createElement("script");
+        script.src = BASE_URL + "StickWithItPort.loader.js";
+        script.onload = () => {
+          createUnityInstance(canvas, {
+            dataUrl: mergedDataUrl,
+            frameworkUrl: BASE_URL + "StickWithItPort.framework.js",
+            codeUrl: mergedWasmUrl,
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "Trickshot Labs",
+            productName: "Stick With It",
+            productVersion: "0.1.2"
+          });
+        };
+        document.body.appendChild(script);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  </script>
+</body>
+</html>
