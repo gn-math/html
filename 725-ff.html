@@ -27,6 +27,27 @@
     let totalBytes = 0;
     let loadedBytes = 0;
 
+    const originalFetch = window.fetch;
+      window.fetch = async function (input, init) {
+        let urlString;
+
+        if (input instanceof Request) {
+          urlString = input.url;
+        } else {
+          urlString = String(input);
+        }
+
+        if (urlString.includes("get_latest_news.php")) {
+          if (input instanceof Request) {
+              input = new Request("https://cdn.jsdelivr.net/gh/genizy/awesome@tree/main", input);
+          } else {
+              input = "https://cdn.jsdelivr.net/gh/genizy/awesome@tree/main";
+          }
+        }
+
+        return originalFetch(input, init);
+      };
+
     async function fetchWithProgress(url) {
       const response = await fetch(url);
       const reader = response.body.getReader();
