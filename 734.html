@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/christmas-massacre@main/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Christmas Massacre</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: black;
+      }
+      #gameContainer, #gameContainer canvas {
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+      #loading-text {
+  font-weight: bold;
+  background: linear-gradient(
+    270deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8f00ff
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 3s ease infinite;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+    </style>
+    <div id="loading-text"
+    style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
+  </div>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      var loadingText = document.querySelector("#loading-text");
+    let totalBytes = 0;
+    let loadedBytes = 0;
+
+    async function fetchWithProgress(url) {
+      const response = await fetch(url);
+      const reader = response.body.getReader();
+      let chunks = [];
+      let received = 0;
+      while (true) {
+        const {
+          done,
+          value
+        } = await reader.read();
+        if (done) break;
+        received += value.length;
+        loadedBytes += value.length;
+        chunks.push(value);
+        let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
+        let mbTotal = '349.95';
+        loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
+      }
+      let fullBuffer = new Uint8Array(received);
+      let offset = 0;
+      for (let chunk of chunks) {
+        fullBuffer.set(chunk, offset);
+        offset += chunk.length;
+      }
+      return fullBuffer.buffer;
+    }
+
+    async function mergeFiles(fileParts, cacheKey) {
+      const buffers = await Promise.all(
+        fileParts.map(part => fetchWithProgress(part))
+      );
+      const mergedBlob = new Blob(buffers);
+      return URL.createObjectURL(mergedBlob);
+    }
+
+    function getParts(file, start, end) {
+      let parts = [];
+      for (let i = start; i <= end; i++) {
+        parts.push(file + ".part" + i);
+      }
+      return parts;
+    }
+    (async () => {
+      const [dataUrl, wasmUrl] = await Promise.all([
+        mergeFiles(getParts("Build/testbuild.data.unityweb", 1, 15), "testbuild.data.unityweb"),
+        mergeFiles(getParts("Build/testbuild.asm.code.unityweb", 1, 4), "testbuild.asm.code.unityweb"),
+      ]);
+            const originalFetch = window.fetch;
+            window.fetch = async function(input, init) {
+                let urlString;
+
+                if (input instanceof Request) {
+                    urlString = input.url;
+                } else {
+                    urlString = String(input);
+                }
+
+                if (urlString.includes("testbuild.asm.code.unityweb")) {
+                    if (input instanceof Request) {
+                        input = new Request(wasmUrl, input);
+                    } else {
+                        input = wasmUrl;
+                    }
+                } else if (urlString.includes("testbuild.data.unityweb")){
+                    if (input instanceof Request) {
+                        input = new Request(dataUrl, input);
+                    } else {
+                        input = dataUrl;
+                    }
+                }
+
+                return originalFetch(input, init);
+            };
+
+            const originalOpen = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+                if (url.includes("testbuild.asm.code.unityweb")) {
+                    url = wasmUrl;
+                } else if (url.includes("testbuild.data.unityweb")){
+                    url = dataUrl;
+                }
+                return originalOpen.call(this, method, url, ...rest);
+            };
+      var bigolgameboi = UnityLoader.instantiate("gameContainer", "Build/testbuild.json");
+      loadingText.remove();
+    })();
+    </script>
+  </head>
+  <body>
+    <div id="gameContainer"></div>
+  </body>
+</html>
