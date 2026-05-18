@@ -71,19 +71,19 @@ return originalOpen.apply(this, arguments);
 };
 
 const unxParts = [
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part1",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part2",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part3",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part4",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part5",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part6",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part7",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part8"
+"https://raw.githack.com/shayderrr/port/main/game.unx.part1",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part2",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part3",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part4",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part5",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part6",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part7",
+"https://raw.githack.com/shayderrr/port/main/game.unx.part8"
 ];
 
 const dataParts = [
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.data.part1",
-"https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.data.part2"
+"https://raw.githack.com/shayderrr/port/main/runner.data.part1",
+"https://raw.githack.com/shayderrr/port/main/runner.data.part2"
 ];
 
 async function fetchAndMerge(urls) {
@@ -92,7 +92,7 @@ return new Blob(results);
 }
 
 function manifestFiles() {
-return [mergedDataBlob, "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.js", "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.wasm", "https://cdn.jsdelivr.net/gh/shayderrr/port@main/audio-worklet.js", "https://cdn.jsdelivr.net/gh/shayderrr/port@main/creep.mp4", mergedUnxBlob].join(";");
+return [mergedDataBlob, "https://raw.githack.com/shayderrr/port/main/runner.js", "https://raw.githack.com/shayderrr/port/main/runner.wasm", "https://raw.githack.com/shayderrr/port/main/audio-worklet.js", "https://raw.githack.com/shayderrr/port/main/creep.mp4", mergedUnxBlob].join(";");
 }
 function manifestFilesMD5() { return ["", "", "", "", "", ""]; }
 
@@ -107,8 +107,8 @@ canvasElement.classList.add("active");
 },
 printErr: function(text) { console.error(text); },
 locateFile: function(path, prefix) {
-if (path.endsWith(".wasm")) return "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.wasm";
-if (path.endsWith(".audio-worklet.js")) return "https://cdn.jsdelivr.net/gh/shayderrr/port@main/audio-worklet.js";
+if (path.endsWith(".wasm")) return "https://raw.githack.com/shayderrr/port/main/runner.wasm";
+if (path.endsWith(".audio-worklet.js")) return "https://raw.githack.com/shayderrr/port/main/audio-worklet.js";
 return prefix + path;
 }
 };
@@ -125,7 +125,7 @@ mergedUnxBlob = URL.createObjectURL(unxBlob);
 mergedDataBlob = URL.createObjectURL(dataBlob);
 
 const script = document.createElement("script");
-script.src = "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.js";
+script.src = "https://raw.githack.com/shayderrr/port/main/runner.js";
 document.body.appendChild(script);
 } catch (e) {
 document.getElementById("status").innerHTML = "Error";

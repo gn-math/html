@@ -1,11 +1,4 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 
 
 <!-- Ultimate Game Stash file--> 
@@ -16,7 +9,7 @@
     <script>
       window.gameconfig = {
         name: "Kirby Super Star Ultra (USA)",
-        url: "https://cdn.jsdelivr.net/gh/bubbls/ugss@8349e3c96f716440db755c665675d84855c1e49d/Kirby%20Super%20Star%20Ultra%20(USA)/Kirby%20Super%20Star%20Ultra%20(USA).nds",
+        url: "https://raw.githack.com/bubbls/ugss/8349e3c96f716440db755c665675d84855c1e49d/Kirby%20Super%20Star%20Ultra%20(USA)/Kirby%20Super%20Star%20Ultra%20(USA).nds",
         core: "nds",
         min: 1,
         max: 7,
@@ -154,11 +147,11 @@ getParts("asd.js", 0, 100)
           EJS_gameName = window.gameconfig.name;
           EJS_color = "#0064ff";
           EJS_startOnLoaded = true;
-          EJS_pathtodata = "https://cdn.jsdelivr.net/gh/genizy/emu@master/";
+          EJS_pathtodata = "https://raw.githack.com/genizy/emu/master/";
           EJS_gameUrl = gameUrl;
           const script = document.createElement("script");
           script.src =
-            "https://cdn.jsdelivr.net/gh/genizy/emu@master/loader.js";
+            "https://raw.githack.com/genizy/emu/master/loader.js";
           document.body.appendChild(script);
         })
         .catch((error) => {

@@ -1,18 +1,11 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
   
   
   <meta charset="utf-8">
-  <base href="https://cdn.jsdelivr.net/gh/genizy/sprunki/">
+  <base href="https://raw.githack.com/genizy/sprunki/main/">
   <title>Sprunki</title>
   <style>
     body {
@@ -339,7 +332,7 @@
       storage.onprogress = (total, loaded) => {
         setProgress(interpolate(0.2, 0.98, loaded / total));
       };
-      storage.addWebStore([storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound, storage.AssetType.Font].filter(i => i), (asset) => new URL('https://cdn.jsdelivr.net/gh/genizy/sprunki/assets/' + asset.assetId + '.' + asset.dataFormat, location).href);
+      storage.addWebStore([storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound, storage.AssetType.Font].filter(i => i), (asset) => new URL('https://raw.githack.com/genizy/sprunki/main/assets/' + asset.assetId + '.' + asset.dataFormat, location).href);
       return () => new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.onload = () => {
@@ -358,7 +351,7 @@
           }
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open('GET', "https://cdn.jsdelivr.net/gh/genizy/sprunki/assets/project.json");
+        xhr.open('GET', "https://raw.githack.com/genizy/sprunki/main/assets/project.json");
         xhr.send();
       });
     })();

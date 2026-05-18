@@ -1,15 +1,8 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <!-- Created with https://packager.turbowarp.org/ -->
 <html>
 <head>
-  <base href="https://cdn.jsdelivr.net/gh/freebuisness/assets@main/434/">
+  <base href="https://raw.githack.com/freebuisness/assets/main/434/">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <!-- We only include this to explicitly loosen the CSP of various packager environments. It does not provide any security. -->
@@ -325,7 +318,7 @@
             storage.AssetType.Sound,
             storage.AssetType.Font
           ].filter(i => i),
-          (asset) => new URL('assets/' + asset.assetId + '.' + asset.dataFormat, "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/434/").href
+          (asset) => new URL('assets/' + asset.assetId + '.' + asset.dataFormat, "https://raw.githack.com/freebuisness/assets/main/434/").href
         );
         return () => new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -341,7 +334,7 @@
           }
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open('GET', "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/434/assets/project.json");
+        xhr.open('GET', "https://raw.githack.com/freebuisness/assets/main/434/assets/project.json");
         xhr.send();
       });
       })();

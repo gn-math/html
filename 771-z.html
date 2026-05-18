@@ -1,14 +1,7 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <base href="https://cdn.jsdelivr.net/gh/web-ports/hollow-knight-silksong@master/">
+    <base href="https://raw.githack.com/web-ports/hollow-knight-silksong/master/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity Web Player | Hollow Knight SilkSong</title>
@@ -275,7 +268,7 @@ function getParts(file, start, end) {
     loadingBar.style.display = "block";
 
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/gh/web-ports/hollow-knight-silksong@latest/Build/w-pt.loader.js";
+    script.src = "https://raw.githack.com/web-ports/hollow-knight-silksong/latest/Build/w-pt.loader.js";
 
     script.onload = () => {
       createUnityInstance(canvas, config, (progress) => {

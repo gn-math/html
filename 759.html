@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-  <base href="https://cdn.jsdelivr.net/gh/NotRexed/Unblocked-Games@latest/diceamillion/">
+  <base href="https://raw.githack.com/NotRexed/Unblocked-Games/latest/diceamillion/">
   <meta charset="utf-8" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
@@ -51,7 +51,7 @@
   XMLHttpRequest.prototype.open = function(method, url, ...args) {
     if (typeof url === 'string' && url.includes('mus.dat')) {
       const xhr = this;
-      const BASE = 'https://cdn.jsdelivr.net/gh/NotRexed/Unblocked-Games@latest/diceamillion/';
+      const BASE = 'https://raw.githack.com/NotRexed/Unblocked-Games/latest/diceamillion/';
       this.send = function() {
         Promise.all([
           fetch(BASE + 'mus.dat.part1').then(r => r.arrayBuffer()),
@@ -120,7 +120,7 @@
 
   <script>
   (async function() {
-    const BASE = 'https://cdn.jsdelivr.net/gh/NotRexed/Unblocked-Games@latest/diceamillion/';
+    const BASE = 'https://raw.githack.com/NotRexed/Unblocked-Games/latest/diceamillion/';
     const res = await fetch(BASE + 'runner.js');
     let text = await res.text();
     text = text.replace(/new Worker\(["']([^"']+)["']\)/g, (match, url) => {

@@ -1,16 +1,9 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><script>
     launch();
 
     function launch() {
       try {
-        fetch("https://cdn.jsdelivr.net/gh/genizy/web-port@main/deltarune/index.html?t="+Date.now())
+        fetch("https://raw.githack.com/genizy/web-port/main/deltarune/index.html?t="+Date.now())
           .then(response => response.text())
           .then(html => {
                 document.documentElement.innerHTML = html;

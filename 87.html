@@ -1,11 +1,4 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         
@@ -325,7 +318,7 @@
                 addOptions(version_select, versions.versions, versions.default);
                 version_select.addEventListener("change", () => {
                     localStorage.setItem("version", version_select[version_select.selectedIndex].textContent);
-                    window.cdn = "https://cdn.jsdelivr.net/gh/genizy/emu@7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/";
+                    window.cdn = "https://raw.githack.com/genizy/emu/7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/";
                 });
             }
             input.addEventListener("change", async () => {
@@ -424,7 +417,7 @@
                 div.appendChild(sub)
                 document.body.appendChild(div)
 
-                const cdn = window.cdn || "https://cdn.jsdelivr.net/gh/genizy/emu@7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/"
+                const cdn = window.cdn || "https://raw.githack.com/genizy/emu/7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/"
 
                 window.EJS_player = "#game";
                 window.EJS_gameName = parts.shift();
@@ -495,7 +488,7 @@
                         option.textContent = version;
                     }
                     option.selected = true;
-                    window.cdn = "https://cdn.jsdelivr.net/gh/genizy/emu@7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/";
+                    window.cdn = "https://raw.githack.com/genizy/emu/7bf5cbb0b94866568d2aaa1fd42ebb5acd517e0d/";
                     select.appendChild(option);
                 }
             }

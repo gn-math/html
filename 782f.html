@@ -9,7 +9,7 @@
     <script>
       window.gameconfig = {
         name: "Um Jammer Lammy",
-        url: "https://cdn.jsdelivr.net/gh/bubbls/ugss@main/jammer/Um%20Jammer%20Lammy%20(USA).chd",
+        url: "https://raw.githack.com/bubbls/ugss/main/jammer/Um%20Jammer%20Lammy%20(USA).chd",
         core: "psx",
         min: 1,
         max: 26,
@@ -109,12 +109,12 @@ getParts("asd.js", 0, 100)
           EJS_gameName = window.gameconfig.name;
           EJS_color = "#0064ff";
           EJS_startOnLoaded = true;
-          EJS_pathtodata = "https://cdn.jsdelivr.net/gh/genizy/emu@master/";
+          EJS_pathtodata = "https://raw.githack.com/genizy/emu/master/";
           EJS_gameUrl = gameUrl;
-          EJS_biosUrl = "https://cdn.jsdelivr.net/gh/Abdess/retroarch_system@5f96368f6dbad5851cdb16a5041fefec4bdcd305/Sony%20-%20PlayStation/scph5501.bin";
+          EJS_biosUrl = "https://raw.githack.com/Abdess/retroarch_system/5f96368f6dbad5851cdb16a5041fefec4bdcd305/Sony%20-%20PlayStation/scph5501.bin";
           const script = document.createElement("script");
           script.src =
-            "https://cdn.jsdelivr.net/gh/genizy/emu@master/loader.js";
+            "https://raw.githack.com/genizy/emu/master/loader.js";
           document.body.appendChild(script);
         })
         .catch((error) => {

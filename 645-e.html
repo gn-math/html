@@ -1,15 +1,8 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L7856P3VNT');
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
-    <base href="https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/">
+    <base href="https://raw.githack.com/bubbls/ports/main/arthurs-nightmare/">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Arthur's Nightmare</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico"> 
@@ -22,7 +15,7 @@
    
     if (typeof url === 'string' && url.includes('StreamingAssets/')) {
       const filename = url.split('StreamingAssets/').pop();
-      url = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+      url = 'https://raw.githack.com/bubbls/ports/main/arthurs-nightmare/StreamingAssets/' + filename;
       args[0] = url;
       console.log('[Fetch Intercepted] Redirecting to:', url);
     }
@@ -34,7 +27,7 @@
   XMLHttpRequest.prototype.open = function(method, url, ...rest) {
     if (typeof url === 'string' && url.includes('StreamingAssets/')) {
       const filename = url.split('StreamingAssets/').pop();
-      url = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+      url = 'https://raw.githack.com/bubbls/ports/main/arthurs-nightmare/StreamingAssets/' + filename;
       console.log('[XHR Intercepted] Redirecting to:', url);
     }
     
@@ -50,7 +43,7 @@
       element.setAttribute = function(name, value) {
         if (name === 'src' && typeof value === 'string' && value.includes('StreamingAssets/')) {
           const filename = value.split('StreamingAssets/').pop();
-          value = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+          value = 'https://raw.githack.com/bubbls/ports/main/arthurs-nightmare/StreamingAssets/' + filename;
           console.log('[Media Element Intercepted] Redirecting to:', value);
         }
         return originalSetAttribute.call(this, name, value);
@@ -60,7 +53,7 @@
         set: function(value) {
           if (typeof value === 'string' && value.includes('StreamingAssets/')) {
             const filename = value.split('StreamingAssets/').pop();
-            value = 'https://cdn.jsdelivr.net/gh/bubbls/ports@main/arthurs-nightmare/StreamingAssets/' + filename;
+            value = 'https://raw.githack.com/bubbls/ports/main/arthurs-nightmare/StreamingAssets/' + filename;
             console.log('[Media src Intercepted] Redirecting to:', value);
           }
           this.setAttribute('src', value);
@@ -104,7 +97,7 @@
         debug: true
       };
     </script>
-    <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
+    <script src="https://raw.githack.com/bubbls/UGS-Assets/main/merge.js"></script>
     <script src="Build/UnityLoader.js"></script>
     <script>
       setTimeout(function() {
