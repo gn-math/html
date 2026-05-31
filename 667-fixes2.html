@@ -16,7 +16,7 @@
 
     function addParam(url) {
         try {
-            const u = new URL(url, location.href);
+            const u = new URL(url, document.baseURI);
             u.searchParams.set(PARAM_NAME, PARAM_VALUE);
             return u.href;
         } catch {
