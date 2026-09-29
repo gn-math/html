@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Lethal Company Web</title>
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; background: #000; }
+      #unity-container { position: relative; width: 100%; height: 100%; }
+      #unity-canvas { width: 100%; height: 100%; display: block; background: #231F20; outline: none; }
+      #unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 240px; display: none; font-family: sans-serif; color: #ccc; text-align: center; }
+      #unity-progress-bar-empty { width: 100%; height: 12px; border: 1px solid #777; margin-top: 8px; }
+      #unity-progress-bar-full { width: 0%; height: 100%; background: white; }
+      #unity-status-text { font-size: 12px; margin-top: 6px; }
+      #unity-warning { position: absolute; left: 50%; top: 5%; transform: translate(-50%); background: rgba(0,0,0,0.7); color: white; padding: 6px 10px; display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="unity-container">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+        <div id="unity-status-text">Loading...</div>
+      </div>
+      <div id="unity-warning"></div>
+    </div>
+    <script>
+      window.WispRelayWSState = { sock: null, recvPtr: 0, sid: 0 };
+    </script>
+    <script>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var statusText = document.querySelector("#unity-status-text");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+     
+      var GH_USER = "larpinguser";
+      var GH_REPO = "lethal";
+      var GH_BRANCH = "main";
+      var GH_PATH = "build/Build"; 
+      var JSDELIVR_BASE = "https://cdn.jsdelivr.net/gh/" + GH_USER + "/" + GH_REPO + "@" + GH_BRANCH + "/" + GH_PATH;
+
+      var DATA_PART_COUNT = 18; 
+      var WASM_PART_COUNT = 5; 
+
+      function padded(n) { return n < 10 ? "0" + n : "" + n; }
+
+      var dataPartUrls = [];
+      for (var i = 1; i <= DATA_PART_COUNT; i++) {
+        dataPartUrls.push(JSDELIVR_BASE + "/build.data.part" + padded(i));
+      }
+      var wasmPartUrls = [];
+      for (var j = 1; j <= WASM_PART_COUNT; j++) {
+        wasmPartUrls.push(JSDELIVR_BASE + "/build.wasm.part" + j);
+      }
+
+      var frameworkUrl = JSDELIVR_BASE + "/build.framework.js";
+      var loaderUrl = JSDELIVR_BASE + "/build.loader.js";
+      var streamingAssetsUrl = JSDELIVR_BASE.replace(/\/Build$/, "") + "/StreamingAssets";
+
+      var config = {
+        dataUrl: null, 
+        frameworkUrl: frameworkUrl,
+        codeUrl: null, 
+        streamingAssetsUrl: streamingAssetsUrl,
+        companyName: "ZeekerssRBLX",
+        productName: "Lethal Company",
+        productVersion: "0.1",
+        showBanner: unityShowBanner,
+        webglContextAttributes: {
+          antialias: false,
+          preserveDrawingBuffer: true,
+          powerPreference: "high-performance",
+          failIfMajorPerformanceCaveat: false
+        },
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+        canvas.className = "unity-mobile";
+      }
+
+      loadingBar.style.display = "block";
+
+   
+      async function fetchPart(url) {
+        var res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Failed to fetch " + url + " (HTTP " + res.status + ")");
+        }
+        return res.arrayBuffer();
+      }
+
+      async function reassemble(urls, onEachDone) {
+        var buffers = [];
+        for (var k = 0; k < urls.length; k++) {
+          buffers.push(await fetchPart(urls[k]));
+          onEachDone();
+        }
+        return new Blob(buffers);
+      }
+
+      function loadScript(src) {
+        return new Promise(function (resolve, reject) {
+          var s = document.createElement("script");
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = function () { reject(new Error("Failed to load script " + src)); };
+          document.body.appendChild(s);
+        });
+      }
+
+      (async function main() {
+        try {
+          var totalParts = dataPartUrls.length + wasmPartUrls.length;
+          var partsDone = 0;
+
+          function bumpDownloadProgress() {
+            partsDone++;
+     
+            var pct = (partsDone / totalParts) * 80;
+            progressBarFull.style.width = pct + "%";
+            statusText.textContent = "Downloading game files (" + partsDone + "/" + totalParts + ")";
+          }
+
+          statusText.textContent = "Downloading game files (0/" + totalParts + ")";
+
+          var dataBlob = await reassemble(dataPartUrls, bumpDownloadProgress);
+          var wasmBlob = await reassemble(wasmPartUrls, bumpDownloadProgress);
+
+          config.dataUrl = URL.createObjectURL(dataBlob);
+          config.codeUrl = URL.createObjectURL(wasmBlob);
+
+          statusText.textContent = "Starting engine...";
+          await loadScript(loaderUrl);
+
+          var unityInstance = await createUnityInstance(canvas, config, function (progress) {
+            var pct = 80 + progress * 20;
+            progressBarFull.style.width = pct + "%";
+            statusText.textContent = "Loading engine... " + Math.round(progress * 100) + "%";
+          });
+
+          loadingBar.style.display = "none";
+          canvas.focus();
+        } catch (err) {
+          console.error(err);
+          unityShowBanner(err.message || String(err), "error");
+        }
+      })();
+    </script>
+  </body>
+</html>

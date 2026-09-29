@@ -1,0 +1,443 @@
+<!doctypehtml>
+    <html lang=en-us>
+
+    <head>
+      
+	<base href="https://cdn.jsdelivr.net/gh/ytsodacan/tf2-build@main/">
+        <meta charset=utf-8>
+        <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+        <title>Team Fortress 2</title>
+        <link href=assets/tf2-favicon.png rel=icon type=image/png>
+        <style>
+            body {
+                font-family: arial;
+                margin: 0;
+                padding: none
+            }
+
+            .emscripten {
+                padding-right: 0;
+                margin-left: auto;
+                margin-right: auto;
+                display: block
+            }
+
+            div.emscripten {
+                text-align: center
+            }
+
+            div.emscripten_border {
+                border: 1px solid #000
+            }
+
+            canvas.emscripten {
+                border: 0 none;
+                background-color: #000
+            }
+
+            #emscripten_logo {
+                display: inline-block;
+                margin: 0;
+                padding: 6px;
+                width: 265px
+            }
+
+            .spinner {
+                height: 30px;
+                width: 30px;
+                margin: 0;
+                margin-top: 20px;
+                margin-left: 20px;
+                display: inline-block;
+                vertical-align: top;
+                -webkit-animation: rotation .8s linear infinite;
+                -moz-animation: rotation .8s linear infinite;
+                -o-animation: rotation .8s linear infinite;
+                animation: rotation .8s linear infinite;
+                border-left: 5px solid #ebebeb;
+                border-right: 5px solid #ebebeb;
+                border-bottom: 5px solid #ebebeb;
+                border-top: 5px solid #787878;
+                border-radius: 100%;
+                background-color: #bdd72e
+            }
+
+            @-webkit-keyframes rotation {
+                from {
+                    -webkit-transform: rotate(0)
+                }
+
+                to {
+                    -webkit-transform: rotate(360deg)
+                }
+            }
+
+            @-moz-keyframes rotation {
+                from {
+                    -moz-transform: rotate(0)
+                }
+
+                to {
+                    -moz-transform: rotate(360deg)
+                }
+            }
+
+            @-o-keyframes rotation {
+                from {
+                    -o-transform: rotate(0)
+                }
+
+                to {
+                    -o-transform: rotate(360deg)
+                }
+            }
+
+            @keyframes rotation {
+                from {
+                    transform: rotate(0)
+                }
+
+                to {
+                    transform: rotate(360deg)
+                }
+            }
+
+            #status {
+                display: inline-block;
+                vertical-align: top;
+                margin-top: 30px;
+                margin-left: 20px;
+                font-weight: 700;
+                color: #787878
+            }
+
+            #progress {
+                height: 20px;
+                width: 300px
+            }
+
+            #controls {
+                display: inline-block;
+                float: right;
+                vertical-align: top;
+                margin-top: 30px;
+                margin-right: 20px
+            }
+
+            #output {
+                width: 100%;
+                height: 200px;
+                margin: 0 auto;
+                margin-top: 10px;
+                border-left: 0;
+                border-right: 0px;
+                padding-left: 0;
+                padding-right: 0;
+                display: block;
+                background-color: #000;
+                color: #fff;
+                font-family: 'Lucida Console', Monaco, monospace;
+                outline: 0
+            }
+        </style>
+        <style>
+            body {
+                background: #111;
+                color: #fff
+            }
+
+            .emscripten_border:fullscreen,
+            canvas:fullscreen {
+                width: 100vw;
+                height: 100vh;
+                border: 0;
+                background: #000
+            }
+
+            .emscripten_border:fullscreen canvas {
+                width: 100%;
+                height: 100%;
+                object-fit: contain
+            }
+
+            body #emscripten_logo {
+                height: 64px;
+                width: auto;
+                display: inline-block;
+                vertical-align: top;
+                margin: 0;
+                padding: 6px
+            }
+
+            :root {
+                --tf-tan: #ebe2ca;
+                --tf-orange: #b25216;
+                --tf-orange-dim: rgba(178, 82, 22, 0.47)
+            }
+
+            body a {
+                color: var(--tf-orange)
+            }
+
+            #controls input[type=text] {
+                width: 12em;
+                margin-left: .5em
+            }
+
+            #controls label {
+                color: var(--tf-tan);
+                font-family: system-ui, sans-serif;
+                margin-left: 1em
+            }
+
+            #namePrompt {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, .85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10;
+                font-family: system-ui, sans-serif
+            }
+
+            #namePrompt[hidden] {
+                display: none
+            }
+
+            #namePrompt form {
+                background: #1a1a1a;
+                border: 1px solid var(--tf-orange-dim);
+                padding: 1.5em 2em;
+                text-align: center
+            }
+
+            #namePrompt h2 {
+                color: var(--tf-tan);
+                margin: 0 0 .8em;
+                font-weight: 600
+            }
+
+            #namePrompt input[type=text] {
+                font-size: 1.1em;
+                width: 14em;
+                padding: .3em
+            }
+
+            #namePrompt input[type=submit] {
+                font-size: 1.1em;
+                margin-left: .5em
+            }
+
+            #status {
+                color: var(--tf-tan);
+                font-family: system-ui, sans-serif;
+                text-align: center
+            }
+
+            #progress {
+                accent-color: var(--tf-orange)
+            }
+
+            body .spinner {
+                border-left-color: var(--tf-orange-dim) !important;
+                border-right-color: var(--tf-orange-dim) !important;
+                border-bottom-color: var(--tf-orange-dim) !important;
+                border-top-color: var(--tf-orange) !important;
+                background-color: transparent !important
+            }
+
+            #dlToast {
+                position: fixed;
+                left: 50%;
+                bottom: 26px;
+                transform: translate(-50%, 16px);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .18s ease, transform .18s ease;
+                background: rgba(18, 14, 11, .92);
+                backdrop-filter: blur(4px);
+                border: 1px solid var(--tf-orange-dim);
+                color: var(--tf-tan);
+                font-family: system-ui, sans-serif;
+                font-size: 13px;
+                line-height: 1.3;
+                padding: 10px 16px;
+                border-radius: 7px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 2147483647;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+                white-space: nowrap
+            }
+
+            #dlToast.show {
+                opacity: 1;
+                transform: translate(-50%, 0)
+            }
+
+            #dlToast .bar {
+                width: 130px;
+                height: 4px;
+                background: rgba(235, 226, 202, .15);
+                border-radius: 2px;
+                overflow: hidden;
+                flex: none
+            }
+
+            #dlToast .bar i {
+                display: block;
+                height: 100%;
+                width: 0;
+                background: var(--tf-orange);
+                transition: width .15s linear
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id=namePrompt hidden>
+            <form>
+                <h2>Pick a name</h2><input id=namePromptInput maxlength=31 placeholder="your name" spellcheck=false required> <input type=submit value=Play>
+            </form>
+        </div><img alt="Team Fortress 2" id=emscripten_logo src=assets/tf2-logo.png>
+        <div class=spinner id=spinner></div>
+        <div class=emscripten id=status>Downloading...</div><span id=controls><span><input type=button value=Fullscreen onclick=goFullscreen()></span><label for=playerName>Name</label><input id=playerName maxlength=31 placeholder="your name" spellcheck=false></span>
+        <div class=emscripten><progress hidden id=progress max=100 value=0></progress></div>
+        <div class=emscripten_border><canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+            <div id=dlToast><span id=dlToastText></span><span class=bar><i id=dlToastBar></i></span></div>
+        </div><textarea id=output rows=8></textarea>
+        <script>
+            function goFullscreen() {
+                var e = document.querySelector(".emscripten_border") || document.getElementById("canvas");
+                if (e) {
+                    var t = e.requestFullscreen || e.webkitRequestFullscreen || e.mozRequestFullScreen || e.msRequestFullscreen;
+                    if (t) {
+                        var n = t.call(e);
+                        n && "function" == typeof n.then ? n.then(lockKeyboard).catch((function(e) {
+                            console.error("fullscreen request rejected:", e)
+                        })) : lockKeyboard()
+                    } else console.error("fullscreen: not supported by this browser")
+                } else console.error("fullscreen: no target element")
+            }
+
+            function lockKeyboard() {
+                navigator.keyboard && navigator.keyboard.lock ? navigator.keyboard.lock().catch((function(e) {
+                    console.warn("keyboard lock refused:", e)
+                })) : console.warn("keyboard lock: not supported by this browser")
+            } ["keydown", "keypress", "keyup"].forEach((function(e) {
+                    window.addEventListener(e, (function(e) {
+                        var t = e.target;
+                        t && "INPUT" === t.tagName && "text" === t.type && e.stopImmediatePropagation()
+                    }), !0)
+                })), document.addEventListener("fullscreenchange", (function() {
+                    !document.fullscreenElement && navigator.keyboard && navigator.keyboard.unlock && navigator.keyboard.unlock()
+                })),
+                function() {
+                    var e = document.getElementById("playerName");
+                    if (e) {
+                        var t = function(e) {
+                            return String(e || "").replace(/["';\\\r\n]/g, "").trim().slice(0, 31)
+                        };
+                        try {
+                            e.value = t(localStorage.getItem("cs_player_name"))
+                        } catch (e) {}
+                        window.csSavedName = function() {
+                            try {
+                                return t(localStorage.getItem("cs_player_name"))
+                            } catch (e) {
+                                return ""
+                            }
+                        }, window.csAskName = function(n) {
+                            var o = document.getElementById("namePrompt"),
+                                a = document.getElementById("namePromptInput");
+                            o.hidden = !1, a.focus(), a.addEventListener("keydown", (function(e) {
+                                e.stopPropagation()
+                            })), o.querySelector("form").addEventListener("submit", (function(s) {
+                                s.preventDefault();
+                                var l = t(a.value);
+                                if (l) {
+                                    try {
+                                        localStorage.setItem("cs_player_name", l)
+                                    } catch (e) {}
+                                    e.value = l, o.hidden = !0, n(l)
+                                }
+                            }))
+                        }, e.addEventListener("change", (function() {
+                            var n = t(e.value);
+                            e.value = n;
+                            try {
+                                localStorage.setItem("cs_player_name", n)
+                            } catch (e) {}
+                            n && window.Module && (Module.csPageCommands = Module.csPageCommands || []).push('name "' + n + '"')
+                        })), e.addEventListener("keydown", (function(t) {
+                            t.stopPropagation(), "Enter" === t.key && e.blur()
+                        }))
+                    }
+                }();
+            var statusElement = document.getElementById("status"),
+                progressElement = document.getElementById("progress"),
+                spinnerElement = document.getElementById("spinner"),
+                canvasElement = document.getElementById("canvas"),
+                outputElement = document.getElementById("output");
+            outputElement && (outputElement.value = ""), canvasElement.addEventListener("webglcontextlost", (e => {
+                alert("WebGL context lost. You will need to reload the page."), e.preventDefault()
+            }), !1), canvasElement.widthNative = screen.availWidth, canvasElement.heightNative = screen.availHeight;
+            var Module = {
+                csSavedName: function() {
+                    return window.csSavedName ? window.csSavedName() : ""
+                },
+                csAskName: function(e) {
+                    window.csAskName ? window.csAskName(e) : e("player")
+                },
+                print(...e) {
+                    if (console.log(...e), outputElement) {
+                        var t = e.join(" ");
+                        outputElement.value += t + "\n", outputElement.scrollTop = outputElement.scrollHeight
+                    }
+                },
+                canvas: canvasElement,
+                setStatus(e) {
+                    if (Module.setStatus.last ??= {
+                            time: Date.now(),
+                            text: ""
+                        }, e !== Module.setStatus.last.text) {
+                        var t = e.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/),
+                            n = Date.now();
+                        t && n - Module.setStatus.last.time < 30 || (Module.setStatus.last.time = n, Module.setStatus.last.text = e, t ? (e = t[1], progressElement.value = 100 * parseInt(t[2]), progressElement.max = 100 * parseInt(t[4]), progressElement.hidden = !1, spinnerElement.hidden = !1) : (progressElement.value = null, progressElement.max = null, progressElement.hidden = !0, e || (spinnerElement.style.display = "none")), statusElement.innerHTML = e)
+                    }
+                },
+                totalDependencies: 0,
+                monitorRunDependencies(e) {
+                    this.totalDependencies = Math.max(this.totalDependencies, e), Module.setStatus(e ? "Preparing... (" + (this.totalDependencies - e) + "/" + this.totalDependencies + ")" : "All downloads complete.")
+                }
+            };
+            Module.setStatus("Downloading..."), window.onerror = e => {
+                Module.setStatus("Exception thrown, see JavaScript console"), spinnerElement.style.display = "none", Module.setStatus = e => {
+                    e && console.error("[post-exception status] " + e)
+                }
+            }
+        </script>
+        <script>
+            ! function() {
+                var e = document.getElementById("dlToast"),
+                    t = document.getElementById("dlToastText"),
+                    n = document.getElementById("dlToastBar");
+                if (e && t && n) {
+                    var o = null;
+                    setInterval((function() {
+                        var a = document.fullscreenElement,
+                            l = statusElement && statusElement.innerText || "";
+                        if (a && l) t.textContent = l, n.style.width = progressElement && !progressElement.hidden && progressElement.max ? 100 * progressElement.value / progressElement.max + "%" : "100%", e.classList.add("show"), clearTimeout(o), o = null;
+                        else if (e.classList.contains("show") && !o) o = setTimeout((function() {
+                            e.classList.remove("show")
+                        }), 300)
+                    }), 200)
+                }
+            }()
+        </script>
+        <script async src=tf2_launcher.js></script>
+    </body>
+
+    </html>
