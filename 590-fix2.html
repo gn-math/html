@@ -1,0 +1,402 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script>
+<!doctype html>
+<!-- Credit to Crunchtop for the port-->
+<!-- Note to web developers looking to add this to their website. This game can bug out and crash sometimes. Refresh the page if a crash is experienced -->
+<html lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Sonic Mania</title>
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/UGBONTOP/Sonic-Mania-InYourBrowser@main/image_2026-02-26_224423134.png" type="image/png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+
+        canvas {
+            height: 100%;
+            margin: auto;
+            padding: 0;
+            border: 0 none;
+            background-color: #000;
+            image-rendering: pixelated;
+            visibility: hidden;
+        }
+
+        canvas.visible {
+            visibility: visible;
+        }
+
+        #output { display: none; }
+
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('https://cdn.jsdelivr.net/gh/UGBONTOP/Sonic-Mania-InYourBrowser@main/image_2026-02-26_224632873.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.1s ease;
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-screen.hidden {
+            display: none;
+        }
+
+        .loading-content {
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .loading-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mini-favicon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .loading-title {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .loading-mb {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 10px;
+            transition: width 0.3s ease-out;
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            height: 1.2em;
+        }
+
+        .loading-dots {
+            position: absolute;
+            bottom: 40%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: dot-pulse 1.5s infinite ease-in-out;
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .ownership-footer {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            padding: 0 20px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1001;
+        }
+
+        .game-btn {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+            min-width: 130px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .game-btn:hover {
+            background: rgba(0,0,0,0.8);
+            border-color: rgba(255,255,255,0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas always present and running, just invisible until fade done -->
+    <canvas id="canvas" width="424" height="240" onclick="window.focus();" oncontextmenu="event.preventDefault();"></canvas>
+    <textarea id="output" rows="8"></textarea>
+
+    <div class="control-panel">
+        <button id="fullscreen-button" class="game-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            Fullscreen
+        </button>
+    </div>
+
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-header">
+                <div class="title-group">
+                    <img src="https://cdn.jsdelivr.net/gh/UGBONTOP/Sonic-Mania-InYourBrowser@main/image_2026-02-26_224423134.png" class="mini-favicon" alt="icon">
+                    <div class="loading-title">Sonic Mania ported to the web by Crunch Arcade</div>
+                </div>
+                <div class="loading-mb" id="mb-text">0.0MB of 198.8MB</div>
+            </div>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar"></div>
+            </div>
+            <div class="loading-text" id="loading-text">getting jsdlivr stuff</div>
+        </div>
+
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <div class="ownership-footer">
+            crunch arcade owns this btw
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var loadingBar = document.getElementById('loading-bar');
+        var loadingText = document.getElementById('loading-text');
+        var mbText = document.getElementById('mb-text');
+        var loadingScreen = document.getElementById('loading-screen');
+        var fullscreenButton = document.getElementById('fullscreen-button');
+        var canvas = document.getElementById('canvas');
+        var totalSizeMB = 198.8;
+
+        var links = [
+            "crunch arcade on top",
+        ];
+
+        function speakCrunch() {
+            window.speechSynthesis.cancel();
+            var utterance = new SpeechSynthesisUtterance("Crunch arcade on top");
+            utterance.rate = 1.6;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        window.onclick = function() {
+            var probe = new SpeechSynthesisUtterance("");
+            window.speechSynthesis.speak(probe);
+        };
+
+        function typeWriter(text, i, callback) {
+            if (i === 0) speakCrunch();
+            if (i < text.length) {
+                loadingText.textContent = text.substring(0, i + 1);
+                setTimeout(function() { typeWriter(text, i + 1, callback); }, 40);
+            } else if (callback) {
+                setTimeout(callback, 3000);
+            }
+        }
+
+        function finishLoading() {
+            loadingBar.style.width = '100%';
+            mbText.textContent = totalSizeMB.toFixed(1) + 'MB of ' + totalSizeMB.toFixed(1) + 'MB';
+            var randomLink = links[Math.floor(Math.random() * links.length)];
+            typeWriter(randomLink, 0, function() {
+                loadingScreen.classList.add('fade-out');
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.classList.add('hidden');
+                    canvas.classList.add('visible');
+                }, { once: true });
+            });
+        }
+
+        fullscreenButton.onclick = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function() {
+                    console.warn("Fullscreen failed");
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        var Module = {
+            preRun: [function() {
+                FS.mkdir('/saves');
+                FS.mount(IDBFS, {}, '/saves');
+                FS.syncfs(true, function(err) {
+                    if (err) console.log('FS load error:', err);
+                    try {
+                        if (FS.analyzePath('/saves/SaveData.bin').exists) {
+                            var data = FS.readFile('/saves/SaveData.bin');
+                            FS.writeFile('/SaveData.bin', data);
+                            console.log('Save data loaded from IndexedDB');
+                        }
+                    } catch(e) {
+                        console.log('No existing save data found:', e);
+                    }
+                });
+            }],
+            postRun: [function() {
+                finishLoading();
+
+                setInterval(function() {
+                    try {
+                        var data = FS.readFile('/SaveData.bin');
+                        FS.writeFile('/saves/SaveData.bin', data);
+                    } catch(e) {}
+                    FS.syncfs(false, function(err) {
+                        if (err) console.log('FS save error:', err);
+                    });
+                }, 5000);
+            }],
+            print: function(text) { console.log(text); },
+            printErr: function(text) { console.error(text); },
+            canvas: (function() {
+                var canvas = document.getElementById('canvas');
+                canvas.addEventListener("webglcontextlost", function(e) {
+                    alert('WebGL context lost. Reload the page.');
+                    e.preventDefault();
+                }, false);
+                return canvas;
+            })(),
+            setStatus: function(text) {
+                if (!Module.setStatus.last) Module.setStatus.last = {time: Date.now(), text: ''};
+                if (text === Module.setStatus.last.text) return;
+
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                var now = Date.now();
+                if (m && now - Module.setStatus.last.time < 30) return;
+
+                Module.setStatus.last.time = now;
+                Module.setStatus.last.text = text;
+
+                if (m) {
+                    var loaded = parseFloat(m[2]);
+                    var total = parseFloat(m[4]);
+                    var percent = Math.round((loaded / total) * 100);
+                    var currentMB = (percent / 100 * totalSizeMB).toFixed(1);
+
+                    loadingBar.style.width = percent + '%';
+                    mbText.textContent = currentMB + 'MB of ' + totalSizeMB.toFixed(1) + 'MB';
+
+                    if (percent < 20) loadingText.textContent = "getting jsdlivr stuff";
+                    else if (percent < 60) loadingText.textContent = "downloading game data...";
+                    else if (percent < 90) loadingText.textContent = "assembling Data.rsdk...";
+                    else loadingText.textContent = "almost there...";
+
+                } else if (text.startsWith('Downloading part')) {
+                    var match = text.match(/(\d+)\/(\d+)/);
+                    if (match) {
+                        var p = Math.round((parseInt(match[1]) / parseInt(match[2])) * 60);
+                        loadingBar.style.width = p + '%';
+                        var currentMB = (p / 100 * totalSizeMB).toFixed(1);
+                        mbText.textContent = currentMB + 'MB of ' + totalSizeMB.toFixed(1) + 'MB';
+                        loadingText.textContent = text;
+                    }
+                } else if (text === 'Assembling Data.data...') {
+                    loadingBar.style.width = '65%';
+                    loadingText.textContent = "combining stuff";
+                }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : '');
+            }
+        };
+
+        Module.setStatus('Downloading...');
+
+        window.addEventListener('beforeunload', function() {
+            try {
+                var data = FS.readFile('/SaveData.bin');
+                FS.writeFile('/saves/SaveData.bin', data);
+            } catch(e) {}
+            FS.syncfs(false, function(err) {});
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/UGBONTOP/Sonic-Mania-InYourBrowser@main/Data.js"></script>
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/gh/UGBONTOP/Sonic-Mania-InYourBrowser@refs/heads/main/RSDKv5U.js"></script>
+</body>
+</html>

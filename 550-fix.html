@@ -1,0 +1,220 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctype html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Sonic 3 A.I.R.</title>
+<base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/assets/sonic3/">
+<link rel="apple-touch-icon" sizes="256x256" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+body {background:black;color:white;font-family:arial;margin:0;padding:none;overflow:hidden;-webkit-user-select:none;}
+.emscripten {padding-right:0;margin-left:auto;margin-right:auto;display:block;}
+div.emscripten{text-align:center;}
+div.emscripten_border{border:0 none;}
+canvas.emscripten{border:0 none;background-color:#000;}
+.spinner{height:30px;width:30px;margin:20px 0 0 20px;display:inline-block;vertical-align:top;-webkit-animation:rotation .8s linear infinite;animation:rotation .8s linear infinite;border-left:5px solid #ebebeb;border-right:5px solid #ebebeb;border-bottom:5px solid #ebebeb;border-top:5px solid #787878;border-radius:100%;background-color:#bdd72e;}
+@-webkit-keyframes rotation{from{-webkit-transform:rotate(0)}to{-webkit-transform:rotate(360deg)}}
+@keyframes rotation{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+#status{display:inline-block;vertical-align:top;margin-top:30px;margin-left:20px;font-size:1em;font-weight:700;color:#787878}
+#progress{height:20px;width:250px}
+.hidden{display:none;}
+.restart{text-align:center;font-size: 1em;}
+.restart > button {
+  display: inline-block;
+  color: white;
+  background: linear-gradient(0deg, #111 0%, #444 100%);
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin-top:3px;
+  padding: 5px 8px;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+  text-shadow: 1px 1px #555;
+  font-size: 32px;
+}
+#root{color: black;}
+
+</style>
+<script src="browserfs.min.js"></script>
+<script>
+function startGame(){
+    callMain();
+
+    // Resize canvas properly
+    var gameCanvas = document.getElementById('canvas');
+    gameCanvas.style.width = "min(100vw, calc(100vh * 16 / 9))";
+    gameCanvas.style.height = "min(100vh, calc(100vw * 9 / 16))";
+    gameCanvas.style.marginTop = "max(0vh, calc(50vh - (100vw * 9 / 16 / 2)))";
+}
+
+function onPageLoaded(){
+    if('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('worker.js');
+    }
+    var startup = document.getElementById("startup");
+    startup.style.display = 'none';
+
+    var uiElements = document.getElementsByClassName('pageUI');
+    for (var i = 0; i < uiElements.length; i++) {
+        uiElements[i].classList.remove('hidden');
+    }
+
+    // Load the loader script
+    var loader = document.createElement('script');
+    loader.setAttribute('async', '');
+    loader.setAttribute('src', 'loader.js');
+    document.body.appendChild(loader);
+}
+
+function onGameExit(){
+    var restartBits = document.getElementsByClassName('restart');
+    for (var i = 0; i < restartBits.length; i++) {
+        restartBits[i].classList.remove('hidden');
+    }
+
+    var gameView = document.getElementById("gameView");
+    gameView.classList.add('hidden');
+    var rootView = document.getElementById("root");
+    rootView.classList.remove('hidden');
+
+    // Load file manager scripts
+    ['fileManagerRuntime.js','react.js','filemanager.js'].forEach(src=>{
+        var s = document.createElement('script');
+        s.setAttribute('src', src);
+        document.body.appendChild(s);
+    });
+
+    exitRuntime();
+}
+
+function hidePageUI(){
+    var uiElements = document.getElementsByClassName('pageUI');
+    for (var i = 0; i < uiElements.length; i++) {
+        uiElements[i].style.display = 'none';
+    }
+}
+
+function preloadS3kFile(){
+    fetch('Sonic_Knuckles_wSonic3.bin')
+    .then(response=>{
+        if(!response.ok) throw new Error('Failed to load S3K file');
+        return response.arrayBuffer();
+    })
+    .then(buffer=>{
+        var data = new Uint8Array(buffer);
+
+        // Optional sanity check
+        if(data.length != 4194304 || data[0x186] != 0x31 || data[0x187] != 0x35 || data[0x188] != 0x36 || data[0x189] != 0x33){
+            console.error("Invalid Sonic 3 & Knuckles file!");
+            return;
+        }
+
+        // Write to Emscripten FS
+        Module['FS_createDataFile']('/sonic3air/savedata/', 'Sonic_Knuckles_wSonic3.bin', data, true, true, true);
+
+        hidePageUI();
+        startGame();
+    })
+    .catch(err=>{
+        console.error(err);
+        // fallback could go here if needed
+    });
+}
+
+function onDownloadsComplete(){
+    var originalAbort = abort;
+    abort = function(what){
+        if(what.stack.indexOf('browserfs')>0){ what.errno=44; return; }
+        originalAbort(what);
+    }
+
+    var BFS = new BrowserFS.EmscriptenFS(Module.FS, Module.PATH, Module.ERRNO_CODES);
+    FS.mount(BFS, {root: '/'}, '/sonic3air/savedata/');
+    FS.chdir("/sonic3air");
+
+    // preload S3K if it doesn't exist
+    if(FS.analyzePath("/sonic3air/savedata/Sonic_Knuckles_wSonic3.bin", true).exists !== true){
+        preloadS3kFile();
+    } else {
+        hidePageUI();
+        startGame();
+    }
+}
+</script>
+</head>
+<body>
+<div id="startup"><h2>Loading...</h2></div>
+<div class="spinner pageUI hidden" id=spinner></div>
+<div class="emscripten pageUI hidden" id=status>Downloading...</div>
+<div class="emscripten pageUI hidden"><progress hidden id=progress max=100 value=0></progress></div>
+<div class="restart hidden">
+    <button type="button" onclick="location.reload()">Restart Game</button> 
+</div>
+<div id="root" class="hidden"></div>
+<div id="gameView" class="emscripten_border">
+    <canvas class="emscripten" id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+</div>
+<script>
+var statusElement = document.getElementById("status"),
+    progressElement = document.getElementById("progress"),
+    spinnerElement = document.getElementById("spinner");
+var Module = {
+    preRun: function(){ onPageLoaded(); },
+    postRun: [],
+    onExit: function(){ onGameExit(); },
+    noInitialRun: true,
+    printErr: function(e){ console.error(e); },
+    canvas: (function(){
+        var e = document.getElementById("canvas");
+        e.addEventListener("webglcontextlost", function(ev){
+            alert("WebGL context lost. You will need to reload the page.");
+            ev.preventDefault();
+        }, false);
+        return e;
+    })(),
+    setStatus: function(e){
+        if(Module.setStatus.last || (Module.setStatus.last={time:Date.now(), text:""}), e!==Module.setStatus.last.text){
+            var t=e.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/), n=Date.now();
+            t && n - Module.setStatus.last.time < 30 || (Module.setStatus.last.time=n, Module.setStatus.last.text=e, t ? (e=t[1], progressElement.value=100*parseInt(t[2]), progressElement.max=100*parseInt(t[4]), progressElement.hidden=false, spinnerElement.hidden=false) : (progressElement.value=null, progressElement.max=null, progressElement.hidden=true, e||(spinnerElement.style.display="none")), statusElement.innerHTML=e)
+        }
+    },
+    totalDependencies: 0,
+    monitorRunDependencies: function(e){
+        this.totalDependencies=Math.max(this.totalDependencies, e);
+        Module.setStatus(e ? "Preparing... (" + (this.totalDependencies - e) + "/" + this.totalDependencies + ")" : "All downloads complete.");
+        if(!e){
+            if(FS.analyzePath("/sonic3air/config.json", true).exists===true){
+                FS.mkdir('/sonic3air/savedata');
+                BrowserFS.configure({
+                    fs:"AsyncMirror",
+                    options:{
+                        sync:{fs:"InMemory"},
+                        async:{fs:"IndexedDB", options:{storeName:"sonic3air_savedata"}}
+                    }
+                }, function(err){ if(err) throw err; onDownloadsComplete(); });
+            }
+        }
+    }
+};
+Module.setStatus("Downloading...");
+window.onerror=function(e){
+    Module.setStatus("Exception thrown, see JavaScript console");
+    spinnerElement.style.display="none";
+    Module.setStatus=function(e){ e && Module.printErr("[post-exception status] "+e) };
+}
+</script>
+<script async src="sonic3air_web.js"></script>
+
+</body>
+</html>

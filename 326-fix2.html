@@ -1,0 +1,215 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctype html>
+<html lang="en">
+
+<head>
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/pokey-ball/">
+    <meta charset="utf-8">
+    <meta name="author" content="~">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover,minimal-ui" />
+    <script nonce="hCciCvTnzROJf19mJ0PmlQ">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("pokey-ball-save") || ""); },
+      saveData: function (data) { localStorage.setItem("pokey-ball-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+    <script src="lib/VOODOO-H5SDK.youtube.js" nonce="hCciCvTnzROJf19mJ0PmlQ"></script>
+    <script nonce="hCciCvTnzROJf19mJ0PmlQ">
+        //# sourceMappingURL=usage.min.js.map
+        var prg = document.getElementById('progress-text');
+        window.notifyProgress = function (percent) {
+            if (prg) {
+                prg.textContent = Math.round(percent) + '%';
+            } else {
+                prg = document.getElementById('progress-text');
+            }
+        }
+
+        function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+            var ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+            return {
+                width: srcWidth * ratio,
+                height: srcHeight * ratio
+            };
+        }
+
+        function onResize() {
+            var padding = 40;
+            var halfPadding = padding * 0.5;
+            var progressHeight = 120;
+            var size = 256;
+            var innerWidth = window.innerWidth - padding;
+            var innerHeight = window.innerHeight - padding;
+            var verticalCenter = 0.333;
+            var ratio = calculateAspectRatioFit(size, size, innerWidth, innerHeight - progressHeight);
+            var newWidth = Math.min(ratio.width, size);
+            var newHeight = Math.min(ratio.height, size);
+            var newTop = (innerHeight - newHeight) * verticalCenter;
+            // var el = document.getElementById('splash-screen');
+            // el.style.width = newWidth + 'px';
+            // el.style.height = newHeight + 'px';
+            // el.style.top = newTop + 'px';
+        }
+        window.addEventListener('DOMContentLoaded', (event) => {
+            window.addEventListener('resize', onResize);
+            onResize();
+            document.body.style.overflow = 'hidden';
+        });
+    </script>
+    <style>
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            -webkit-user-select: none;
+            overflow: hidden;
+            margin: 0 0 1px 0;
+            padding: 0;
+            background-color: #000;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #three-container {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: auto;
+            position: absolute;
+            top: 0;
+            left: 0
+        }
+
+        #splash-screen {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            background: #000;
+            overflow: hidden;
+            display: none
+        }
+
+        #overlay {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 1);
+            cursor: pointer;
+        }
+
+        .hidden {
+            visibility: hidden;
+            display: none;
+            opacity: 0;
+            transition: visibility 0s 0.4s ease-in, opacity 0.4s ease-in;
+        }
+
+        #top-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        #voodoo-logo {
+            position: absolute;
+            width: 70%;
+            max-width: 400px;
+            height: 100%;
+            /*left: 15%;*/
+            /*bottom: 50px;*/
+            bottom: 50px;
+            background-image: url("assets/voodoo.c6aff1c3.svg");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: invert(1);
+            display: flex;
+            justify-content: center;
+        }
+
+        #progress-text {
+            text-align: center;
+            color: #fff;
+            font-size: 5.5vw;
+            font-family: 'system-ui', system-ui;
+            position: relative;
+            top: calc(50% + 60px);
+            filter: invert(1);
+        }
+    
+
+
+
+
+</style>
+</head>
+
+<body oncontextmenu="return false;">
+    <div id="three-container"></div>
+    <div id="container"></div>
+    <div id="splash-screen">
+        <div id="top-container">
+            <div id="overlay"></div>
+            <div id="voodoo-logo">
+                <div id="progress-text">0%</div>
+            </div>
+        </div>
+    </div>
+    <script defer="defer" src="code.js" nonce="hCciCvTnzROJf19mJ0PmlQ"></script>
+
+
+</body>
+
+</html>

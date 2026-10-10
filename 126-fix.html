@@ -1,0 +1,169 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+
+<html lang="en-us">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Unity WebGL Player | Granny 3</title>
+<link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/ranny31ranny/5471@main/TemplateData/favicon.ico"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ranny31ranny/5471@main/TemplateData/style.css"/>
+<!-- Yandex Games SDK -->
+<script src="https://cdn.jsdelivr.net/gh/ranny31ranny/5471@main/v2.79e5f6f6325b0faa1b66.js"></script>
+
+</head>
+<body>
+<div id="unity-container" style="position: absolute; width: 100%; height: 100%; left: 0%; top: 0%;">
+<canvas id="unity-canvas" style="position: absolute; width: 100%; height: 100%"></canvas>
+<div id="unity-loading-bar">
+<div id="unity-logo"></div>
+<div id="unity-progress-bar-empty">
+<div id="unity-progress-bar-full"></div>
+</div>
+</div>
+<div id="unity-warning"> </div>
+</div>
+<script>
+        YaGames
+        .init()
+        .then(ysdk => {
+            console.log('Yandex SDK initialized');
+            window.ysdk = ysdk;
+            initPlayer();
+        });
+        
+        var player;
+
+        function initPlayer() {
+            return ysdk.getPlayer({ scopes: false }).then(_player => {
+                    player = _player;
+
+                    return player;
+                });
+        }
+
+    </script>
+<script>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "https://cdn.jsdelivr.net/gh/ranny31ranny/5471@main/Build";
+      var loaderUrl = buildUrl + "/bb0d9ecdb05db3e84da20bd14a4f84dc.loader.js";
+
+      function mergeFiles(fileParts) {
+        return new Promise((resolve, reject) => {
+            let buffers = [];
+            function fetchPart(index) {
+                if (index >= fileParts.length) {
+                    let mergedBlob = new Blob(buffers);
+                    let mergedFileUrl = URL.createObjectURL(mergedBlob);
+                    resolve(mergedFileUrl);
+                    return;
+                }
+                fetch(fileParts[index])
+                    .then(response => response.arrayBuffer())
+                    .then(data => {
+                        buffers.push(data);
+                        fetchPart(index + 1);
+                    })
+                    .catch(reject);
+            }
+            fetchPart(0);
+        });
+      }
+
+      var wasmParts = [
+          buildUrl + "/bd8d511ba06d09159c93b032551b04fb.wasm.part0",
+          buildUrl + "/bd8d511ba06d09159c93b032551b04fb.wasm.part1",
+          buildUrl + "/bd8d511ba06d09159c93b032551b04fb.wasm.part2"
+      ];
+
+      var dataParts = [
+          buildUrl + "/fef8fdd7cfc9e5a5001034b01fa3647b.data.part0",
+          buildUrl + "/fef8fdd7cfc9e5a5001034b01fa3647b.data.part1"
+      ];
+
+      Promise.all([
+          mergeFiles(wasmParts),
+          mergeFiles(dataParts)
+      ]).then(([wasmUrl, dataUrl]) => {
+          var config = {
+              dataUrl: dataUrl,
+              frameworkUrl: buildUrl + "/e12dac5a3f5e3f677b009118afef20b7.framework.js",
+              codeUrl: wasmUrl,
+              streamingAssetsUrl: "StreamingAssets",
+              companyName: "Games Place",
+              productName: "Granny 3",
+              productVersion: "0.1",
+              showBanner: unityShowBanner,
+          };
+
+          if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+              var meta = document.createElement('meta');
+              meta.name = 'viewport';
+              meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+              document.getElementsByTagName('head')[0].appendChild(meta);
+              container.className = "unity-mobile";
+              canvas.className = "unity-mobile";
+          } else {
+              canvas.style.width = "100%";
+              canvas.style.height = "100%";
+          }
+
+          loadingBar.style.display = "block";
+          
+          // myGameInstance global olarak tanımlanıyor
+          window.myGameInstance = null;
+
+          var script = document.createElement("script");
+          script.src = loaderUrl;
+          script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+              progressBarFull.style.width = 100 * progress + "%";
+                  }).then((unityInstance) => {
+                    window.myGameInstance = unityInstance; // Global hale getirildi
+                    loadingBar.style.display = "none";
+                  }).catch((message) => {
+                    console.error("Unity yükleme hatası:", message);
+                    alert(message);
+                  });
+                };
+
+          document.body.appendChild(script);
+      }).catch(error => {
+          console.error("Dosya birleştirme hatası:", error);
+      });
+
+</script>
+
+
+
+</body>
+</html>

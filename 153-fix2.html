@@ -1,0 +1,209 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script>
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  
+  
+  
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/flappy%20dunk/">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Flappy Dunk</title>
+  <link rel="stylesheet" href="TemplateData/style.css" nonce="CRrAvEtnTYz2xyLLghZb0w">
+  <script nonce="qdhAB9vIEyxuPCqnXvX_tA">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("flappy dunk-save") || ""); },
+      saveData: function (data) { localStorage.setItem("flappy dunk-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+
+</head>
+
+<body>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width=100% height=100% tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+    <div id="unity-warning"> </div>
+  </div>
+  <script src="unarchiver.min.js" nonce="CRrAvEtnTYz2xyLLghZb0w">// used for decompression if zip files are used</script>
+  <script nonce="CRrAvEtnTYz2xyLLghZb0w">
+      /*custom unity script*/
+      var canvas = document.querySelector("#unity-canvas");
+      var gameInstance = null; 
+      var defaultRemoteData = "Total Hoops In Endless:::0|||white state:::1|||wingRed state:::1|||hoopYellowBack state:::1|||buoy state:::0|||purple state:::1|||baseball state:::1|||black state:::1|||hoopPurpleBack state:::1|||christmashat state:::1|||wingOrange state:::1|||hoopPinkBack state:::1|||moon state:::1|||earth state:::1|||RedFever state:::1|||wingRainbow state:::1|||normal state:::4|||bowling state:::1|||green state:::1|||brain state:::0|||cd state:::1|||BlueFever state:::1|||hypnotic state:::1|||tennis state:::1|||GreenFever state:::1|||hoopCheeseBack state:::1|||wingBlue state:::1|||pizza state:::0|||blue state:::1|||yinyang state:::1|||hoopWhiteBack state:::1|||hoopBack state:::4|||hoopSmileBack state:::1|||football state:::1|||wingGreen state:::1|||YellowFever state:::1|||pink state:::1|||beachball state:::1|||red state:::1|||PinkFever state:::1|||hoopRainbowBack state:::1|||wingBlack state:::1|||wingPink state:::1|||poker state:::1|||wingYellow state:::1|||hoopOrangeBack state:::1|||wing state:::4|||rainbow state:::1|||eye state:::1|||poolball state:::1|||watermelon state:::1|||hoopBlackBack state:::1|||PurpleFever state:::1|||yellow state:::1|||volley state:::1|||wingPurple state:::1|||smiley state:::1|||NormalFever state:::4|||hoopBlueBack state:::1|||wingSmile state:::1|||hoopGreenBack state:::1|||fdban state:::1|||wingInfinity state:::1|||analyticsSession:::Active Users (1.6.4)|||Audio On:::1";
+      var remoteData = "";
+      var typeToBlob = {
+        "wasm":"application/wasm",
+        "js":"text/javascript",
+        "binary":"application/octet-stream",
+      };
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/flappydunk_unity6_V1.0.1.loader.js";  
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/flappydunk_unity6_V1.0.1.data.zip",
+        frameworkUrl: buildUrl + "/flappydunk_unity6_V1.0.1.framework.js",
+        codeUrl: buildUrl + "/flappydunk_unity6_V1.0.1.wasm.zip",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Voodoo",
+        productName: "Flappy Dunk",
+        productVersion: "1.0.1",
+        showBanner: unityShowBanner,
+      };
+
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+        document.getElementsByTagName("head")[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+      } 
+      else {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const r = 800/450;
+        
+        var newWidth = parseInt(h / r);
+        if(newWidth < 1){
+          newWidth = 450;
+          setTimeout(() => {
+            canvas.style.width = parseInt(window.innerHeight/1.7778) +"px";
+          }, 500);
+        }
+        canvas.style.width = newWidth +"px";
+        canvas.style.height = "100vh";
+      }
+
+
+      function unityShowBanner(msg, type) {}
+
+      function unCompress(codeUrl, shouldDecompress = false, type = "raw") {
+        if (!shouldDecompress)
+          return Promise.resolve(codeUrl);
+
+        const proxy = { onResolve: () => {} };
+        const blobType = typeToBlob[type] || typeToBlob["binary"];
+        const promise = new Promise((resolve) => proxy.onResolve = resolve);
+        DecompressFile(codeUrl, blobType, (file) => proxy.onResolve(file));
+
+        return promise;
+      }
+
+      function loadZipData(url, callback) {
+        fetch(url)
+          .then((response) => response.blob())
+          .then((blob) => {
+            callback(blob);
+          });
+      }
+
+      function DecompressFile(file, blobMimeType, callback) {
+        let decompressedFile;
+
+        loadZipData(file, (f) => {
+          Unarchiver.open(f).then(async function (archive) {
+            for (let entry of archive.entries) {
+              if (entry.is_file) {
+                let entryRead = await entry.read();
+                let entryData = await entryRead.arrayBuffer();
+                let dataBlob = new Blob([new Uint8Array(entryData)], {
+                  type: blobMimeType,
+                });
+                decompressedFile = window.URL.createObjectURL(dataBlob);
+              }
+            }
+            callback(decompressedFile);
+          });
+        });
+      }
+
+      /* load zipped wasm & data files*/
+      async function loadAllResources() {
+        config.codeUrl = await unCompress(config.codeUrl, true, "wasm");
+        config.dataUrl = await unCompress(config.dataUrl, true, "raw");
+      }
+
+      async function loadYoutubeData() {
+        const data = await ytgame.game.loadData();
+        if (data == "") {
+          console.log("youtube remote data is empty, use default data instead");
+        }
+        remoteData = data == "" ? defaultRemoteData : data;
+        console.log("******START GAME WITH PRELOADED DATA: " + remoteData);
+      }
+
+      async function onPageLoaded() {
+        const promise1 = loadAllResources();
+        const promise2 = loadYoutubeData();
+        await Promise.all([promise1, promise2]);
+        startUnityGame();
+      }
+
+      function startUnityGame() {
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+            document.querySelector("#unity-progress-bar-full").style.width =
+              100 * progress + "%";
+          })
+            .then((unityInstance) => {
+              gameInstance = unityInstance;
+              document.querySelector("#unity-loading-bar").style.display = "none";
+            })
+            .catch((message) => {
+              alert(message);
+            });
+        };
+        document.querySelector("#unity-loading-bar").style.display = "block";
+        document.body.appendChild(script);
+      }
+
+      window.addEventListener("load", onPageLoaded);
+
+  </script>
+
+
+</body>
+
+</html>

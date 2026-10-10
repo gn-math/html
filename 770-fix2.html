@@ -1,0 +1,618 @@
+<!doctypehtml>
+	<html lang=en>
+
+	<head>
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/srb2@main/">
+		<meta charset=utf-8>
+		<link rel="canonical" href="https://kbhgames.com/game/sonic-robo-blast-2">
+		<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name=viewport>
+		<title>Sonic Robo Blast 2</title>
+		<script>
+			Object.defineProperty(window, "devicePixelRatio", {
+				value: 1,
+				writable: !1
+			})
+		</script>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box
+			}
+
+			body,
+			html {
+				touch-action: none;
+				-ms-touch-action: none;
+				overscroll-behavior: none
+			}
+
+			body {
+				background: #000;
+				color: #fff;
+				font-family: 'Segoe UI', Arial, sans-serif;
+				overflow: hidden;
+				height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center
+			}
+
+			#loading {
+				text-align: center;
+				padding: 40px
+			}
+
+			#loading h2 {
+				font-size: 24px;
+				margin-bottom: 20px;
+				color: #4af
+			}
+
+			#loading p {
+				color: #aaa;
+				margin-bottom: 15px;
+				font-size: 14px
+			}
+
+			#progress-bar {
+				width: 400px;
+				max-width: 80vw;
+				height: 20px;
+				background: #222;
+				border-radius: 10px;
+				overflow: hidden;
+				margin: 0 auto 10px
+			}
+
+			#progress-fill {
+				height: 100%;
+				width: 0%;
+				background: linear-gradient(90deg, #07f, #4af);
+				border-radius: 10px;
+				transition: width .2s
+			}
+
+			#progress-text {
+				font-size: 14px;
+				color: #888
+			}
+
+			#status-text {
+				font-size: 12px;
+				color: #666;
+				margin-top: 10px
+			}
+
+			canvas {
+				display: none;
+				outline: 0;
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				object-fit: contain
+			}
+
+			#controls {
+				display: none;
+				position: fixed;
+				bottom: 10px;
+				right: 10px;
+				z-index: 100
+			}
+
+			#controls button {
+				background: rgba(255, 255, 255, .15);
+				border: 1px solid rgba(255, 255, 255, .3);
+				color: #fff;
+				padding: 8px 14px;
+				margin-left: 5px;
+				cursor: pointer;
+				border-radius: 4px;
+				font-size: 13px
+			}
+
+			#controls button:hover {
+				background: rgba(255, 255, 255, .25)
+			}
+
+			#error {
+				display: none;
+				text-align: center;
+				padding: 40px
+			}
+
+			#error h2 {
+				color: #f44;
+				margin-bottom: 10px
+			}
+
+			#error pre {
+				background: #111;
+				padding: 15px;
+				border-radius: 8px;
+				text-align: left;
+				max-width: 600px;
+				margin: 10px auto;
+				overflow-x: auto;
+				font-size: 12px;
+				color: #f88
+			}
+
+			#save-status {
+				display: none;
+				position: fixed;
+				top: 10px;
+				right: 10px;
+				background: rgba(0, 180, 0, .8);
+				color: #fff;
+				padding: 8px 16px;
+				border-radius: 4px;
+				font-size: 13px;
+				z-index: 200;
+				transition: opacity .5s
+			}
+
+			#touch-controls {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 50;
+				pointer-events: none;
+				touch-action: none;
+				user-select: none;
+				-webkit-user-select: none
+			}
+
+			#touch-controls .touch-btn {
+				position: absolute;
+				pointer-events: auto;
+				width: 56px;
+				height: 56px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, .13);
+				border: 2px solid rgba(255, 255, 255, .25);
+				color: rgba(255, 255, 255, .6);
+				font-size: 18px;
+				font-weight: 700;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				touch-action: none;
+				user-select: none;
+				-webkit-user-select: none
+			}
+
+			#touch-controls .touch-btn.active {
+				background: rgba(255, 255, 255, .3);
+				border-color: rgba(255, 255, 255, .5)
+			}
+
+			#touch-controls .touch-btn.btn-esc {
+				width: 40px;
+				height: 40px;
+				font-size: 12px
+			}
+
+			#dpad-container {
+				position: absolute;
+				bottom: 30px;
+				left: 20px;
+				width: 164px;
+				height: 164px
+			}
+
+			#action-container {
+				position: absolute;
+				bottom: 30px;
+				right: 20px;
+				width: 164px;
+				height: 164px
+			}
+#loading-text {
+  font-weight: bold;
+  background: linear-gradient(
+    270deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8f00ff
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 3s ease infinite;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+		</style>
+	</head>
+
+	<body>
+<div id="loading-text"
+    style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
+  </div>
+		<div id=loading>
+			<h2>Sonic Robo Blast 2</h2>
+			<p>Loading game data...</p>
+			<div id=progress-bar>
+				<div id=progress-fill></div>
+			</div>
+			<div id=progress-text>Initializing...</div>
+			<div id=status-text></div>
+		</div>
+		<div id=error>
+			<h2>Error</h2>
+			<pre id=error-text></pre>
+			<p>Check the browser console for details.</p>
+		</div><canvas id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+		<div id=controls>
+			<div id=saves-menu style=position:relative;display:inline-block><button onclick='var m=document.getElementById("saves-dropdown");m.style.display="block"===m.style.display?"none":"block"'>Save</button>
+				<div id=saves-dropdown style=display:none;position:absolute;bottom:100%;right:0;margin-bottom:4px><button onclick='exportSaves(),document.getElementById("saves-dropdown").style.display="none"'>Export</button> <button onclick='document.getElementById("import-file").click(),document.getElementById("saves-dropdown").style.display="none"'>Import</button></div>
+			</div><input accept=.json id=import-file onchange=importSaves(event) style=display:none type=file>
+		</div>
+		<div id=save-status></div>
+		<div id=touch-controls>
+			<div style=top:10px;left:10px class="touch-btn btn-esc" data-key=27>Esc</div>
+			<div id=dpad-container>
+				<div style=left:54px;top:0 class=touch-btn data-key=230>▲</div>
+				<div style=left:0;top:54px class=touch-btn data-key=233>◀</div>
+				<div style=left:108px;top:54px class=touch-btn data-key=235>▶</div>
+				<div style=left:54px;top:108px class=touch-btn data-key=238>▼</div>
+			</div>
+			<div id=action-container>
+				<div style=left:54px;top:0 class=touch-btn data-key=97>A</div>
+				<div style=left:0;top:54px class=touch-btn data-key=32>★</div>
+				<div style=left:108px;top:54px class=touch-btn data-key=13>⏎</div>
+				<div style=left:54px;top:108px class=touch-btn data-key=115>S</div>
+			</div>
+		</div>
+		<script>
+var loadingText = document.querySelector("#loading-text");
+    let totalBytes = 0;
+    let loadedBytes = 0;
+
+    async function fetchWithProgress(url) {
+      const response = await fetch(url);
+      const reader = response.body.getReader();
+      let chunks = [];
+      let received = 0;
+      while (true) {
+        const {
+          done,
+          value
+        } = await reader.read();
+        if (done) break;
+        received += value.length;
+        loadedBytes += value.length;
+        chunks.push(value);
+        let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
+        let mbTotal = '162.41';
+        loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
+      }
+      let fullBuffer = new Uint8Array(received);
+      let offset = 0;
+      for (let chunk of chunks) {
+        fullBuffer.set(chunk, offset);
+        offset += chunk.length;
+      }
+      return fullBuffer.buffer;
+    }
+
+    async function mergeFiles(fileParts, cacheKey) {
+      const cache = await caches.open("srb2-cache");
+      const cachedResponse = await cache.match(cacheKey);
+      if (cachedResponse) {
+        const blob = await cachedResponse.blob();
+        return URL.createObjectURL(blob);
+      }
+      const buffers = await Promise.all(
+        fileParts.map(part => fetchWithProgress(part))
+      );
+      const mergedBlob = new Blob(buffers);
+      const response = new Response(mergedBlob);
+      await cache.put(cacheKey, response);
+      return URL.createObjectURL(mergedBlob);
+    }
+
+    function getParts(file, start, end) {
+      let parts = [];
+      for (let i = start; i <= end; i++) {
+        parts.push(file + ".part" + i);
+      }
+      return parts;
+    }
+    (async () => {
+      const [dataUrl] = await Promise.all([
+        mergeFiles(getParts("srb2.data", 1, 9), "srb2.data"),
+      ]);
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        let [resource, config] = args;
+        if (typeof resource === 'string' && resource.includes('srb2.data') && !resource.includes(".part")) {
+            resource = dataUrl;
+        }
+        return originalFetch(resource, config);
+    };
+
+			var SAVE_DIR = "/home/web_user/.srb2",
+				syncInProgress = !1;
+
+			function showSaveStatus(e, t) {
+				var n = document.getElementById("save-status");
+				n.textContent = e, n.style.background = t ? "rgba(200,0,0,0.8)" : "rgba(0,180,0,0.8)", n.style.display = "block", n.style.opacity = "1", setTimeout((function() {
+					n.style.opacity = "0", setTimeout((function() {
+						n.style.display = "none"
+					}), 500)
+				}), 2e3)
+			}
+
+			function syncToIDB(e) {
+				syncInProgress || "undefined" == typeof FS ? e && e() : (syncInProgress = !0, FS.syncfs(!1, (function(t) {
+					syncInProgress = !1, t && console.warn("Save sync to IndexedDB failed:", t), e && e()
+				})))
+			}
+
+			function readSaveFiles() {
+				var e = {};
+				try {
+					for (var t = FS.readdir(SAVE_DIR), n = 0; n < t.length; n++) {
+						var o = t[n];
+						if ("." !== o && ".." !== o) {
+							var a = SAVE_DIR + "/" + o;
+							try {
+								var r = FS.stat(a);
+								if (FS.isFile(r.mode)) {
+									for (var i = FS.readFile(a), s = "", c = 0; c < i.length; c++) s += String.fromCharCode(i[c]);
+									e[o] = btoa(s)
+								}
+							} catch (e) {}
+						}
+					}
+				} catch (e) {
+					console.warn("Could not read save directory:", e)
+				}
+				return e
+			}
+
+			function exportSaves() {
+				syncToIDB((function() {
+					var e = readSaveFiles(),
+						t = Object.keys(e)
+						.length;
+					if (0 !== t) {
+						var n = new Blob([JSON.stringify(e, null, 2)], {
+								type: "application/json"
+							}),
+							o = URL.createObjectURL(n),
+							a = document.createElement("a");
+						a.href = o, a.download = "srb2_saves.json", a.click(), URL.revokeObjectURL(o), showSaveStatus("Exported " + t + " save file(s)")
+					} else showSaveStatus("No save files found", !0)
+				}))
+			}
+
+			function importSaves(e) {
+				var t = e.target.files[0];
+				if (t) {
+					var n = new FileReader;
+					n.onload = function(e) {
+						try {
+							var t = JSON.parse(e.target.result),
+								n = 0;
+							for (var o in t)
+								if (t.hasOwnProperty(o)) {
+									for (var a = atob(t[o]), r = new Uint8Array(a.length), i = 0; i < a.length; i++) r[i] = a.charCodeAt(i);
+									var s = SAVE_DIR + "/" + o;
+									try {
+										FS.writeFile(s, r), n++
+									} catch (e) {
+										console.warn("Failed to write " + o + ":", e)
+									}
+								} syncToIDB((function() {
+								showSaveStatus("Imported " + n + " file(s). Reloading..."), setTimeout((function() {
+									location.reload()
+								}), 1500)
+							}))
+						} catch (e) {
+							showSaveStatus("Invalid save file: " + e.message, !0)
+						}
+					}, n.readAsText(t), e.target.value = ""
+				}
+			}
+			var canvasActive = !1;
+
+			function resizeCanvasLoop() {
+				if (canvasActive) {
+					var e = document.getElementById("canvas"),
+						t = e.width,
+						n = e.height;
+					if (t && n) {
+						var o = window.innerWidth,
+							a = window.innerHeight,
+							r = Math.min(o / t, a / n);
+						e.style.width = Math.floor(t * r) + "px", e.style.height = Math.floor(n * r) + "px"
+					}
+				}
+				requestAnimationFrame(resizeCanvasLoop)
+			}
+
+			window.StartedMainLoopCallback = function() {
+				document.getElementById("loading")
+					.style.display = "none", document.getElementById("canvas")
+					.style.display = "block", "ontouchstart" in window || navigator.maxTouchPoints > 0 || (document.getElementById("controls")
+						.style.display = "block"), document.getElementById("canvas")
+					.focus(), canvasActive = !0, setInterval((function() {
+						syncToIDB()
+					}), 12e4), initTouchControls()
+			}
+
+			function toggleFullscreen() {
+				var e = document.getElementById("canvas");
+				document.fullscreenElement ? document.exitFullscreen() : e.requestFullscreen()
+					.catch((function() {}))
+			}
+
+			function initTouchControls() {
+				if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+					var e = document.getElementById("touch-controls");
+					e.style.display = "block";
+					var t = {},
+						n = {};
+					e.addEventListener("touchstart", (function(e) {
+						e.preventDefault();
+						for (var t = 0; t < e.changedTouches.length; t++) {
+							var a = e.changedTouches[t],
+								i = r(a);
+							if (i) {
+								var s = parseInt(i.getAttribute("data-key"));
+								n[a.identifier] = s, i.classList.add("active"), o(s)
+							}
+						}
+					}), {
+						passive: !1
+					}), e.addEventListener("touchmove", (function(t) {
+						t.preventDefault();
+						for (var i = 0; i < t.changedTouches.length; i++) {
+							var s = t.changedTouches[i],
+								c = n[s.identifier],
+								d = r(s),
+								l = d ? parseInt(d.getAttribute("data-key")) : null;
+							if (c !== l) {
+								if (c) {
+									a(c);
+									for (var u = e.querySelectorAll('[data-key="' + c + '"]'), v = 0; v < u.length; v++) u[v].classList.remove("active")
+								}
+								l && d ? (n[s.identifier] = l, d.classList.add("active"), o(l)) : delete n[s.identifier]
+							}
+						}
+					}), {
+						passive: !1
+					}), e.addEventListener("touchend", i, {
+						passive: !1
+					}), e.addEventListener("touchcancel", i, {
+						passive: !1
+					})
+				}
+
+				function o(e) {
+					t[e] || (t[e] = 0), t[e]++, 1 === t[e] && Module._inject_keycode(e, 0)
+				}
+
+				function a(e) {
+					t[e] && (t[e]--, t[e] <= 0 && (delete t[e], Module._inject_keycode(e, 1)))
+				}
+
+				function r(t) {
+					for (var n = document.elementFromPoint(t.clientX, t.clientY); n && n !== e;) {
+						if (n.classList && n.classList.contains("touch-btn")) return n;
+						n = n.parentElement
+					}
+					return null
+				}
+
+				function i(t) {
+					t.preventDefault();
+					for (var o = 0; o < t.changedTouches.length; o++) {
+						var r = t.changedTouches[o],
+							i = n[r.identifier];
+						if (i) {
+							a(i);
+							for (var s = e.querySelectorAll('[data-key="' + i + '"]'), c = 0; c < s.length; c++) s[c].classList.remove("active");
+							delete n[r.identifier]
+						}
+					}
+				}
+			}
+			requestAnimationFrame(resizeCanvasLoop), document.addEventListener("touchmove", (function(e) {
+				e.preventDefault()
+			}), {
+				passive: !1
+			}), document.addEventListener("gesturestart", (function(e) {
+				e.preventDefault()
+			})), document.addEventListener("gesturechange", (function(e) {
+				e.preventDefault()
+			})), document.addEventListener("gestureend", (function(e) {
+				e.preventDefault()
+			})), document.addEventListener("dblclick", (function(e) {
+				e.preventDefault()
+			})), document.addEventListener("visibilitychange", (function() {
+				canvasActive && void 0 !== Module && (document.hidden ? Module._pause_loop() : Module._resume_loop())
+			})), window.addEventListener("beforeunload", (function() {
+				"undefined" != typeof FS && FS.syncfs(!1, (function() {}))
+			}));
+			var Module = {
+				preRun: [function() {
+					try {
+						FS.mkdir("/home")
+					} catch (e) {}
+					try {
+						FS.mkdir("/home/web_user")
+					} catch (e) {}
+					try {
+						FS.mkdir(SAVE_DIR)
+					} catch (e) {}
+					FS.mount(IDBFS, {}, SAVE_DIR), Module.addRunDependency("syncfs"), FS.syncfs(!0, (function(e) {
+						e ? console.warn("Failed to load saves from IndexedDB:", e) : console.log("Saves loaded from IndexedDB"), Module.removeRunDependency("syncfs")
+					}))
+				}],
+				canvas: function() {
+					var e = document.getElementById("canvas");
+					return e.addEventListener("webglcontextlost", (function(e) {
+						alert("WebGL context lost. Please reload the page."), e.preventDefault()
+					}), !1), e
+				}(),
+				setStatus: function(e) {
+					var t = document.getElementById("status-text"),
+						n = document.getElementById("progress-text"),
+						o = document.getElementById("progress-fill");
+					if (!e) return n.textContent = "Starting game...", void(o.style.width = "100%");
+					t && (t.textContent = e);
+					var a = e.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+					if (a) {
+						var r = Math.round(100 * parseInt(a[2]) / parseInt(a[4]));
+						o.style.width = r + "%", n.textContent = r + "% - " + a[1].trim()
+					}
+				},
+				onRuntimeInitialized: function() {
+					document.getElementById("progress-text")
+						.textContent = "Runtime initialized..."
+				},
+				onAbort: function(e) {
+					document.getElementById("loading")
+						.style.display = "none", document.getElementById("error")
+						.style.display = "block", document.getElementById("error-text")
+						.textContent = e
+				},
+				print: function(e) {
+					console.log(e)
+				},
+				printErr: function(e) {
+					console.error(e)
+				}
+			};
+			window.onerror = function(e) {
+				document.getElementById("status-text")
+					.textContent = "Error: " + e
+			}
+                let srb2script = document.createElement("script");
+    srb2script.src="srb2.js";
+    srb2script.async = true;
+    document.body.appendChild(srb2script)
+            loadingText.remove();
+                })();
+		</script>
+	</body>
+
+	</html>

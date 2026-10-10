@@ -1,0 +1,52 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<base href="https://cdn.jsdelivr.net/gh/67-Factory/web-ports@main/badpiggies/">
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Unity WebGL Player | Bad Piggies</title>
+	<link rel="shortcut icon" href="TemplateData/favicon.ico">
+	<link rel="stylesheet" href="TemplateData/style.css">
+	<script src="TemplateData/UnityProgress.js"></script>
+	<script src="Build/UnityLoader.js"></script>
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+
+		.webgl-content {
+			width: 100%;
+			height: 100%;
+		}
+
+		#gameContainer {
+			width: 100vw;
+			height: 100vh;
+		}
+	</style>
+	<script>
+		var gameInstance = UnityLoader.instantiate("gameContainer", "Build/Bad Piggies.json", {
+			onProgress: UnityProgress
+		});
+	</script>
+</head>
+
+<body style="background-color:black;">
+	<div class="webgl-content">
+		<div id="gameContainer"></div>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,177 @@
+<!-- shxyder -->
+<!-- ultimate game stash file -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-L7856P3VNT');
+</script>
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Scary Shawarma 3D</title>
+<style>
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; }
+#unity-canvas { width: 100%; height: 100%; background: #000; display: block; }
+#loading-text {
+font-weight: bold;
+background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+background-size: 400% 400%;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+animation: rainbow 3s ease infinite;
+font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;
+}
+@keyframes rainbow {
+0% { background-position: 0% 50%; }
+50% { background-position: 100% 50%; }
+100% { background-position: 0% 50%; }
+}
+</style>
+</head>
+<body>
+<div id="loading-text"> LOADING... </div>
+<canvas id="unity-canvas"></canvas>
+<script>
+const hash = "2d3cf8131a7cd9525c77b35f421c7100c2682d65";
+const base = "https://cdn.jsdelivr.net/gh/shayderrr/idk@" + hash + "/scary/";
+const loadingText = document.querySelector("#loading-text");
+const NO_DATA = 'no data';
+var ysdk = null, player = null, ygGameInstance = null, initGame = false;
+var playerData = NO_DATA, cloudSaves = NO_DATA, environmentData = NO_DATA, nowFullAdOpen = false;
+let loadedBytes = 0;
+function LogStyledMessage(m, s) { console.log('%c' + m, s || 'color: #FFDF73; background-color: #454545'); }
+
+async function fetchWithProgress(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+  const reader = response.body.getReader();
+  let chunks = [];
+  let received = 0;
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    received += value.length;
+    loadedBytes += value.length;
+    chunks.push(value);
+    loadingText.textContent = `LOADING... ${(loadedBytes / 1048576).toFixed(2)} MB`;
+  }
+  let fullBuffer = new Uint8Array(received);
+  let offset = 0;
+  for (let chunk of chunks) { fullBuffer.set(chunk, offset); offset += chunk.length; }
+  return fullBuffer.buffer;
+}
+
+async function mergeFiles(parts) {
+  const buffers = await Promise.all(parts.map(part => fetchWithProgress(part)));
+  return URL.createObjectURL(new Blob(buffers, { type: 'application/octet-stream' }));
+}
+
+function YG2Instance(m, a) {
+  if (ygGameInstance) {
+    if (a !== undefined) ygGameInstance.SendMessage('YG2Instance', m, a);
+    else ygGameInstance.SendMessage('YG2Instance', m);
+  }
+}
+
+function InitGame() { initGame = true; }
+
+async function RequestingEnvironmentData() {
+  if (!ysdk) return;
+  try {
+    environmentData = JSON.stringify({
+      "language": ysdk.environment.i18n.lang,
+      "deviceType": ysdk.deviceInfo.type,
+      "isMobile": ysdk.deviceInfo.isMobile(),
+      "isDesktop": ysdk.deviceInfo.isDesktop()
+    });
+    YG2Instance('SetEnvirData', environmentData);
+  } catch(e) {}
+}
+
+async function InitPlayer() {
+  try {
+    if (!ysdk) return;
+    player = await ysdk.getPlayer();
+    playerData = JSON.stringify({
+      "playerAuth": player.isAuthorized() ? "resolved" : "rejected",
+      "playerName": player.getName(),
+      "playerId": player.getUniqueID(),
+      "playerPhoto": player.getPhoto('medium')
+    });
+  } catch (e) { playerData = JSON.stringify({"playerAuth": "rejected"}); }
+  YG2Instance('SetAuth', playerData);
+}
+
+function LoadCloud() {
+  if (player) {
+    player.getData(["saves"]).then(d => {
+      cloudSaves = d.saves ? JSON.stringify(d.saves) : NO_DATA;
+      YG2Instance('SetLoadSaves', cloudSaves);
+    }).catch(() => YG2Instance('SetLoadSaves', NO_DATA));
+  } else YG2Instance('SetLoadSaves', NO_DATA);
+}
+
+function SaveCloud(j, f) { if(player) player.setData({ saves: [j] }, f); }
+function InitPayments() { YG2Instance('PaymentsEntries', NO_DATA); }
+function ConsumePurchases() { if(ysdk && ysdk.getPayments) { ysdk.getPayments().then(p => p.getPurchases().then(ps => ps.forEach(x => { p.consumePurchase(x.purchaseToken); YG2Instance('OnPurchaseSuccess', x.productID); }))); } }
+function InitLeaderboards() { YG2Instance('LeaderboardEntries', NO_DATA); }
+function InterAdvShow() { if(ysdk) ysdk.adv.showFullscreenAdv({ callbacks: { onOpen:()=>{nowFullAdOpen=true;YG2Instance('OpenInterAdv');}, onClose:(s)=>{nowFullAdOpen=false;YG2Instance('CloseInterAdv',s.toString());window.focus();}, onError:()=> {nowFullAdOpen=false;YG2Instance('ErrorInterAdv');} } }); }
+function RewardedAdvShow(id) { if(ysdk) ysdk.adv.showRewardedVideo({ callbacks: { onOpen:()=>YG2Instance('OpenRewardedAdv'), onClose:()=>{YG2Instance('CloseRewardedAdv');window.focus();}, onRewarded:()=>YG2Instance('RewardAdv', id), onError:()=>YG2Instance('ErrorRewardedAdv') } }); }
+
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+(async () => {
+  try {
+    await loadScript(base + "sdk.js");
+    try {
+      const sdkPromise = YaGames.init();
+      const timeout = new Promise((_, r) => setTimeout(() => r("timeout"), 3500));
+      ysdk = await Promise.race([sdkPromise, timeout]);
+      if(ysdk !== "timeout") { await RequestingEnvironmentData(); await InitPlayer(); await LoadCloud(); }
+    } catch (e) { console.log("SDK Bypass"); }
+
+    await loadScript(base + "Build/Builds.loader.js");
+
+    const [dataUrl, wasmUrl, frameworkUrl] = await Promise.all([
+      mergeFiles([base + "Build/Builds.data.br"]),
+      mergeFiles([base + "Build/Builds.wasm.br.part1", base + "Build/Builds.wasm.br.part2"]),
+      mergeFiles([base + "Build/Builds.framework.js.br"])
+    ]);
+
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+      dataUrl: dataUrl,
+      frameworkUrl: frameworkUrl,
+      codeUrl: wasmUrl,
+      streamingAssetsUrl: base + "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "ScaryShawarma3D",
+      productVersion: "1.0",
+    }).then(i => {
+      ygGameInstance = i;
+      loadingText.remove();
+      YG2Instance('InitSDKComplete');
+    }).catch(e => {
+      loadingText.textContent = "Unity Load Error: " + e.message;
+      console.error(e);
+    });
+  } catch (e) {
+    loadingText.textContent = "Fatal: " + e.message;
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8" />
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/escaperoad2city/">
+  <title>Tung Sahur Horror</title>
+  <style>
+    html, body { background: #000; width: 100%; height: 100%; overflow: hidden; padding: 0; margin: 0; }
+    #gameContainer { position: absolute; }
+    #gameContainer canvas { position: absolute; }
+  </style>
+</head>
+<body>
+
+  <script id="gmsoft-jssdk" src="gmsoftsdk_v5.js"></script>
+
+  <div id="gameContainer" style="display:none;">
+    <canvas id="unity-canvas"></canvas>
+  </div>
+
+  <div id="loadingBar" style="color:white; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-family:Arial;">
+    loading... <span id="pct">0%</span>
+  </div>
+<script>
+  function firebaseLogEvent(event_name) {
+    console.log('firebaseLogEvent (stubbed):', event_name);
+  }
+  function firebaseLogEventParameter(event_name, event_param) {
+    console.log('firebaseLogEventParameter (stubbed):', event_name, event_param);
+  }
+  function firebaseSetUserProperties(props) {
+    console.log('firebaseSetUserProperties (stubbed):', props);
+  }
+</script>
+       //script>
+      window.fileMergerConfig = {
+        files: [
+          { name: 'escape-road-city-2-v25022604.data.unityweb', parts: 2 },
+        ],
+        basePath: 'Build/',
+        debug: true
+      };
+    script>
+
+    //cript src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
+  <script>
+    var canvas = document.getElementById("unity-canvas");
+    var container = document.getElementById("gameContainer");
+    var loadingBar = document.getElementById("loadingBar");
+
+    var buildUrl = "Build";
+    var config = {
+      dataUrl:         buildUrl + "/escape-road-city-2-v25022604.data.unityweb",
+      frameworkUrl:    buildUrl + "/escape-road-city-2-v25022604.framework.js.unityweb",
+      codeUrl:         buildUrl + "/escape-road-city-2-v25022604.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "azgames.io",
+      productName: "Tung Sahur Horror",
+      productVersion: "25051505",
+      pubId: "",
+      gameId: "tung-sahur-horror",
+      enableMoreGame: "yes",
+      enablePromotion: true,
+      eventLog: false
+    };
+
+    function onResize() {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      var r = 540 / 960;
+      if (w * r > h) w = Math.ceil(h / r);
+      h = Math.floor(w * r);
+      container.style.width  = canvas.style.width  = w + "px";
+      container.style.height = canvas.style.height = h + "px";
+      container.style.top  = Math.floor((window.innerHeight - h) / 2) + "px";
+      container.style.left = Math.floor((window.innerWidth  - w) / 2) + "px";
+    }
+    onResize();
+    window.addEventListener("resize", onResize);
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/escape-road-city-2-v25022604.loader.js";
+    script.onload = function() {
+      createUnityInstance(canvas, config, function(progress) {
+        document.getElementById("pct").innerText = Math.round(progress * 100) + "%";
+      }).then(function(instance) {
+        window.unityInstance = instance;
+        setTimeout(function() {
+          loadingBar.style.display = "none";
+          container.style.display = "block";
+          window.focus();
+        }, 2000);
+      }).catch(function(msg) {
+        alert(msg);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

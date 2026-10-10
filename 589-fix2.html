@@ -1,0 +1,539 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+
+
+
+<!-- Ultimate Game Stash file--> 
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+
+
+<!-- credits to crunch arcade for putting this into a single file html -->
+<!-- heads up btw, a few special stages or maybe its js one do have issues and maybe a boss crashes but i didnt recompile this one so i wouldnt know -->
+
+<html lang="en-us">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sonic CD</title>
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/UGBONTOP/ugs-soniccd@main/image_2026-02-28_164525280.png" type="image/png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+
+        #canvasWrapper {
+            position: fixed;
+            left: 0; top: 0;
+            width: 100vw; height: 100vh;
+            background: black;
+            z-index: 1;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            -ms-interpolation-mode: nearest-neighbor;
+            outline: none;
+        }
+
+        #output { display: none; }
+
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000 url('https://cdn.jsdelivr.net/gh/UGBONTOP/ugs-soniccd@main/image_2026-02-28_165116299.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.4s ease;
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-screen.hidden { display: none; }
+
+        .loading-content {
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .loading-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mini-favicon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .loading-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .loading-mb {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: #fff;
+            border-radius: 10px;
+            transition: width 0.3s ease-out;
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            height: 1.2em;
+        }
+
+        .loading-dots {
+            position: absolute;
+            bottom: 40%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px; height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: dot-pulse 1.5s infinite ease-in-out;
+            box-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50%       { opacity: 1;   transform: scale(1.2); }
+        }
+
+        .ownership-footer {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            padding: 0 20px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 15px; right: 15px;
+            z-index: 1001;
+        }
+
+        .game-btn {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+            min-width: 130px;
+            font-family: 'Inter', sans-serif;
+        }
+        .game-btn:hover {
+            background: rgba(0,0,0,0.8);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        #fpsInfo {
+            position: fixed;
+            bottom: 8px; right: 10px;
+            z-index: 99999;
+            color: rgba(255,255,255,0.4);
+            font-size: 11px;
+            font-family: monospace;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvasWrapper">
+        <canvas id="canvas" tabindex="0" width="848" height="480" onclick="window.focus();" oncontextmenu="event.preventDefault();"></canvas>
+    </div>
+
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-header">
+                <div class="title-group">
+                    <img src="https://cdn.jsdelivr.net/gh/UGBONTOP/ugs-soniccd@main/image_2026-02-28_164525280.png" class="mini-favicon" alt="icon">
+                    <div class="loading-title">Sonic CD (html by crunch arcade)</div>
+                </div>
+                <div class="loading-mb" id="mb-text">0.0MB of 75.0MB</div>
+            </div>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar"></div>
+            </div>
+            <div class="loading-text" id="loading-text">getting jsdelivr stuff...</div>
+        </div>
+
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <div class="ownership-footer">
+            crunch arcade owns this btw
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <button id="fullscreen-button" class="game-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            Fullscreen
+        </button>
+    </div>
+
+    <div id="fpsInfo">detecting refresh rate...</div>
+    <textarea id="output" rows="8"></textarea>
+
+    <script type="text/javascript">
+        const $ = id => document.getElementById(id);
+
+        var loadingBar    = $('loading-bar');
+        var loadingText   = $('loading-text');
+        var mbText        = $('mb-text');
+        var loadingScreen = $('loading-screen');
+        var totalSizeMB   = 75.0;
+
+        function finishLoading() {
+            loadingBar.style.width = '100%';
+            mbText.textContent = totalSizeMB.toFixed(1) + 'MB of ' + totalSizeMB.toFixed(1) + 'MB';
+            loadingText.textContent = 'ready!';
+            setTimeout(function() {
+                loadingScreen.classList.add('fade-out');
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.classList.add('hidden');
+                }, { once: true });
+            }, 400);
+        }
+
+        $('fullscreen-button').onclick = function() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function() {
+                    console.warn('Fullscreen failed');
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        (function() {
+            var fpsInfoEl = $('fpsInfo');
+
+            function detectRefreshRate(cb) {
+                var samples = [], last = null, count = 0;
+                function tick(now) {
+                    if (last !== null) {
+                        var delta = now - last;
+                        if (delta > 0 && delta < 100) samples.push(delta);
+                    }
+                    last = now;
+                    if (++count < 60) { requestAnimationFrame(tick); }
+                    else {
+                        samples.sort(function(a,b){ return a-b; });
+                        cb(Math.round(1000 / samples[Math.floor(samples.length/2)]));
+                    }
+                }
+                requestAnimationFrame(tick);
+            }
+
+            function pickTargetFPS(hz) {
+                if (hz <= 60) return hz;
+                var best = 30;
+                for (var d = 1; d <= hz; d++) {
+                    if (hz % d === 0) {
+                        var fps = hz / d;
+                        if (fps <= 60 && fps > best) best = fps;
+                    }
+                }
+                return Math.max(30, best);
+            }
+
+            function installRAFThrottle(targetFPS) {
+                var interval = 1000 / targetFPS;
+                var lastTime = -Infinity;
+                var origRAF = window.requestAnimationFrame.bind(window);
+                var origCAF = window.cancelAnimationFrame.bind(window);
+                var idMap = new Map(), idCounter = 1;
+
+                window.requestAnimationFrame = function(cb) {
+                    var wrappedId = idCounter++;
+                    var entry = { active: true, nativeId: null };
+                    function wrapped(now) {
+                        if (!entry.active) return;
+                        if ((now - lastTime) >= interval - 0.5) { lastTime = now; cb(now); }
+                        else { entry.nativeId = origRAF(wrapped); }
+                    }
+                    entry.nativeId = origRAF(wrapped);
+                    idMap.set(wrappedId, entry);
+                    return wrappedId;
+                };
+
+                window.cancelAnimationFrame = function(id) {
+                    var entry = idMap.get(id);
+                    if (entry) { entry.active = false; try { origCAF(entry.nativeId); } catch(e){} idMap.delete(id); }
+                };
+            }
+
+            detectRefreshRate(function(hz) {
+                var target = pickTargetFPS(hz);
+                fpsInfoEl.textContent = 'monitor: ' + hz + 'hz → locked at ' + target + 'fps';
+                installRAFThrottle(target);
+                console.log('[FPS] Monitor: ' + hz + 'hz, locked to: ' + target + 'fps');
+                setTimeout(function() { fpsInfoEl.style.transition = 'opacity 1s'; fpsInfoEl.style.opacity = '0'; }, 5000);
+            });
+        })();
+
+        (function() {
+            const BASE_W = 848, BASE_H = 480;
+
+            function isFS() {
+                return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+            }
+
+            function adoptCanvas(el) {
+                if (!el) return;
+                try { el.width = BASE_W; el.height = BASE_H; } catch(e) {}
+                if (!el.id) el.id = 'canvas';
+                const wrap = $('canvasWrapper');
+                if (!wrap.contains(el)) wrap.appendChild(el);
+                el.style.position = 'absolute';
+                window.Module = window.Module || {};
+                window.Module.canvas = el;
+            }
+
+            adoptCanvas($('canvas'));
+
+            new MutationObserver(muts => {
+                for (const m of muts)
+                    for (const n of m.addedNodes)
+                        if (n.nodeName === 'CANVAS')
+                            setTimeout(() => { adoptCanvas(n); updateAllCanvasFits(); }, 0);
+            }).observe(document.documentElement, { childList: true, subtree: true });
+
+            function applyCoverFit(canvasEl) {
+                try {
+                    if (!canvasEl) return;
+                    const vw = Math.max(1, window.innerWidth);
+                    const vh = Math.max(1, window.innerHeight);
+                    var scale = isFS()
+                        ? Math.max(vw / BASE_W, vh / BASE_H)
+                        : Math.min(vw / BASE_W, vh / BASE_H);
+                    const displayW = Math.round(BASE_W * scale);
+                    const displayH = Math.round(BASE_H * scale);
+                    canvasEl.style.width  = displayW + 'px';
+                    canvasEl.style.height = displayH + 'px';
+                    canvasEl.style.left   = Math.round((vw - displayW) / 2) + 'px';
+                    canvasEl.style.top    = Math.round((vh - displayH) / 2) + 'px';
+                    if (canvasEl.width !== BASE_W || canvasEl.height !== BASE_H) {
+                        try { canvasEl.width = BASE_W; canvasEl.height = BASE_H; } catch(e) {}
+                    }
+                } catch(e) { console.warn('applyCoverFit failed', e); }
+            }
+
+            function updateAllCanvasFits() {
+                document.querySelectorAll('canvas').forEach(c => applyCoverFit(c));
+            }
+
+            window.addEventListener('resize', updateAllCanvasFits);
+            document.addEventListener('fullscreenchange', updateAllCanvasFits);
+            document.addEventListener('webkitfullscreenchange', updateAllCanvasFits);
+            document.addEventListener('mozfullscreenchange', updateAllCanvasFits);
+            setTimeout(function() { setInterval(updateAllCanvasFits, 500); }, 3000);
+            updateAllCanvasFits();
+            window.updateAllCanvasFits = updateAllCanvasFits;
+        })();
+
+        var _saveSystemReady = false;
+        var DB_NAME = 'sonic-cd-saves';
+        var STORE_NAME = 'files';
+
+        function openSaveDB() {
+            return new Promise(function(res, rej) {
+                var rq = indexedDB.open(DB_NAME, 1);
+                rq.onupgradeneeded = function(e) { e.target.result.createObjectStore(STORE_NAME); };
+                rq.onsuccess = function(e) { res(e.target.result); };
+                rq.onerror = function(e) { rej(e.target.error); };
+            });
+        }
+
+        function saveToDB(data) {
+            openSaveDB().then(function(db) {
+                var tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put(new Uint8Array(data), 'SData.bin');
+                tx.oncomplete = function() { console.log('[saves] SData.bin saved (' + data.length + ' bytes)'); };
+                tx.onerror = function(e) { console.warn('[saves] save failed:', e.target.error); };
+            });
+        }
+
+        function loadFromDB() {
+            return openSaveDB().then(function(db) {
+                return new Promise(function(res, rej) {
+                    var tx = db.transaction(STORE_NAME, 'readonly');
+                    var rq = tx.objectStore(STORE_NAME).get('SData.bin');
+                    rq.onsuccess = function() { res(rq.result || null); };
+                    rq.onerror = function(e) { rej(e.target.error); };
+                });
+            });
+        }
+
+        function installSaveHooks() {
+            if (_saveSystemReady) return;
+            _saveSystemReady = true;
+
+            loadFromDB().then(function(data) {
+                if (data && data.length > 0) {
+                    try {
+                        FS.writeFile('/SData.bin', data);
+                        console.log('[saves] SData.bin restored (' + data.length + ' bytes)');
+                    } catch(e) { console.warn('[saves] restore failed:', e); }
+                } else {
+                    console.log('[saves] no existing save found, starting fresh');
+                }
+            }).catch(function(e) { console.warn('[saves] loadFromDB error:', e); });
+
+            var origWrite = FS.write;
+            FS.write = function(stream, buffer, offset, length, position) {
+                var result = origWrite.apply(this, arguments);
+                if (stream && stream.path && stream.path.includes('SData') && length > 0) {
+                    try {
+                        var saved = FS.readFile('/SData.bin');
+                        saveToDB(saved);
+                    } catch(e) { console.warn('[saves] failed to read SData.bin after write:', e); }
+                }
+                return result;
+            };
+
+            console.log('[saves] save hooks installed');
+        }
+
+        var Module = {
+            preRun: [],
+            postRun: [function() {
+                finishLoading();
+                if (window.updateAllCanvasFits) updateAllCanvasFits();
+                setTimeout(installSaveHooks, 1000);
+            }],
+            print:    function(text) { console.log(text); },
+            printErr: function(text) { console.error(text); },
+            canvas: (function() {
+                var canvas = document.getElementById('canvas');
+                canvas.addEventListener("webglcontextlost", function(e) {
+                    alert('WebGL context lost. Reload the page.');
+                    e.preventDefault();
+                }, false);
+                return canvas;
+            })(),
+            setStatus: function(text) {
+                if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+                if (text === Module.setStatus.last.text) return;
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                var now = Date.now();
+                if (m && now - Module.setStatus.last.time < 30) return;
+                Module.setStatus.last.time = now;
+                Module.setStatus.last.text = text;
+                if (m) {
+                    var loaded  = parseFloat(m[2]);
+                    var total   = parseFloat(m[4]);
+                    var percent = Math.round((loaded / total) * 100);
+                    var currentMB = (percent / 100 * totalSizeMB).toFixed(1);
+                    loadingBar.style.width = percent + '%';
+                    mbText.textContent     = currentMB + 'MB of ' + totalSizeMB.toFixed(1) + 'MB';
+                    if      (percent < 20) loadingText.textContent = 'getting jsdelivr stuff...';
+                    else if (percent < 60) loadingText.textContent = 'downloading game data...';
+                    else if (percent < 90) loadingText.textContent = 'assembling Data.rsdk...';
+                    else                   loadingText.textContent = 'almost there...';
+                } else {
+                    if (text) loadingText.textContent = text;
+                }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : '');
+            }
+        };
+
+        Module.setStatus('Downloading...');
+    </script>
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/gh/UGBONTOP/ugs-soniccd@main/js1/index.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<html lang="en-us">
+<base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/apesvshelium/">
+<head>
+  <meta charset="utf-8">
+  <script src="/js/all.min.js" async type="53a07659885f7579d0670c7e-text/javascript"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | Apes vs Helium</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+    	  <script>
+      window.fileMergerConfig = {
+        files: [
+          { name: 'AVHPort.data.unityweb', parts: 3 },
+          { name: 'AVHPort.wasm.code.unityweb', parts: 2 },
+        ],
+        basePath: 'Build/',
+        debug: true
+      };
+    </script>
+
+    <script src="merge.js"></script>
+  <script src="TemplateData/UnityProgress.js" type="53a07659885f7579d0670c7e-text/javascript"></script>
+  <script src="Build/UnityLoader.js" type="53a07659885f7579d0670c7e-text/javascript"></script>
+  <script type="53a07659885f7579d0670c7e-text/javascript">
+    var unityInstance = UnityLoader.instantiate("unityContainer", "Build/AVHPort.json", {
+      onProgress: UnityProgress
+    });
+  </script>
+  <style>
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #unityContainer {
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="unityContainer"></div>
+  <script src="cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="53a07659885f7579d0670c7e-|49" defer></script>
+</body>
+
+</html>

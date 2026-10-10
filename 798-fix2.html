@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+
+<!-- Ultimate Game Stash file--> 
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+
+
+
+
+
+
+<html lang="en-us">
+<base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/hungry%20lamu/">
+
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>game</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <style>
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    #unity-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+    #unity-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+    /* keep loading bar on top */
+    #unity-loading-bar { z-index: 10; }
+  </style>
+</head>
+
+<body>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var loaderUrl =  "Build/WebGL.loader.js";
+    var config = {
+        dataUrl: "Build/WebGL.data",
+        frameworkUrl: "Build/WebGL.framework.js",
+        codeUrl: "Build/WebGL.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Kulu",
+        productName: "Hungry Lamu",
+        productVersion: "1.0",
+    };
+
+    var container = document.querySelector("#unity-container");
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      document.getElementsByTagName("head")[0].innerHTML += '<meta name="viewport" content="user-scalable=no">';
+      document.getElementsByTagName("head")[0].innerHTML += '<meta name="HandheldFriendly" content="true" />';
+
+      document.addEventListener("gesturestart", function(e) {
+        e.preventDefault();
+      });
+
+      document.addEventListener("gesturechange", function(e) {
+        e.preventDefault();
+      });
+      document.addEventListener("gestureend", function(e) {
+        e.preventDefault();
+      });
+
+      container.className = "unity-mobile";
+      config.devicePixelRatio = 1;
+      // make mobile full-screen
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '100%';
+      container.style.height = '100%';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+    } else {
+      // make desktop canvas fill the viewport
+      container.style.position = 'fixed';
+      container.style.top = '0';
+      container.style.left = '0';
+      container.style.width = '100%';
+      container.style.height = '100%';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      config.devicePixelRatio = window.devicePixelRatio || 1;
+    }
+    loadingBar.style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      (async () => {
+        try {
+          async function fetchMaybeSplit(baseUrl) {
+            // Try .part1 + .part2 first
+            try {
+              const p1 = await fetch(baseUrl + '.part1');
+              const p2 = await fetch(baseUrl + '.part2');
+              if (p1.ok && p2.ok) {
+                const b1 = await p1.arrayBuffer();
+                const b2 = await p2.arrayBuffer();
+                const combined = new Uint8Array(b1.byteLength + b2.byteLength);
+                combined.set(new Uint8Array(b1), 0);
+                combined.set(new Uint8Array(b2), b1.byteLength);
+                return combined.buffer;
+              }
+            } catch (e) {
+              // ignore and fall back to single file
+            }
+
+            // Fallback: single file
+            const single = await fetch(baseUrl);
+            if (!single.ok) throw new Error('Failed to fetch ' + baseUrl);
+            return await single.arrayBuffer();
+          }
+
+          const dataBuf = await fetchMaybeSplit( 'Build/WebGL.data');
+          const wasmBuf = await fetchMaybeSplit( 'Build/WebGL.wasm');
+          const combinedBlob = new Blob([dataBuf, wasmBuf], { type: 'application/octet-stream' });
+          const dataSlice = combinedBlob.slice(0, dataBuf.byteLength, 'application/octet-stream');
+          const wasmSlice = combinedBlob.slice(dataBuf.byteLength, dataBuf.byteLength + wasmBuf.byteLength, 'application/wasm');
+          const dataBlobUrl = URL.createObjectURL(dataSlice);
+          const wasmBlobUrl = URL.createObjectURL(wasmSlice);
+
+          config.dataUrl = dataBlobUrl;
+          config.codeUrl = wasmBlobUrl;
+
+          let unityInstanceVar = null;
+          createUnityInstance(canvas, config, (progress) => {
+            progressBarFull.style.width = 100 * progress + "%";
+          }).then((unityInstance) => {
+            unityInstanceVar = unityInstance;
+            loadingBar.style.display = 'none';
+            // ensure canvas backing store matches display size
+            function resizeCanvas() {
+              const dpr = config.devicePixelRatio || 1;
+              const w = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+              const h = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+              if (canvas.width !== w || canvas.height !== h) {
+                canvas.width = w;
+                canvas.height = h;
+              }
+            }
+            // initial size and on resize
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Revoke blob URLs after a short delay to ensure they've been used by the loader
+            setTimeout(() => {
+              try {
+                URL.revokeObjectURL(dataBlobUrl);
+                URL.revokeObjectURL(wasmBlobUrl);
+              } catch (e) {
+                // ignore revoke errors
+              }
+            }, 5000);
+          }).catch((message) => {
+            alert(message);
+          });
+        } catch (e) {
+          alert('Error loading build files: ' + e);
+        }
+      })();
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+
+</html>

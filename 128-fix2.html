@@ -1,0 +1,294 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script> <html>
+
+ <head>
+  
+  
+  
+   <meta charset="utf-8">
+   <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/slice-it-all/">
+<meta id="viewport" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+
+
+
+   <!-- <script src="/jquery-3.4.1.min.js"></script>
+
+        <script src="/gpid.js"></script>
+        <script src="/ads.js"></script>
+      
+        <script src="/loadingPage.js"></script>
+        <link rel="stylesheet" href="/loadingPage.css">
+      
+        <script src="/stickyBanner.js"></script>
+        <link rel="stylesheet" href="/stickyBanner.css">
+      
+        <script src="/leaderboard.js"></script>
+        <link rel="stylesheet" href="/leaderboard.css">
+      
+        <script src="https://g.glance-cdn.com/public/content/games/xiaomi/gamesAd.js"></script>
+        <script src="/VOODOO-H5SDK.glance.js"></script> -->
+
+   <script nonce="qACc2RpVQ7Dqt26Ksjm7yA">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("slice-it-all-save") || ""); },
+      saveData: function (data) { localStorage.setItem("slice-it-all-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+   <script src="./VOODOO-H5SDK.youtube.js" nonce="qACc2RpVQ7Dqt26Ksjm7yA"></script>
+   <style>
+     * {
+       padding: 0;
+       margin: 0;
+       -webkit-user-select: none;
+       -moz-user-select: none;
+       -ms-user-select: none;
+       user-select: none;
+     }
+
+     body,
+     html {
+       position: absolute;
+       margin: 0;
+       padding: 0;
+       top: 0;
+       right: 0;
+       left: 0;
+       bottom: 0;
+       overflow: hidden;
+       background: 0 0;
+       touch-action: none;
+       background: #000000;
+     }
+
+     canvas {
+       position: fixed;
+       top: 0;
+       left: 0;
+     }
+
+     /**loading anim*/
+     .lds-ellipsis {
+       display: inline-block;
+       position: relative;
+       width: 80px;
+       height: 80px;
+     }
+
+     .lds-ellipsis div {
+       position: absolute;
+       top: 33px;
+       width: 13px;
+       height: 13px;
+       border-radius: 50%;
+       background: #fff;
+       animation-timing-function: cubic-bezier(0, 1, 1, 0);
+     }
+
+     .lds-ellipsis div:nth-child(1) {
+       left: 8px;
+       animation: lds-ellipsis1 0.6s infinite;
+     }
+
+     .lds-ellipsis div:nth-child(2) {
+       left: 8px;
+       animation: lds-ellipsis2 0.6s infinite;
+     }
+
+     .lds-ellipsis div:nth-child(3) {
+       left: 32px;
+       animation: lds-ellipsis2 0.6s infinite;
+     }
+
+     .lds-ellipsis div:nth-child(4) {
+       left: 56px;
+       animation: lds-ellipsis3 0.6s infinite;
+     }
+
+     @keyframes lds-ellipsis1 {
+       0% {
+         transform: scale(0);
+       }
+
+       100% {
+         transform: scale(1);
+       }
+     }
+
+     @keyframes lds-ellipsis3 {
+       0% {
+         transform: scale(1);
+       }
+
+       100% {
+         transform: scale(0);
+       }
+     }
+
+     @keyframes lds-ellipsis2 {
+       0% {
+         transform: translate(0, 0);
+       }
+
+       100% {
+         transform: translate(24px, 0);
+       }
+     }
+
+     /**loading**/
+     #loading-wrapper {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       background: #000000;
+       z-index: 100;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       z-index: 100;
+       flex-direction: column;
+       font-family: ui2-font;
+     }
+
+     #loading-wrapper>* {
+       padding: 1vmin;
+     }
+
+     #loading-logo-img {
+       position: relative;
+       width: 60vmin;
+       border-radius: 5vmin;
+     }
+
+     #loading-game-name {
+       position: relative;
+       font-size: 6vmin;
+       color: white;
+     }
+
+     #loading-progress-text {
+       position: relative;
+       font-size: 4vmin;
+       color: #999a9e;
+     }
+
+     #loading-privacy-text {
+       position: absolute;
+       font-size: 3vmin;
+       color: #999a9e;
+       text-align: center;
+       width: 90%;
+       word-wrap: break-word;
+       bottom: 5%;
+     }
+
+     /****privacy****/
+     #privacy-policy-wrapper {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       background: rgba(0, 0, 0, 0.5);
+       z-index: 99999;
+       font-family: ui2-font;
+     }
+
+     #privacy-policy-container {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       z-index: 100;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       width: 65vmin;
+       height: 40vmin;
+       background: white;
+       flex-direction: column;
+       padding: 4vmin;
+       border-radius: 8vmin;
+     }
+
+     #privacy-text-container {
+       width: 100%;
+       height: 90%;
+       font-size: 4vmin;
+       position: relative;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+     }
+
+     #privacy-text {
+       word-wrap: break-word;
+       position: relative;
+       display: block;
+       text-align: center;
+       width: 100%;
+     }
+
+     #privacy-btn {
+       height: 10%;
+       top: 80%;
+       font-size: 8vmin;
+       color: #747474;
+       width: 100%;
+       text-align: center;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       border-top: 0.5vmin solid #d3d3d6;
+       padding-top: 2vmin;
+     }
+
+
+     /*# sourceMappingURL=main.css.map*/
+   
+
+
+
+
+</style>
+ </head>
+
+ <body oncontextmenu="return false;">
+   <script type="text/javascript" src="main.js" nonce="qACc2RpVQ7Dqt26Ksjm7yA"></script>
+ 
+
+</body>
+
+ </html>

@@ -1,0 +1,170 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script>
+<html lang="en-us">
+<base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/rolling-sky/">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Unity WebGL Player | Rolling Sky</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #gameContainer {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      margin: 0 auto;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  
+</style>
+
+  <script src="Build/UnityLoader.js" type="8b0564566a358200863a102b-text/javascript"></script>
+    <script>
+    function mergeFiles(fileParts) {
+      return new Promise((resolve, reject) => {
+        let buffers = [];
+        function fetchPart(i) {
+          if (i >= fileParts.length) {
+            let mergedBlob = new Blob(buffers);
+            let mergedUrl = URL.createObjectURL(mergedBlob);
+            resolve(mergedUrl);
+            return;
+          }
+          fetch(fileParts[i])
+            .then(r => r.arrayBuffer())
+            .then(data => {
+              buffers.push(data);
+              fetchPart(i + 1);
+            })
+            .catch(reject);
+        }
+        fetchPart(0);
+      });
+    }
+
+    function getParts(file, start, end) {
+      let arr = [];
+      for (let i = start; i <= end; i++) {
+        arr.push(file + ".part" + i);
+      }
+      return arr;
+    }
+
+    function resizeUnityContainer() {
+      var container = document.getElementById("gameContainer");
+      container.style.width = window.innerWidth + "px";
+      container.style.height = window.innerHeight + "px";
+    }
+
+    window.addEventListener('resize', resizeUnityContainer);
+
+    function UnityProgress(gameInstance, progress) {
+      try {
+        if (progress === 'complete') {
+          return;
+        }
+        var pct = 0;
+        if (typeof progress === 'number') pct = progress;
+        else if (progress && progress.loaded && progress.total) pct = progress.loaded / progress.total;
+        var txt = document.getElementById('loading-text');
+        if (txt) txt.textContent = 'Loading... ' + Math.round(pct * 100) + '%';
+      } catch (e) {
+      }
+    }
+
+    // ---- MAIN LOADER ----
+    window.addEventListener("load", function () {
+      fetch("Build/WebGL.json")
+        .then(r => r.json())
+        .then(config => {
+          return Promise.all([
+            mergeFiles(getParts("Build/WebGL.data.unityweb", 1, 1)),
+            mergeFiles(getParts("Build/WebGL.asm.code.unityweb", 1, 2)), 
+            mergeFiles(getParts("Build/WebGL.asm.memory.unityweb", 1, 1)), 
+            mergeFiles(getParts("Build/WebGL.asm.framework.unityweb", 1, 1)) 
+          ]).then(([dataUrl, asmCodeUrl, asmMemoryUrl, asmFrameworkUrl]) => {
+            config.dataUrl = dataUrl;
+            config.asmCodeUrl = asmCodeUrl;
+            config.asmMemoryUrl = asmMemoryUrl;
+            config.asmFrameworkUrl = asmFrameworkUrl;
+
+            let blob = new Blob([JSON.stringify(config)], { type: "application/json" });
+            let blobUrl = URL.createObjectURL(blob);
+
+            window.gameInstance = UnityLoader.instantiate("gameContainer", blobUrl, {
+              onProgress: UnityProgress,
+              Module: {
+                onRuntimeInitialized: function () {
+                  resizeUnityContainer();
+                  let loadingText = document.querySelector("#loading-text");
+                  if (loadingText) loadingText.remove();
+                  UnityProgress(window.gameInstance, 'complete');
+                }
+              }
+            });
+          });
+        })
+        .catch(err => {
+          console.error("Unity load failed:", err);
+        });
+    });
+  </script>
+
+  <script type="8b0564566a358200863a102b-text/javascript">
+    function UnityProgress(gameInstance, progress) {
+      console.log("Loading: " + Math.round(progress * 100) + "%");
+    }
+
+    let gameInstance;
+
+    function resizeGame() {
+      const container = document.getElementById('gameContainer');
+      container.style.width = window.innerWidth + 'px';
+      container.style.height = window.innerHeight + 'px';
+
+      // Optional: force canvas resize
+      if (gameInstance && gameInstance.Module) {
+        gameInstance.Module.canvas.width = window.innerWidth;
+        gameInstance.Module.canvas.height = window.innerHeight;
+      }
+    }
+
+    window.addEventListener("resize", resizeGame);
+    window.addEventListener("orientationchange", resizeGame);
+
+    window.addEventListener("load", function() {
+      gameInstance = UnityLoader.instantiate("gameContainer", "Build/WebGL.json", {
+        onProgress: UnityProgress
+      });
+      resizeGame();
+    });
+  </script>
+</head>
+
+<body>
+  <div id="gameContainer"></div>
+  <script src="rocket-loader.min.js" data-cf-settings="8b0564566a358200863a102b-|49" defer></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"800f0389d5704166b29b19cb44996109","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+
+</body>
+
+</html>

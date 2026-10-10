@@ -1,0 +1,211 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Unity WebGL Player | Granny 2</title>
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/TemplateData/favicon.ico"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/TemplateData/styles.css"/>
+    <!-- GameMonetize SDK Entegrasyonu -->
+    <script type="text/javascript">
+        window.SDK_OPTIONS = {
+            gameId: "jp112o3o4hzgrnc7zaewjkrfk282pul8",
+            onEvent: function (a) {
+                switch (a.name) {
+                    case "SDK_GAME_PAUSE":
+                        console.log("Oyun duraklatıldı, ses kapatılıyor...");
+                        if (typeof myGameInstance !== 'undefined' && myGameInstance) {
+                            myGameInstance.SendMessage('AudioManager', 'MuteAudio');
+                        }
+                        break;
+                    case "SDK_GAME_START":
+                        console.log("Reklam bitti, oyun devam ediyor...");
+                        if (typeof myGameInstance !== 'undefined' && myGameInstance) {
+                            myGameInstance.SendMessage('AudioManager', 'UnmuteAudio');
+                        }
+                        break;
+                    case "SDK_READY":
+                        console.log("SDK hazır.");
+                        break;
+                }
+            }
+        };
+        (function (a, b, c) {
+            var d = a.getElementsByTagName(b)[0];
+            a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://cdn.jsdelivr.net/gh/testamalame/sef@main/sedk.js", d.parentNode.insertBefore(a, d));
+        })(document, "script", "gamemonetize-sdk");
+    </script>
+
+</head>
+<body>
+    <div id="unity-container" style="position: absolute; width: 100%; height: 100%; left: 0%; top: 0%;">
+        <canvas id="unity-canvas" style="position: absolute; width: 100%; height: 100%"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+        <div id="unity-warning"> </div>
+    </div>
+
+    <script>
+        YaGames.init().then(ysdk => {
+            console.log('Yandex SDK initialized');
+            window.ysdk = ysdk;
+            initPlayer();
+        });
+
+        var player;
+
+        function initPlayer() {
+            return ysdk.getPlayer({ scopes: false }).then(_player => {
+                player = _player;
+                return player;
+            });
+        }
+    </script>
+
+    <script>
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+        var warningBanner = document.querySelector("#unity-warning");
+
+        let myGameInstance = null;
+        let isAdShown = false;
+
+        function unityShowBanner(msg, type) {
+            function updateBannerVisibility() {
+                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            }
+            var div = document.createElement('div');
+            div.innerHTML = msg;
+            warningBanner.appendChild(div);
+            if (type == 'error') div.style = 'background: red; padding: 10px;';
+            else {
+                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+                setTimeout(function() {
+                    warningBanner.removeChild(div);
+                    updateBannerVisibility();
+                }, 5000);
+            }
+            updateBannerVisibility();
+        }
+
+        function showAdOnClick() {
+            if (!isAdShown && typeof sdk !== 'undefined' && typeof sdk.showBanner !== 'undefined') {
+                sdk.showBanner();
+                isAdShown = true;
+                console.log("Reklam çağrıldı.");
+            } else {
+                console.warn("SDK veya showBanner tanımlı değil.");
+            }
+        }
+
+        let environmentData = {
+            language: "en",
+            domain: "default_domain",
+            deviceType: "desktop",
+            isMobile: false,
+            isDesktop: true,
+            isTablet: false,
+            isTV: false,
+            appID: "default_app_id",
+            browserLang: navigator.language || "en",
+            payload: null,
+            promptCanShow: false,
+            reviewCanShow: false,
+            platform: navigator.platform,
+            browser: (function() {
+                let userAgent = navigator.userAgent;
+                if (userAgent.includes("YaBrowser")) return "Yandex";
+                if (userAgent.includes("OPR") || userAgent.includes("Opera")) return "Opera";
+                if (userAgent.includes("Firefox")) return "Firefox";
+                if (userAgent.includes("MSIE") || userAgent.includes("Trident")) return "IE";
+                if (userAgent.includes("Edge")) return "Edge";
+                if (userAgent.includes("Chrome")) return "Chrome";
+                if (userAgent.includes("Safari")) return "Safari";
+                return "Other";
+            })()
+        };
+
+        async function mergeFiles(parts, onProgress) {
+            let loaded = 0;
+            const total = parts.length;
+            const blobs = await Promise.all(parts.map(async (part, index) => {
+                const res = await fetch(part);
+                const blob = await res.blob();
+                loaded++;
+                if (onProgress) onProgress(loaded / total);
+                return blob;
+            }));
+            return URL.createObjectURL(new Blob(blobs));
+        }
+
+        async function initializeGame() {
+            var buildUrl = "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build";
+            var loaderUrl = buildUrl + "/Granny 2.loader.js";
+            
+            var dataParts = [
+                "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build/Granny 2_part1.data", 
+                "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build/Granny 2_part2.data", 
+                "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build/Granny 2_part3.data"
+            ];
+            var wasmParts = [
+                "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build/Granny 2_part1.wasm", 
+                "https://cdn.jsdelivr.net/gh/forms-docs-slides-glgl/ngng@main/Build/Granny 2_part2.wasm"
+            ];
+            
+            loadingBar.style.display = "block";
+            
+            var dataUrl = await mergeFiles(dataParts, progress => {
+                progressBarFull.style.width = (50 * progress) + "%";
+            });
+            var wasmUrl = await mergeFiles(wasmParts, progress => {
+                progressBarFull.style.width = (50 + 50 * progress) + "%";
+            });
+            
+            var config = {
+                dataUrl: dataUrl,
+                frameworkUrl: buildUrl + "/Granny 2.frameworkx.js",
+                codeUrl: wasmUrl,
+                streamingAssetsUrl: "StreamingAssets",
+                companyName: "Awesome",
+                productName: "Granny 2",
+                productVersion: "1.0",
+                showBanner: unityShowBanner,
+            };
+            
+            var script = document.createElement("script");
+            script.src = loaderUrl;
+            script.onload = () => {
+                createUnityInstance(canvas, config, (progress) => {
+                    progressBarFull.style.width = (100 * progress) + "%";
+                }).then((unityInstance) => {
+                    myGameInstance = unityInstance;
+                    setTimeout(() => { loadingBar.style.display = "none"; }, 500);
+                    // Oyun yüklendiğinde tıklama olayını ekle
+                    canvas.addEventListener('pointerdown', showAdOnClick);
+                    canvas.addEventListener('touchstart', showAdOnClick);
+                }).catch((message) => {
+                    alert(message);
+                });
+            };
+            document.body.appendChild(script);
+        }
+
+        initializeGame();
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <base href="https://cdn.jsdelivr.net/gh/Reeyuki/PlagueIncEvolved/">
+  <title>Plague Inc</title>
+
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+
+    #unity-canvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    #loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #0b0b0b;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #bar {
+      width: 60%;
+      height: 12px;
+      background: #333;
+    }
+
+    #fill {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loader">
+    <div id="text">0 MB / 300 MB</div>
+    <div id="bar">
+      <div id="fill"></div>
+    </div>
+  </div>
+
+  <canvas id="unity-canvas"></canvas>
+
+  <script src="Build/bb0d9ecdb05db3e84da20bd14a4f84dc.loader.js"></script>
+
+  <script>
+    const baseBuild = "https://cdn.jsdelivr.net/gh/Reeyuki/PlagueIncEvolved/Build/"
+    const base = "https://cdn.jsdelivr.net/gh/Reeyuki/PlagueIncEvolved/"
+
+    let loaded = 0
+    let totalGuess = 332398592
+
+    function update() {
+      const mb = (loaded / 1024 / 1024).toFixed(2)
+      const total = (totalGuess / 1024 / 1024).toFixed(2)
+      document.getElementById("text").textContent = mb + " MB / " + total + " MB"
+      document.getElementById("fill").style.width = (loaded / totalGuess * 100) + "%"
+    }
+
+    async function fetchPart(url) {
+      const res = await fetch(url)
+      if (!res.ok) return null
+      const buf = await res.arrayBuffer()
+      loaded += buf.byteLength
+      update()
+      return new Uint8Array(buf)
+    }
+
+    /* CONFIG ONLY */
+    const files = [
+      { name: "6b69ec426bff8a6bd4e760a1d5f507b9.wasm", parts: 2 },
+      { name: "3719aa6c33bf126ed64864ee5fc2fafc.data", parts: 15 }
+    ]
+
+    function buildUrls(file) {
+      const urls = []
+      for (let i = 0; i < file.parts; i++) {
+        urls.push(baseBuild + file.name + ".part" + String(i).padStart(2, "0"))
+      }
+      return urls
+    }
+
+    async function loadFile(file) {
+      const urls = buildUrls(file)
+
+      const buffers = await Promise.all(urls.map(fetchPart))
+
+      let size = 0
+      for (const b of buffers) size += b.byteLength
+
+      const out = new Uint8Array(size)
+      let off = 0
+
+      for (const b of buffers) {
+        out.set(b, off)
+        off += b.byteLength
+      }
+
+      return out.buffer
+    }
+
+    async function start() {
+      const wasmFile = files[0]
+      const dataFile = files[1]
+
+      const wasmPromise = loadFile(wasmFile)
+      const dataPromise = loadFile(dataFile)
+
+      const [wasm, data] = await Promise.all([wasmPromise, dataPromise])
+
+      const wasmUrl = URL.createObjectURL(new Blob([wasm], { type: "application/wasm" }))
+      const dataUrl = URL.createObjectURL(new Blob([data]))
+
+      document.getElementById("loader").style.display = "none"
+
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: dataUrl,
+        frameworkUrl: baseBuild + "b4b58f3ff6d98fbfb83482e25e0e9a5c.framework.js",
+        codeUrl: wasmUrl,
+        streamingAssetsUrl: base + "StreamingAssets",
+        companyName: "Ndemic Creations",
+        productName: "Plague Inc",
+        productVersion: "1.18.3.2"
+      })
+    }
+
+    start()
+  </script>
+
+</body>
+
+</html>

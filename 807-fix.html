@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/web-ports/slendytubbies@latest/2d/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Slendytubbies 2D</title>
+    <style>
+      html, body {
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      canvas {
+        display: block;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: black;
+        outline: none;
+      }
+      #loading-text {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: white;
+        font-size: 48px;
+        font-family: cursive;
+        font-weight: bold;
+        z-index: 9999;
+        pointer-events: none;
+        background: linear-gradient(
+          270deg,
+          #ff0000,
+          #ff7f00,
+          #ffff00,
+          #00ff00,
+          #0000ff,
+          #4b0082,
+          #8f00ff
+        );
+        background-size: 400% 400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: rainbow 3s ease infinite;
+      }
+      @keyframes rainbow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading-text">LOADING...</div>
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    <script type="text/javascript">
+      var Module = {
+        TOTAL_MEMORY: 1073741824,
+        errorhandler: null,
+        compatibilitycheck: null,
+        dataUrl: "Release/Build.data",
+        codeUrl: "Release/Build.js",
+        memUrl: "Release/Build.mem"
+      };
+    </script>
+
+    <script type="text/javascript">
+      (async function () {
+        const loadingText = document.getElementById("loading-text");
+        const TOTAL_MB = (16.96 + 19.9).toFixed(2);
+        let loadedBytes = 0;
+
+        async function fetchWithProgress(url) {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed to fetch " + url + " (" + response.status + ")");
+          const reader = response.body.getReader();
+          const chunks = [];
+          let received = 0;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            received += value.length;
+            loadedBytes += value.length;
+            chunks.push(value);
+            const mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
+            loadingText.textContent = `LOADING... ${mbDone} MB / ${TOTAL_MB} MB`;
+          }
+          const fullBuffer = new Uint8Array(received);
+          let offset = 0;
+          for (const chunk of chunks) {
+            fullBuffer.set(chunk, offset);
+            offset += chunk.length;
+          }
+          return fullBuffer.buffer;
+        }
+
+        async function mergeFiles(fileParts, cacheKey) {
+          const cache = await caches.open("st2d-cache");
+          const cachedResponse = await cache.match(cacheKey);
+          if (cachedResponse) {
+            const blob = await cachedResponse.blob();
+            loadingText.textContent = `LOADING... (cached)`;
+            return URL.createObjectURL(blob);
+          }
+          const buffers = await Promise.all(fileParts.map(part => fetchWithProgress(part)));
+          const mergedBlob = new Blob(buffers);
+          const response = new Response(mergedBlob);
+          await cache.put(cacheKey, response);
+          return URL.createObjectURL(mergedBlob);
+        }
+
+        function getParts(file, start, end) {
+          const parts = [];
+          for (let i = start; i <= end; i++) {
+            parts.push(file + ".part" + i);
+          }
+          return parts;
+        }
+
+        try {
+          const datagzurl = await mergeFiles(getParts("Release/Build.datagz", 1, 2), "Build.datagz");
+
+          const originalOpen = XMLHttpRequest.prototype.open;
+          XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+            if (typeof url === "string" && url.indexOf("Build.datagz") !== -1) {
+              url = datagzurl;
+            }
+            return originalOpen.call(this, method, url, ...rest);
+          };
+
+          const originalFetch = window.fetch;
+          window.fetch = function (input, init) {
+            if (typeof input === "string" && input.indexOf("Build.datagz") !== -1) {
+              input = datagzurl;
+            } else if (input && typeof input === "object" && input.url && input.url.indexOf("Build.datagz") !== -1) {
+              input = new Request(datagzurl, input);
+            }
+            return originalFetch.call(this, input, init);
+          };
+
+          await new Promise((resolve, reject) => {
+            const s = document.createElement("script");
+            s.src = "Release/UnityLoader.js";
+            s.onload = resolve;
+            s.onerror = () => reject(new Error("Failed to load Release/UnityLoader.js"));
+            document.body.appendChild(s);
+          });
+
+          const hideWhenReady = () => {
+            if (loadingText && loadingText.parentNode) {
+              loadingText.parentNode.removeChild(loadingText);
+            }
+          };
+          setTimeout(hideWhenReady, 4000);
+        } catch (err) {
+          console.error(err);
+          loadingText.textContent = "ERROR: " + err.message;
+          loadingText.style.background = "none";
+          loadingText.style.webkitTextFillColor = "red";
+          loadingText.style.color = "red";
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,162 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><html lang="en">
+
+<head>
+    <script async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script type="text/javascript" id="analytics" async="" src="https://cdn.jsdelivr.net/gh/st39/sdk@main/ga.js"></script>
+    <script type="text/javascript" async="" src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <script id="gamemonetize-sdk" src="https://cdn.jsdelivr.net/gh/st39/sdk@main/sdk.js"></script>
+    <script src="//www.google.com/jsapi"></script>
+    <script>
+        window.parent.maeExportApis_();
+    </script>
+    <script type="text/javascript">
+        window.SDK_OPTIONS = {
+            gameId: "nuiyi3o2g6fktyjda55g42v3qe5a3hbq",
+            onEvent: function (a) {
+                switch (a.name) {
+                case "SDK_GAME_PAUSE":
+                    // pause game logic / mute audio
+                    gmonetize_pause()
+                    break;
+                case "SDK_GAME_START":
+                    // advertisement done, resume game logic and unmute audio
+                    gmonetize_resume()
+                    break;
+                case "SDK_READY":
+                    // when sdk is ready
+                    break;
+                }
+            }
+        };
+        (function (a, b, c) {
+            var d = a.getElementsByTagName(b)[0];
+            a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://cdn.jsdelivr.net/gh/st39/sdk@main/sdk.js", d.parentNode.insertBefore(a, d))
+        })(document, "script", "gamemonetize-sdk");
+    </script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta charset="utf-8">
+    <style>
+        body {
+            background: #000000;
+            color: #cccccc;
+            margin: 0px;
+            padding: 0px;
+            border: 0px;
+        }
+
+        canvas {
+            image-rendering: optimizeSpeed;
+            -webkit-interpolation-mode: nearest-neighbor;
+            -ms-touch-action: none;
+            margin: 0px;
+            padding: 0px;
+            border: 0px;
+        }
+
+        :-webkit-full-screen #canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        div.gm4html5_div_class {
+            margin: 0px;
+            padding: 0px;
+            border: 0px;
+        }
+
+        div.gm4html5_login {
+            padding: 20px;
+            position: absolute;
+            border: solid 2px #000000;
+            background-color: #404040;
+            color: #00ff00;
+            border-radius: 15px;
+            box-shadow: #101010 20px 20px 40px;
+        }
+
+        div.gm4html5_cancel_button {
+            float: right;
+        }
+
+        div.gm4html5_login_button {
+            float: left;
+        }
+
+        div.gm4html5_login_header {
+            text-align: center;
+        }
+
+        :-webkit-full-screen {
+            width: 100%;
+            height: 100%;
+        }
+    
+
+
+
+
+</style>
+    <style type="text/css">
+        #button {
+            display: none;
+        }
+
+        .imgb_vis {
+            animation: imgb-animation 7s linear;
+        }
+
+        @keyframes imgb-animation {
+            10% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(100px);
+            }
+
+            90% {
+                transform: translateX(100px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gm4html5_div_class" id="gm4html5_div_id">
+        <canvas id="canvas" width="1280" height="720">
+            <p>Your browser doesn't support HTML5 canvas.</p>
+        </canvas>
+        <canvas width="1280" height="720" id="loading_screen" style="position: absolute; left: 0px; top: 0px;"></canvas>
+    </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/yrgen73/12@250ba40ef0fed9b3106d4a2af96e463b819f54ef/12.js"></script>
+    <div id="imaContainer" style="position: absolute; z-index: 10000; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgb(0, 0, 0); visibility: hidden; overflow: hidden;"><video id="imaVideo"></video></div>
+    <div id="imaContainer_new" style="position: absolute; z-index: 10000; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgb(0, 0, 0); visibility: hidden; overflow: hidden;">
+        <video2 id="imaVideo2"></video2>
+    </div>
+    <script>
+        window.onload = GameMaker_Init;
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/yrgen73/12@5043038783e6ce235c297b1a5b2982a643bea713//tph_hidebar.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/gh/yrgen73/12@5043038783e6ce235c297b1a5b2982a643bea713//vph_loadingBars.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/gh/yrgen73/12@5043038783e6ce235c297b1a5b2982a643bea713//wph_gmCallback.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/gh/yrgen73/12@5043038783e6ce235c297b1a5b2982a643bea713//xph_gmonetize.js" type="text/javascript"></script>
+
+
+</body>
+
+</html>

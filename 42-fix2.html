@@ -1,0 +1,61 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE HTML>
+<html>
+
+<head>
+    
+    
+    
+    <meta charset='utf8'>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        #ruffle {
+            width: 100%;
+            height: 100%;
+        }
+    
+
+
+
+
+</style>
+</head>
+
+<body>
+    <div id='ruffle'></div>
+    <script src='https://unpkg.com/@ruffle-rs/ruffle'></script>
+    <script>
+        var ruffle = window.RufflePlayer.newest();
+        var container = document.getElementById('ruffle');
+        var player = ruffle.createPlayer();
+        container.appendChild(player);
+        player.load({
+            url: 'https://cdn.jsdelivr.net/gh/taskmaster773/google-class@main/swf/roadoffury.swf'
+        });
+        const resizePlayer = () => {
+            container.style.width = window.innerWidth + 'px';
+            container.style.height = window.innerHeight + 'px';
+            player.style.width = '100%';
+            player.style.height = '100%';
+        };
+        resizePlayer();
+        window.addEventListener('resize', resizePlayer);
+    </script>
+
+
+</body>
+
+</html>

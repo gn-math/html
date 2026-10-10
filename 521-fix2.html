@@ -1,0 +1,34 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en-us">
+        <base href="https://cdn.jsdelivr.net/gh/bubblfan/biologyexams@main/bust-a-loop/">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | LD47</title>
+  
+</head>
+  <body style="text-align: center">
+    <canvas id="unity-canvas" style="width: 1024px; height: 768px; background: #231F20"></canvas>
+    <script src="Build/Web.loader.js"></script>
+    <script>
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/Web.data",
+        frameworkUrl: "Build/Web.framework.js",
+        codeUrl: "Build/Web.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "5x Train LLC",
+        productName: "LD47",
+        productVersion: "1.0",
+      });
+    </script>
+  
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  
+  
+     <base href="https://cdn.jsdelivr.net/gh/MartinMMCyt/osu@65e500d1cb100306acbfeffb310c84294da933c4/">
+  <meta charset="utf-8" />
+  <title>WebOsu 2.0!</title>
+  <meta name="description"
+    content="Play WebOsu – A browser-based rhythm game inspired by osu!std. Experience fast-paced gameplay with an extensive beatmap library. No downloads, play free online now!">
+  <link rel="canonical" href="http://webosu-2.github.io/" />
+  <link rel="stylesheet" href="style/picnic.min.css" />
+  <link rel="stylesheet" type="text/css" href="style/main.css" />
+  <!-- <link href="//fonts.googleapis.com/css?family=Exo+2:400,600italic" rel="stylesheet" type="text/css"> -->
+  <link rel="stylesheet" type="text/css" href="style/font.css" />
+  <link rel="icon" href="favicon.png" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <script src="scripts/launchgame.js"></script>
+  <script src="scripts/downloader.js"></script>
+  <script src="scripts/addbeatmaplist.js"></script>
+  <script src="scripts/settings.js"></script>
+  <script src="scripts/jsloader.js"></script>
+  <script src="scripts/lib/localforage.min.js"></script>
+
+</head>
+
+<body>
+  <div class="game-area" id="game-area" hidden></div>
+
+  <div class="pause-menu" id="pause-menu" hidden>
+    <div class="paused-title">paused</div>
+    <div class="button-list">
+      <div class="pausebutton continue" id="pausebtn-continue">
+        <div class="inner">Continue</div>
+      </div>
+      <div class="pausebutton retry" id="pausebtn-retry">
+        <div class="inner">Retry</div>
+      </div>
+      <div class="pausebutton quit" id="pausebtn-quit">
+        <div class="inner">Quit</div>
+      </div>
+    </div>
+  </div>
+
+  <nav id="main-nav">
+    <div class="nav-link">
+      <a class="brand" onclick="indexHtml()">WebOsu 2.0!</a>
+      <a class="pseudo button" onclick="latestHtml()">Latest</a>
+      <a class="pseudo button"" onclick="popularHtml()">Popular</a>
+      <a class="pseudo button" onclick="genresHtml()">Genres</a>
+    </div>
+    <div class="nav-search">
+      <form action="javascript:searchHtml()">
+        <input type="text" name="q" placeholder="Beatmap name or Set ID" />
+        <input type="image" class="search-button" src="research.svg" />
+      </form>
+    </div>
+    <div class="nav-tool">
+      <a class="pseudo button" onclick="favouritesHtml()">Favourites</a>
+      <a class="pseudo button" onclick="faqHtml()">FAQ</a>
+      <a class="pseudo button" onclick="settingsHtml()">Settings</a>
+      <a
+        onclick="document.documentElement.requestFullscreen();"
+        class="pseudo button"
+        >Go to full screen</a
+      >
+    </div>
+  </nav>
+
+  <div class="main-page" id="main-page">
+  </div>
+  
+
+  <script>
+function indexHtml() {
+    document.getElementById("main-page").innerHTML = `<div class="column left"> </div> <div class="main-content column"> <div class="announcement"> Announcement: This site is still under development. If you encounter any issues, read <a onclick="faqHtml()">the FAQ</a>. Now ad-free again! </div> <br /> <div class="index-area"> <a onclick="genRandomList()" class="more" style="cursor:pointer;">Get new random Beatmaps</a> <h2>Random Beatmaps<h2> <hr /> <div class="beatmap-list" id="beatmap-list-random"> </div> </div> <div class="index-area"> <h2>Latest Beatmaps</h2> <a class="more" onclick="latestHtml()">View more latest beatmaps</a> <hr /> <div class="beatmap-list" id="beatmap-list-new"> </div> </div> <div class="index-area"> <h2>Favourited Beatmaps</h2> <a class="more" onclick="favouritesHtml()">View more favourited beatmaps</a> <hr /> <div class="beatmap-list" id="beatmap-list-liked"> </div> </div> <div class="index-area"> <h2>Popular Beatmaps</h2> <a class="more" onclick="popularHtml()">View more popular beatmaps</a> <hr /> <div class="beatmap-list" id="beatmap-list-hot"> </div> </div> <footer id="footer"> <div style="text-align: center;"> <h3 class="text">Supports touchscreen devices.</h3> <h3 class="text"> Version 0.4.0, see our <a href="https://github.com/WebOsu-2/webosu-2.github.io">Github page.</a> </h3> <h3 class="text"> Our beatmap provider is SayoBot </h3> </div> </footer> </div> <div class="column right"> </div> <div class="statuslines" id="statuslines"> <div class="progress" id="script-progress"> Scripts <div class="lds-dual-ring"></div> </div> <div class="progress" id="skin-progress"> Skin <div class="lds-dual-ring"></div> </div> <div class="progress" id="sound-progress"> Hitsounds <div class="lds-dual-ring"></div> </div> </div>`
+    // recently played
+    if (window.localforage) {
+        let listhistory = document.getElementById("beatmap-list-history");
+        localforage.getItem("playhistory1000", function (err, item) {
+            if (err) {
+                listhistory.innerText = "Could not fetch play history.";
+                return;
+            }
+            if (item && item.length) {
+                item = item.reverse();
+                sid = [];
+                for (let i = 0; i < item.length; ++i) {
+                    if (item[i].sid) sid.push(item[i].sid);
+                }
+                sid = [...new Set(sid)]; // uniq
+                for (let i = 0; i < 4 && i < sid.length; ++i) addBeatmapSid(sid[i], listhistory)
+            } else {
+                listhistory.innerText = "Play any beatmap to add them here.";
+            }
+        })
+    }
+    // new
+    addBeatmapList("https://api.sayobot.cn/beatmaplist?0=20&1=0&2=2&5=1", document.getElementById("beatmap-list-new"), function (t) {
+        return (t.modes & 1) != 0;
+    }, 4);
+    // random
+    function genRandomList() {
+        // clear list
+        let list = document.getElementById("beatmap-list-random");
+        // fill list
+        let randstart = Math.floor(Math.random() * 20000);
+        addBeatmapList("https://api.sayobot.cn/beatmaplist?0=10&1=" + randstart + "&2=1&5=1", list, function (t) {
+            while (list.firstChild) list.removeChild(list.firstChild);
+            return (t.modes & 1) != 0;
+        }, 4);
+    }
+    genRandomList();
+    // hot
+    addBeatmapList("https://api.sayobot.cn/beatmaplist?0=4&1=0&2=1&5=1", document.getElementById("beatmap-list-hot"));
+    // liked
+    if (window.localforage) {
+        window.localforage.getItem("likedsidset", function (err, val) {
+            if (err) {
+                document.getElementById("beatmap-list-liked").innerText = "Could not get liked beatmaps.";
+                return;
+            }
+            if (val && val.size) {
+                let listlike = document.getElementById("beatmap-list-liked");
+                list = Array.from(val);
+                for (let i = 0; i < list.length && i < 4; ++i) addBeatmapSid(list[i], listlike);
+            } else {
+                document.getElementById("beatmap-list-liked").innerText = "Heart any beatmap to add them here.";
+            }
+        });
+    } else {
+        alert("localforage not supported")
+    }
+}
+function latestHtml(){
+  document.getElementById("main-page").innerHTML = `<div class="main-content"> <div class="beatmap-list" id="beatmap-list"> </div> <div class="button" style="width: 100%; margin-bottom: 10px" id="btnmore"> Load more </div> <footer id="footer"> <div style="text-align: center;"> <h3 class="text">Supports touchscreen devices.</h3> <h3 class="text"> Version 0.4.0, see our <a href="https://github.com/WebOsu-2/webosu-2.github.io">Github page.</a> </h3> <h3 class="text"> Our beatmap provider is SayoBot </h3> </div> </footer> </div> <div class="statuslines" id="statuslines"> <div class="progress" id="script-progress"> Scripts <div class="lds-dual-ring"></div> </div> <div class="progress" id="skin-progress"> Skin <div class="lds-dual-ring"></div> </div> <div class="progress" id="sound-progress"> Hitsounds <div class="lds-dual-ring"></div> </div> </div>`
+  addBeatmapList("https://api.sayobot.cn/beatmaplist?0=20&1=0&2=2&5=1");
+    var cur = 20;
+    document.getElementById("btnmore").onclick = function () {
+      addBeatmapList(
+        "https://api.sayobot.cn/beatmaplist?0=20&1=" + cur + "&2=2&5=1"
+      );
+      cur += 20;
+    };
+}
+function popularHtml() {
+  document.getElementById("main-page").innerHTML = `<div class="main-content"> <div class="beatmap-list" id="beatmap-list"> </div> <div class="button" style="width: 100%; margin-bottom: 10px" id="btnmore"> Load more </div> <footer id="footer"> <div style="text-align: center;"> <h3 class="text">Supports touchscreen devices.</h3> <h3 class="text"> Version 0.4.0, see our <a href="https://github.com/WebOsu-2/webosu-2.github.io">Github page.</a> </h3> <h3 class="text"> Our beatmap provider is SayoBot </h3> </div> </footer> </div> <div class="statuslines" id="statuslines"> <div class="progress" id="script-progress"> Scripts <div class="lds-dual-ring"></div> </div> <div class="progress" id="skin-progress"> Skin <div class="lds-dual-ring"></div> </div> <div class="progress" id="sound-progress"> Hitsounds <div class="lds-dual-ring"></div> </div> </div>`;
+  addBeatmapList("https://api.sayobot.cn/beatmaplist?0=20&1=0&2=1&5=1");
+    var cur = 20;
+    document.getElementById("btnmore").onclick = function () {
+      addBeatmapList(
+        "https://api.sayobot.cn/beatmaplist?0=20&1=" + cur + "&2=1&5=1"
+      );
+      cur += 20;
+    };
+}
+function genresHtml() {
+  document.getElementById("main-page").innerHTML = `<div class="main-content"> <div class="sort-nav"> <div class="title">Genre</div> <div class="selitem" genre="1">All</div> <div class="selitem" genre="4">Games</div> <div class="selitem" genre="8">Animation</div> <div class="selitem" genre="16">Rock</div> <div class="selitem" genre="32">Popular</div> <div class="selitem" genre="128">Novelty</div> <div class="selitem" genre="1024">Electronic</div> <div class="selitem" genre="2+64+256">Others</div> </div> <div class="sort-nav"> <div class="title">Language</div> <div class="selitem" lang="1">All</div> <div class="selitem" lang="32">Instrumental</div> <div class="selitem" lang="4">English</div> <div class="selitem" lang="8">Japanese</div> <div class="selitem" lang="64">Korean</div> <div class="selitem" lang="16">Chinese</div> <div class="selitem" lang="128">French</div> <div class="selitem" lang="256">German</div> <div class="selitem" lang="2+1024">Others</div> </div> <hr /> <div class="beatmap-list" id="beatmap-list"> </div> <div class="button" style="width: 100%; margin-bottom: 10px" id="btnmore"> Load more </div> <footer id="footer"> <div style="text-align: center;"> <h3 class="text">Supports touchscreen devices.</h3> <h3 class="text"> Version 0.4.0, see our <a href="https://github.com/WebOsu-2/webosu-2.github.io">Github page.</a> </h3> <h3 class="text"> Our beatmap provider is SayoBot </h3> </div> </footer> </div> <div class="statuslines" id="statuslines"> <div class="progress" id="script-progress"> Scripts <div class="lds-dual-ring"></div> </div> <div class="progress" id="skin-progress"> Skin <div class="lds-dual-ring"></div> </div> <div class="progress" id="sound-progress"> Hitsounds <div class="lds-dual-ring"></div> </div> </div>`;
+  let btns = document.getElementsByClassName("selitem");
+    function search(genre, lang) {
+      // clear list
+      list = document.getElementById("beatmap-list");
+      while (list.firstChild) {
+        list.removeChild(list.firstChild);
+      }
+      addBeatmapList(
+        "https://api.sayobot.cn/beatmaplist?0=20&1=0&2=4&5=1&7=" +
+        genre +
+        "&8=" +
+        lang
+      );
+      var cur = 20;
+      document.getElementById("btnmore").onclick = function () {
+        addBeatmapList(
+          "https://api.sayobot.cn/beatmaplist?0=20&1=" +
+          cur +
+          "&2=4&5=1&7=" +
+          genre +
+          "&8=" +
+          lang
+        );
+        cur += 20;
+      };
+      // update buttons state
+      for (let i = 0; i < btns.length; ++i) {
+        let g = eval(btns[i].getAttribute("genre"));
+        let l = eval(btns[i].getAttribute("lang"));
+        if (g == genre || l == lang) {
+          btns[i].classList.add("active");
+        } else {
+          btns[i].classList.remove("active");
+        }
+      }
+    }
+    let curgenre = 1;
+    let curlang = 1;
+    search(curgenre, curlang);
+    for (let i = 0; i < btns.length; ++i) {
+      btns[i].onclick = function () {
+        let g = eval(btns[i].getAttribute("genre"));
+        let l = eval(btns[i].getAttribute("lang"));
+        if (g) curgenre = g;
+        if (l) curlang = l;
+        search(curgenre, curlang);
+      };
+    }
+}
+function favouritesHtml() {
+  document.getElementById("main-page").innerHTML = `<div class="main-content"> <div class="beatmap-list" id="beatmap-list"> </div> <div class="button" style="width: 100%; margin-bottom: 10px" id="btnmore"> Load more </div> <footer id="footer"> <div style="text-align: center;"> <h3 class="text">Supports touchscreen devices.</h3> <h3 class="text"> Version 0.4.0, see our <a href="https://github.com/WebOsu-2/webosu-2.github.io">Github page.</a> </h3> <h3 class="text"> Our beatmap provider is SayoBot </h3> </div> </footer> </div> <div class="statuslines" id="statuslines"> <div class="progress" id="script-progress"> Scripts <div class="lds-dual-ring"></div> </div> <div class="progress" id="skin-progress"> Skin <div class="lds-dual-ring"></div> </div> <div class="progress" id="sound-progress"> Hitsounds <div class="lds-dual-ring"></div> </div> </div>`;
+  if (window.localforage) {
+      window.localforage.getItem("likedsidset", function (err, val) {
+        if (err) {
+          alert("Error loading liked beatmap list");
+          return;
+        }
+        if (val && val.size) {
+          list = Array.from(val);
+          function addlist(startoffset, maxlength) {
+            for (
+              let i = startoffset;
+              i < list.length && i < startoffset + maxlength;
+              ++i
+            )
+              addBeatmapSid(list[i]);
+            if (list.length <= startoffset + maxlength) {
+              document
+                .getElementById("btnmore")
+                .setAttribute("style", "display:none;");
+            }
+          }
+          addlist(0, 20);
+          var cur = 20;
+          document.getElementById("btnmore").onclick = function () {
+            addlist(cur, 20);
+            cur += 20;
+          };
+        } else {
+          document.getElementById("beatmap-list").innerText =
+            "There are no beatmaps to show, add more.";
+        }
+      });
+    } else {
+      alert("localforage not supported");
+    }
+}
+function faqHtml() {
+  document.getElementById("main-page").innerHTML = ` <div class="main-content"> <div class="faqentry"> <h2>How do I play Osu?</h2> The default keys are the left and right mouse buttons and the Z and X keys, which can be modified in the settings. The circles that appear on the game screen are called strike circles. When the circle outside the strike circle shrinks and falls just on the strike circle, click on the strike circle. Some circles have a slider that you need to hold down and follow as it moves. When a large disk appears on the screen, press and hold a button and quickly rotate your mouse around the center of the circle. </div> <div class="faqentry"> <h2>The cursor movement seems to be delayed?</h2> Try enabling the hardware cursor in settings, which can reduce cursor input latency. However, in some operating systems or browsers, problems such as flickering or the inability to display the cursor may occur, so it is turned off by default. In addition, the cursor size adjustment of the current hardware cursor only has 3 fixed levels. The minimum value is displayed below 0.65, and the maximum value is displayed above 0.95. </div> <div class="faqentry"> <h2>The game is stuck, what should I do?</h2> It may be that the browser itself consumes a large amount of resources, causing the lag, or it may be that some strange mechanism causes the browser to reduce the frequency of event sending. It is recommended to avoid excessive CPU usage, close anti-virus software/computer manager like Avast, try closing other tabs of the browser and restart the browser. Please make sure you are using a mainstream modern browser (such as Chrome, Firefox, or MS Edge). If it's still stuck, <a href="https://github.com/WebOsu-2/webosu-2.github.io/issues/new">please file an issue on our github page</a>. </div> <div class="faqentry"> <h2>Why is nothing displayed on the web page?</h2> It may be that our API, <a href="https://osu.sayobot.cn">SayoBot</a> , is having issues. If so, you can contact the developers of Mino for them to fix it. </div> <div class="faqentry"> <h2>Can I upload beatmaps locally?</h2> You can not upload beatmaps here. We get all of our beatmaps from the osu database, upload your own beatmap to osu for it to (eventually) show up here. </div> <div class="faqentry"> <h2>What should I do if the audio and/or video are out of sync?</h2> <a href="https://github.com/WebOsu-2/webosu-2.github.io/issues/new">Please file an issue on our github page</a> </div> <div class="faqentry"> <h2>I have other problems not shown here.</h2> <a href="https://github.com/WebOsu-2/webosu-2.github.io/issues/new">file an issue on our github page</a> </div> </div>`;
+}
+function settingsHtml() {
+  document.getElementById("main-page").innerHTML = `<div class="panel"> <h1>Settings</h1> <button class="accordion"> <h2>Display</h2> <span class="accordion-icon"></span> </button> <div class="settings-section"> <table class="holder" id="settings-panel"> <tr> <td> <div class="option-name">Background Dim</div> <div class="option-control"> <input id="dim-range" class="slider" type="range" min="0" max="100" value="0" /> <div class="range-indicator" id="dim-range-indicator" hidden></div> </div> </td> </tr> <tr> <td> <div class="option-name">Background Blur</div> <div class="option-control"> <input id="blur-range" class="slider" type="range" min="0" max="8" value="0" /> <div class="range-indicator" id="blur-range-indicator" hidden></div> </div> </td> </tr> <tr> <td> <div class="option-name">Cursor Size</div> <div class="option-control"> <input id="cursorsize-range" class="slider" type="range" min="0.5" max="2.0" step="0.01" value="0.5" /> <div class="range-indicator" id="cursorsize-range-indicator" hidden></div> </div> </td> </tr> <tr> <td> <div class="option-name">Slider snake in</div> <div class="option-control"> <input id="snakein-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td> <div class="option-name">Slider snake out</div> <div class="option-control"> <input id="snakeout-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td> <div class="option-name">Auto start game on fullscreen</div> <div class="option-control"> <input id="autofullscreen-check" type="checkbox" /><span></span> </div> </td> </tr> </table> </div> <button class="accordion"> <h2>Input</h2> <span class="accordion-icon"></span> </button> <div class="settings-section"> <table class="holder" id="settings-panel"> <tr> <td title="Bypasses mouse acceleration, highly recommended. Turn off if you face issues."> <div class="option-name">Raw cursor input</div> <div class="option-control"> <input id="showhwmouse-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="To avoid accidentally changing the volume"> <div class="option-name">Disable mouse wheel while playing</div> <div class="option-control"> <input id="disable-wheel-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="To avoid accidentally clicking objects"> <div class="option-name">Disable mouse click while playing</div> <div class="option-control"> <input id="disable-button-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td> <div class="option-name">Left click</div> <div class="option-control"> <input id="lbutton1select" type="button" value="oops" /> <input type="button" value="M1" /> </div> </td> </tr> <tr> <td> <div class="option-name">Right click</div> <div class="option-control"> <input id="rbutton1select" type="button" value="oops" /> <input type="button" value="M2" /> </div> </td> </tr> <tr> <td> <div class="option-name">Pause</div> <div class="option-control"> <input id="pausebuttonselect" type="button" value="oops" /> <input id="pausebutton2select" type="button" value="oops" /> </div> </td> </tr> </table> </div> <button class="accordion"> <h2>Audio</h2> <span class="accordion-icon"></span> </button> <div class="settings-section"> <table class="holder" id="settings-panel"> <tr> <td> <div class="option-name">Master Volume</div> <div class="option-control"> <input id="mastervolume-range" class="slider" type="range" min="0" max="100" value="0" /> <div class="range-indicator" id="mastervolume-range-indicator" hidden></div> </div> </td> </tr> <tr> <td> <div class="option-name">Sound Effect Volume</div> <div class="option-control"> <input id="effectvolume-range" class="slider" type="range" min="0" max="100" value="0" /> <div class="range-indicator" id="effectvolume-range-indicator" hidden></div> </div> </td> </tr> <tr> <td> <div class="option-name">Music Volume</div> <div class="option-control"> <input id="musicvolume-range" class="slider" type="range" min="0" max="100" value="0" /> <div class="range-indicator" id="musicvolume-range-indicator" hidden></div> </div> </td> </tr> <tr title="Makes the audio offset a certain amount."> <td> <div class="option-name">Audio Offset</div> <div class="option-control"> <input id="audiooffset-range" class="slider" type="range" min="-50" max="50" value="-50" /> <div class="range-indicator" id="audiooffset-range-indicator" hidden></div> </div> <div style="font-size: 0.8em; color: #999; margin-top: 2.2em"> Not recommended to use! If you do, please turn off the hitsounds. Go to <a style="color: #8bc" href="https://bemuse.ninja/?mode=sync">bemuse sync</a> to determine the keyboard delay. </div> </td> </tr> <tr hidden> <td> <div class="option-name disabled">Enable beatmap hitsounds</div> <div class="option-control"> <input id="beatmap-hitsound-check" type="checkbox" /><span></span> </div> </td> </tr> </table> </div> <button class="accordion"> <h2>Mods</h2> <span class="accordion-icon"></span> </button> <div class="settings-section"> <table class="holder" id="settings-panel"> <tr> <td title="This doesn't make things easier!"> <div class="option-name">Easy</div> <div class="option-control"> <input id="easy-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="Everything gets slower..."> <div class="option-name">Daycore</div> <div class="option-control"> <input id="daycore-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="Everything gets a bit harder..."> <div class="option-name">Hard Rock</div> <div class="option-control"> <input id="hardrock-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="Play with no approach circles and fading circles/sliders"> <div class="option-name">Hidden</div> <div class="option-control"> <input id="hidden-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="Everything gets faster..."> <div class="option-name">Nightcore</div> <div class="option-control"> <input id="nightcore-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td title="Watch a (probably) perfect automated play"> <div class="option-name">Autoplay</div> <div class="option-control"> <input id="autoplay-check" type="checkbox" /><span></span> </div> </td> </tr> </table> </div> <button class="accordion"> <h2>Skins</h2> <span class="accordion-icon"></span> </button> <div class="settings-section"> <table class="holder" id="settings-panel"> <tr> <td> <div class="option-name">Hide circle number</div> <div class="option-control"> <input id="hidenumbers-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td> <div class="option-name">Hide "Great" (300s)</div> <div class="option-control"> <input id="hidegreat-check" type="checkbox" /><span></span> </div> </td> </tr> <tr> <td> <div class="option-name">Hide connecting lines</div> <div class="option-control"> <input id="hidefollowpoints-check" type="checkbox" /><span></span> </div> </td> </tr> </table> </div> <br /> <input id="restoredefault-btn" type="button" class="warnbtn" value="Restore to default settings" /> </div>`;
+  var acc = document.getElementsByClassName("accordion");
+    var i;
+
+    for (i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        var panel = this.nextElementSibling;
+        panel.classList.toggle("active");
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      });
+    }
+}
+indexHtml();
+  </script>
+
+</body>
+
+</html>
+
+<!-- attribution -->
+<!-- play icon made by https://www.flaticon.com/authors/those-icons -->
+<!-- search icon made by https://www.flaticon.com/authors/good-ware -->

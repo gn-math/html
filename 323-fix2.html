@@ -1,0 +1,408 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html>
+	<head>
+		<base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/find-the-alien/">
+		<meta charset="utf-8" />
+		<meta id="viewport" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
+		<script nonce="K_1xj9LcHfCW25Cs-ByeVQ">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("find-the-alien-save") || ""); },
+      saveData: function (data) { localStorage.setItem("find-the-alien-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+		<script nonce="K_1xj9LcHfCW25Cs-ByeVQ">
+			var clickTag = "https://apps.apple.com/";
+			var iosLink = "https://apps.apple.com/";
+			var androidLink = "https://play.google.com/";
+
+			var userAgent = navigator.userAgent || navigator.vendor;
+			var clickTag = /android/i.test(userAgent) ? androidLink : iosLink;
+
+			var link = iosLink;
+			var link2 = androidLink;
+			var lp_url = clickTag;
+
+			////MOBVISTA FUNCTIONS
+			function gameStart() {
+				if (!window.app || !app.gameStart) {
+					setTimeout(gameStart, 250);
+					return;
+				}
+				app.gameStart();
+			}
+
+			function gameClose() {
+				if (!app) return;
+				app.gameClose();
+			}
+		</script>
+
+		
+		<style type="text/css">
+			@keyframes pulse {
+				0% {
+					transform: scale(1, 1);
+				}
+
+				100% {
+					transform: scale(0.9, 0.9);
+				}
+			}
+
+			@keyframes twist {
+				0% {
+					transform: skewX(-10deg);
+				}
+
+				100% {
+					transform: skewX(10deg);
+				}
+			}
+
+			@keyframes jump {
+				0% {
+					transform: translateY(0);
+				}
+
+				100% {
+					transform: translateY(-10px);
+				}
+			}
+
+			@keyframes rotate {
+				0% {
+					transform: rotate(-4deg);
+				}
+
+				100% {
+					transform: rotate(4deg);
+				}
+			}
+
+			#modal {
+				z-index: 9999;
+			}
+
+			* {
+				padding: 0;
+				margin: 0;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			#loading {
+				position: fixed;
+				margin: auto;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				left: 0;
+				z-index: 999;
+			}
+
+			/*
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    background: #0eb1f7;
+    background: linear-gradient(180deg, #0eb1f7 0%, #095f85 50%);
+
+}
+
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+}
+
+body,html{
+    touch-action: none
+}
+*/
+
+			body,
+			html {
+				position: absolute;
+				margin: 0;
+				padding: 0;
+				top: 0;
+				right: 0;
+				left: 0;
+				bottom: 0;
+				overflow: hidden;
+				background: 0 0;
+
+				touch-action: none;
+			}
+
+			canvas {
+				position: fixed;
+				top: 0;
+				left: 0;
+			}
+
+			#ui {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 99;
+			}
+
+			.screen {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+
+			.cover {
+				background: rgba(0, 0, 0, 0.5);
+			}
+
+			.center-absolute {
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				top: 0;
+				margin: auto;
+			}
+
+			.not-select {
+				-moz-user-select: none;
+				-webkit-user-select: none;
+				user-select: none;
+			}
+
+			.hide {
+				visibility: hidden;
+				opacity: 0;
+				transition: opacity 1s, visiblility 1s;
+			}
+
+			.show {
+				visibility: visible;
+				opacity: 1;
+				transition: opacity 1s, visiblility 1s;
+			}
+
+			.simple-pulse {
+				animation-name: pulse;
+				animation-duration: 0.5s;
+				animation-iteration-count: infinite;
+				animation-direction: alternate;
+			}
+
+			#animation_container {
+				position: absolute;
+				margin: auto;
+				left: 0;
+				right: 0;
+				top: 0;
+				bottom: 0;
+			}
+
+			@keyframes alpha {
+				0% {
+					opacity: 1;
+				}
+
+				100% {
+					opacity: 0;
+				}
+			}
+
+			.info-text {
+				position: absolute;
+				text-align: center;
+				font-size: 40px;
+				font-family: ui-font;
+				width: 100%;
+
+				color: #d1445e;
+
+				animation-name: pulse;
+				animation-duration: 0.15s;
+				animation-iteration-count: infinite;
+				animation-direction: alternate;
+			}
+
+			.circle-bar {
+				position: absolute;
+				left: 100px;
+				top: 100px;
+				background: #ffffff;
+				width: 150px;
+				height: 150px;
+				z-index: 990;
+			}
+
+			@keyframes alpha2 {
+				0% {
+					opacity: 1;
+				}
+
+				100% {
+					opacity: 0;
+				}
+			}
+
+			#custom-preloader-pf {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: #333;
+				z-index: 99999;
+
+				display: flex;
+				align-items: center;
+				flex-direction: column;
+
+				justify-content: center;
+				justify-content: space-evenly;
+			}
+			/*TOP PART*/
+			.custom-preloader-item-top {
+				width: 50%;
+				max-height: 40%;
+				text-align: center;
+			}
+
+			.custom-preloader-item-top > * {
+				max-width: 100%;
+				max-height: 100%;
+			}
+
+			/*BOTTOM PART*/
+			.custom-preloader-item-bottom {
+				max-width: 40%;
+				max-height: 10%;
+				text-align: center;
+			}
+
+			.custom-preloader-item-bottom > * {
+				max-width: 100%;
+				max-height: 100%;
+			}
+
+			/* PF - LOGO */
+
+			@keyframes gear-turn {
+				from {
+					transform: rotate(0deg);
+				}
+				to {
+					transform: rotate(360deg);
+				}
+			}
+
+			@keyframes play-pulse {
+				0% {
+					transform: scale(1);
+				}
+				14% {
+					transform: scale(0.9);
+				}
+				28% {
+					transform: scale(1);
+				}
+				100% {
+					transform: scale(1);
+				}
+			}
+
+			#custom-pf-logo {
+				width: 250px;
+				height: 220px;
+
+				position: absolute;
+				left: 10px;
+				bottom: 10px;
+
+				transform-origin: bottom left;
+				transform: scale(0.15);
+			}
+
+			#custom-play {
+				position: absolute;
+				left: 0;
+				top: 15px;
+
+				animation-name: play-pulse;
+				animation-duration: 0.7s;
+				animation-iteration-count: infinite;
+				animation-timing-function: ease-in-out;
+			}
+
+			#custom-title {
+				position: absolute;
+				left: 300px;
+				top: 20px;
+
+				/* animation-name: play-pulse;
+    animation-duration: 0.7s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out; */
+			}
+
+			#custom-gear {
+				position: absolute;
+				left: 45px;
+
+				animation-name: gear-turn;
+				animation-duration: 2.66s;
+				animation-iteration-count: infinite;
+				animation-timing-function: linear;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript" src="main.js" nonce="K_1xj9LcHfCW25Cs-ByeVQ"></script>
+	
+
+</body>
+</html>

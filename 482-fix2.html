@@ -1,0 +1,269 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html>
+    <head>
+        <base href="https://cdn.jsdelivr.net/gh/giorgirick2-gif/game-webports-onawebsite@main/human-expenditure-program/">
+        <meta charset="UTF-8">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="viewport" content="user-scalable=no">
+        <link rel="icon" href="icon/icon.png" type="image/png">
+        <link rel="apple-touch-icon" href="icon/icon.png">
+        <link rel="stylesheet" type="text/css" href="css/game.css">
+        <title>HUMAN EXPENDITURE PROGRAM</title>
+    
+</head>
+    <body style="background-color: black">
+        <script type="text/javascript" src="js/main.js"></script>
+    
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+    <script>
+        // full screen the game ----------------------------------------------------------
+        function applycanvasmode() {
+            let w = 0;
+            let h = 0;
+            let maxW = window.innerWidth;
+            let maxH = window.innerHeight;
+            if ((maxW * 0.75) > maxH) {
+                h = maxH;
+                w = Math.floor((maxH / 3) * 4);
+            } else {
+                w = maxW;
+                h = Math.floor((maxW / 4) * 3);
+            }
+            try {
+            document.querySelector("#gameCanvas").style.width = w + "px";
+            document.querySelector("#gameCanvas").style.height = h + "px";
+            document.querySelector("#gameVideo").style.width = w + "px";
+            document.querySelector("#gameVideo").style.height = h + "px";
+            document.querySelector("#mouseCanvas").style.width = w + "px";
+            document.querySelector("#mouseCanvas").style.height = h + "px";
+} catch(e) {}
+        }
+        setInterval(applycanvasmode, 100);
+
+        // support mobile ----------------------------------------------------------------
+
+(function () {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) return;
+
+    let mode = "cursor"; // "rpg" or "cursor"
+    let cursorEl;
+    let lastHoverEl = null;
+    // keep original key style (your game probably expects 'up','down', etc)
+    function sendKeyEvent(key, type = "keydown") {
+        if (type == "keydown") {
+            Input._currentState[key] = true;
+        } else {
+            Input._currentState[key] = false;
+        }
+    }
+
+    function dispatchCursorMove(x, y) {
+        // element under cursor
+        const el = document.elementFromPoint(Math.round(x), Math.round(y));
+
+        // if element changed -> fire mouseout on last, mouseover on new
+        if (el !== lastHoverEl) {
+            if (lastHoverEl) {
+                lastHoverEl.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, clientX: x, clientY: y }));
+            }
+            if (el) {
+                el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, clientX: x, clientY: y }));
+            }
+            lastHoverEl = el;
+        }
+
+        // always send mousemove to current element (so hover callbacks run)
+        if (el) {
+            el.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x, clientY: y }));
+        }
+    }
+
+
+    function setupMobileControls() {
+        // virtual cursor
+        cursorEl = document.createElement("div");
+        cursorEl.style = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 18px;
+            height: 18px;
+            background: rgba(255,230,0,0.95);
+            border-radius: 50%;
+            z-index: 100000;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 6px rgba(0,0,0,0.6);
+        `;
+        document.body.appendChild(cursorEl);
+        cursorEl.hidden = false;
+
+        // container for joystick + toggle so visual and hit areas align
+        const controlsContainer = document.createElement("div");
+        controlsContainer.style = "position: fixed; left: 5vw; bottom: 5vw; width: 25vw; height: 25vw; z-index: 9999;";
+        document.body.appendChild(controlsContainer);
+
+        // joystick zone (fills container)
+        let internal = document.createElement("div");
+        internal.style = "position: absolute; left:0; top:0; width:100%; height:100%;";
+        controlsContainer.appendChild(internal);
+
+        // static joystick positioned in the middle of the container
+let joystick = nipplejs.create({
+    mode: "static",
+    zone: internal,
+    color: "red",
+    position: { left: "50%", top: "50%" },
+    size: Math.min(window.innerWidth, window.innerHeight) * 0.2 // bigger joystick (was 0.12)
+});
+
+
+        // Toggle button placed inside the same container above joystick (so hitbox matches)
+        let toggleBtn = document.createElement("div");
+        toggleBtn.style = `
+            position: absolute;
+            left: 0;
+            bottom: calc(100% + 1vw); /* sits just above the container */
+            width: 100%;
+            height: 8vw;
+            background: #444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            font-size: 3vw;
+            border-radius: 1vw;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            z-index: 100000;
+        `;
+        toggleBtn.innerText = mode === "rpg" ? "RPG Mode" : "Cursor Mode";
+        // use touchstart so it responds immediately on mobile
+        toggleBtn.addEventListener("touchstart", function (e) {
+            e.preventDefault();
+            mode = mode === "rpg" ? "cursor" : "rpg";
+            cursorEl.hidden = mode === "rpg";
+            toggleBtn.innerText = mode === "rpg" ? "RPG Mode" : "Cursor Mode";
+        }, { passive: false });
+        controlsContainer.appendChild(toggleBtn);
+
+        // basic ENTER button (as before)
+        const createButton = (text, key, bottom, right, bgColor) => {
+            let button = document.createElement("div");
+            button.style = `
+                position: fixed;
+                bottom: ${bottom};
+                right: ${right};
+                width: 10vw;
+                height: 10vw;
+                background: ${bgColor};
+                color: white;
+                touch-action: none;
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: sans-serif;
+                font-size: 3vw;
+                border-radius: 50%;
+            `;
+            button.innerText = text;
+            button.addEventListener("touchstart", e => {
+                e.preventDefault();
+                sendKeyEvent(key, "keydown");
+            }, { passive: false });
+            button.addEventListener("touchend", e => {
+                e.preventDefault();
+                sendKeyEvent(key, "keyup");
+            }, { passive: false });
+            document.body.appendChild(button);
+        };
+        createButton("ENTER", "ok", "20vw", "5vw", "#880f");
+        createButton("ESC", "escape", "10vw", "5vw", "#880f");
+
+        // joystick handlers
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+
+        // small helper to clamp
+        const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+        joystick.on("move", function (evt, data) {
+            if (!data) return;
+
+            // RPG mode: use direction strings but swap up/down (fixes the inverted orientation)
+            if (mode === "rpg") {
+                if (data.direction && data.direction.angle) {
+                    // swap up/down because orientation was inverted for you
+                    let dir = data.direction.angle;
+                    if (dir === "up") dir = "down";
+                    else if (dir === "down") dir = "up";
+                    const dirs = ["up", "down", "left", "right"];
+                    for (let o of dirs) {
+                        if (o !== dir) sendKeyEvent(o, "keyup");
+                        else sendKeyEvent(o, "keydown");
+                    }
+                }
+                return;
+            }
+
+            // cursor mode: move virtual cursor
+            // prefer data.vector (gives x/y components) if present for more reliable movement
+            const force = data.force || 0;
+            const speed = Math.max(1, Math.min(force * 6, 9)); // slower movement
+
+            if (data.vector) {
+                // NOTE: we invert Y here (subtract) to correct the up/down inversion you saw
+                cursorX += (data.vector.x || 0) * speed;
+                cursorY -= (data.vector.y || 0) * speed;
+            } else if (data.angle && typeof data.angle.radian === "number") {
+                const angle = data.angle.radian;
+                cursorX += Math.cos(angle) * speed;
+                cursorY -= Math.sin(angle) * speed; // subtract to make up = up
+            }
+
+            cursorX = clamp(cursorX, 0, window.innerWidth);
+            cursorY = clamp(cursorY, 0, window.innerHeight);
+
+            cursorEl.style.left = cursorX + "px";
+            cursorEl.style.top = cursorY + "px";
+
+            // dispatch hover/mousemove to element under the virtual cursor
+            dispatchCursorMove(cursorX, cursorY);
+        });
+
+        joystick.on("end", function () {
+            if (mode === "rpg") {
+                const dirs = ["up", "down", "left", "right"];
+                for (let o of dirs) sendKeyEvent(o, "keyup");
+            }
+        });
+    }
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        setupMobileControls();
+    } else {
+        document.addEventListener("DOMContentLoaded", setupMobileControls);
+    }
+})();
+</script>
+
+</html>
+
+
+
+
+

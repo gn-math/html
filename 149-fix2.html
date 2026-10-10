@@ -1,0 +1,96 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  
+  
+  <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/ball-blast/">
+  <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="full-screen" content="yes" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta id="viewport" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+
+  <title>Ball Blast HTML5</title>
+
+  <script nonce="4I4lJWEKCRSZNSqpZwI5kQ">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("ball-blast-save") || ""); },
+      saveData: function (data) { localStorage.setItem("ball-blast-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+  <script src="./VOODOO-H5SDK.youtube.js" nonce="4I4lJWEKCRSZNSqpZwI5kQ"></script>
+  <style>
+    html {
+      height: 100%;
+      min-height: 100%;
+      max-height: 100%;
+      background: #000;
+    }
+
+    body {
+      padding: 0;
+      margin: 0;
+      color: #000;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      max-height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #game-area {
+      height: 100%;
+      min-height: 100%;
+      max-height: 100%;
+    }
+  
+
+
+
+
+</style>
+  <script defer src="main.js" nonce="4I4lJWEKCRSZNSqpZwI5kQ"></script>
+</head>
+
+<body>
+  <div id="game-area"> </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,401 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+
+<html lang="en-us">
+<head>
+<base href="https://rawcdn.githack.com/genizy/brainrot/main/twisted-rope-3d/">
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<link rel="stylesheet" href="./style.css"/>
+<!-- Yandex Games SDK -->
+<script src="https://cdn.jsdelivr.net/gh/freebuisness/assets@main/yandex-sdk.js?lol"></script>
+<style>
+        canvas:focus {
+            outline: none;
+        }
+
+        html, body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            height: 100%;
+        }
+    
+
+
+
+
+</style>
+<!-- Additional head modules -->
+</head>
+<body class="dark">
+<div id="unity-container" class="unity-desktop">
+<canvas id="unity-canvas" tabindex="-1"></canvas>
+</div>
+<div id="loading-cover" style="display:none;">
+<div id="unity-loading-bar">
+<div id="unity-logo"><img src="Images/logo.png"/></div>
+<div id="unity-progress-bar-empty" style="display: none;">
+<div id="unity-progress-bar-full"></div>
+</div>
+<div class="spinner"></div>
+</div>
+</div>
+<!-- Additional body modules -->
+<script>
+        const hideFullScreenButton = "";
+        const buildUrl = "Build";
+        const loaderUrl = buildUrl + "/12.loader.js";
+        const config = {
+            dataUrl: buildUrl + "/12.data",
+            frameworkUrl: buildUrl + "/12.framework.js",
+            codeUrl: buildUrl + "/12.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "Twisted-Rope-Proj",
+            productVersion: "0.1"
+        };
+
+        const container = document.querySelector("#unity-container");
+        const canvas = document.querySelector("#unity-canvas");
+        const loadingCover = document.querySelector("#loading-cover");
+        const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+        const progressBarFull = document.querySelector("#unity-progress-bar-full");
+        const spinner = document.querySelector('.spinner');
+
+        const canFullscreen = (function () {
+            for (const key of [
+                'exitFullscreen',
+                'webkitExitFullscreen',
+                'webkitCancelFullScreen',
+                'mozCancelFullScreen',
+                'msExitFullscreen',
+            ]) {
+                if (key in document) {
+                    return true;
+                }
+            }
+            return false;
+        }());
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            container.className = "unity-mobile";
+            
+        }
+
+        // The background image when loading the game. When building a build, the code changes depending on the project settings.
+        
+        loadingCover.style.display = "";
+
+        let StartUnityInstance;
+        let ygGameInstance = null;
+        let ysdk = null;
+        let initYSDK = false;
+        let initGame = false;
+        let syncInit = false;
+        const NO_DATA = 'no data';
+
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        function FocusGame() {
+            window.focus();
+            canvas.focus();
+        }
+        window.addEventListener('pointerdown', () => {
+            FocusGame();
+        });
+        window.addEventListener('touchstart', () => {
+            FocusGame();
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (ysdk !== null && initGame == true) {
+                if (document.hidden) {
+                    YG2Instance('SetFocusWindowGame', 'false');
+                }
+                else {
+                    YG2Instance('SetFocusWindowGame', 'true');
+
+                    if ((ysdk.deviceInfo.isMobile() || ysdk.deviceInfo.isTablet()) && ysdk.screen.fullscreen.status == 'off')
+                        ysdk.screen.fullscreen.request();
+                }
+            }
+        });
+
+        const script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            StartUnityInstance = function () {
+                createUnityInstance(canvas, config, (progress) => {
+                    spinner.style.display = "none";
+                    progressBarEmpty.style.display = "";
+                    const adjustedProgress = Math.max(progress, 0.05);
+                    progressBarFull.style.width = `${100 * adjustedProgress}%`;
+                }).then((unityInstance) => {
+                    ygGameInstance = unityInstance;
+                    loadingCover.style.display = "none";
+                }).catch((message) => {
+                    console.error(message);
+                });
+            };
+            
+            if (IsLocalHost() || syncInit)
+                StartUnityInstance_IfUnloaded();
+        };
+
+        function StartUnityInstance_IfUnloaded() {
+            if (spinner.style.display !== "none")
+                StartUnityInstance();
+        }
+
+        function IsLocalHost() {
+            try {
+                if (window.top !== window) {
+                    console.warn("The application is running in an iframe");
+                    return false;
+                }
+
+                const host = window.location.hostname;
+                if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+                    LogStyledMessage("Local Host");
+                    return true;
+                }
+            } 
+            catch (error) {
+                console.error("Error checking the local host:", error);
+                return false;
+            }
+        }
+
+        function YG2Instance(method) {
+            if (ygGameInstance == null)
+                return;
+
+            if (!initGame) {
+                setTimeout(function () {
+                    if (ygGameInstance)
+                        ygGameInstance.SendMessage('YG2Instance', method);
+                }, 100);
+            }
+            else {
+                ygGameInstance.SendMessage('YG2Instance', method);
+            }
+                
+        }
+        function YG2Instance(method, arg) {
+            if (ygGameInstance == null)
+                return;
+
+            if (!initGame) {
+                setTimeout(function () {
+                    ygGameInstance.SendMessage('YG2Instance', method, arg);
+                }, 100);
+            }
+            else {
+                ygGameInstance.SendMessage('YG2Instance', method, arg);
+            }
+        }
+
+        function LogStyledMessage(message, style) {
+            console.log('%c' + message, style);
+        }
+        function LogStyledMessage(message) {
+            console.log('%c' + message, 'color: #FFDF73; background-color: #454545');
+        }
+
+        InitYSDK();
+        async function InitYSDK() {
+            try {
+                if (IsLocalHost()) return;
+
+                ysdk = await YaGames.init();
+
+                // Additional init0 modules
+InterAdvShow();
+
+await RequestingEnvironmentData();
+LogStyledMessage('Init EnvirData ysdk');
+
+
+                // Additional init1 modules
+
+                // Additional init2 modules
+
+                // Additional init modules
+
+                initYSDK = true;
+                if (ygGameInstance != null)
+                    ygGameInstance.SendMessage('YG2Instance', 'InitSDKComplete');
+
+                LogStyledMessage('Init YandexSDK Success');
+
+            } catch (e) {
+                console.error('CRASH Initialization SDK: ', e);
+            }
+
+            if (!IsLocalHost() && !syncInit)
+                StartUnityInstance_IfUnloaded();
+        }
+
+        function InitGame() {
+            initGame = true;
+
+            // Additional start modules
+setTimeout(function () {
+    if (nowFullAdOpen == true)
+        YG2Instance('OpenInterAdv');
+}, 100);
+
+        }
+
+        // Additional script modules
+LogStyledMessage('PluginYG2 v2.0032  build: 23');
+
+
+function RewardedAdvShow(id) {
+    try {
+        ysdk.adv.showRewardedVideo(
+            {
+                callbacks:
+                {
+                    onOpen: () => {
+                        LogStyledMessage('Opened Rewarded Adv');
+                        YG2Instance('OpenRewardedAdv');
+                    },
+                    onClose: () => {
+                        LogStyledMessage('Closed Rewarded Adv');
+                        YG2Instance('CloseRewardedAdv');
+                        FocusGame();
+                    },
+                    onRewarded: () => {
+                        YG2Instance('RewardAdv', id);
+                    },
+                    onError: (err) => {
+                        console.error('Error Rewarded Adv', err);
+                        YG2Instance('ErrorRewardedAdv');
+                    }
+                }
+            });
+    } catch (err) {
+        console.error('CRASH Rewarded Adv Show: ', err.message);
+    }
+}
+
+
+let nowFullAdOpen = false;
+
+function InterAdvShow() {
+    try {
+        if (nowFullAdOpen !== true && ysdk !== null) {
+            ysdk.adv.showFullscreenAdv(
+                {
+                    callbacks: {
+                        onOpen: () => {
+                            LogStyledMessage('Open Interstitial Adv');
+                            nowFullAdOpen = true;
+                            if (initGame === true) {
+                                YG2Instance('OpenInterAdv');
+                            }
+                        },
+                        onClose: (wasShown) => {
+                            nowFullAdOpen = false;
+                            if (initGame === true) {
+                                if (wasShown) {
+                                    YG2Instance('CloseInterAdv', 'true');
+                                }
+                                else {
+                                    YG2Instance('CloseInterAdv', 'false');
+                                }
+                            }
+                            FocusGame();
+                        },
+                        onError: (error) => {
+                            console.error('Error Interstitial Adv', error);
+                            YG2Instance('ErrorInterAdv');
+                            FocusGame();
+                        }
+                    }
+                });
+        }
+    }
+    catch (e) {
+        console.error('CRASH Interstitial Adv Show: ', e.message);
+    }
+}
+
+var environmentData = NO_DATA;
+
+function RequestingEnvironmentData() {
+    return new Promise((resolve) => {
+        if (ysdk == null) {
+            Final(NO_DATA);
+            return;
+        }
+        try {
+            var browser = 'Other';
+            if (browser.includes('YaBrowser') || browser.includes('YaSearchBrowser'))
+                browser = 'Yandex';
+            else if (browser.includes('Opera') || browser.includes('OPR'))
+                browser = 'Opera';
+            else if (browser.includes('Firefox'))
+                browser = 'Firefox';
+            else if (browser.includes('MSIE'))
+                browser = 'IE';
+            else if (browser.includes('Edge'))
+                browser = 'Edge';
+            else if (browser.includes('Chrome'))
+                browser = 'Chrome';
+            else if (browser.includes('Safari'))
+                browser = 'Safari';
+
+            let jsonEnvir = {
+                "language": ysdk.environment.i18n.lang,
+                "domain": ysdk.environment.i18n.tld,
+                "deviceType": ysdk.deviceInfo.type,
+                "isMobile": ysdk.deviceInfo.isMobile(),
+                "isDesktop": ysdk.deviceInfo.isDesktop(),
+                "isTablet": ysdk.deviceInfo.isTablet(),
+                "isTV": ysdk.deviceInfo.isTV(),
+                "appID": ysdk.environment.app.id,
+                "browserLang": ysdk.environment.browser.lang,
+                "payload": ysdk.environment.payload,
+                "platform": navigator.platform,
+                "browser": browser
+            };
+
+            Final(JSON.stringify(jsonEnvir));
+            LogStyledMessage("Environment Data: " + JSON.stringify(jsonEnvir));
+        }
+        catch (e) {
+            console.error('CRASH Requesting Environment Data: ', e.message);
+            Final(NO_DATA);
+        }
+
+        function Final(res) {
+            environmentData = res;
+            YG2Instance('SetEnvirData', res);
+            resolve(res);
+        }
+    });
+}
+
+
+        document.body.appendChild(script);
+    </script>
+
+
+</body>
+</html>

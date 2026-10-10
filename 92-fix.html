@@ -1,0 +1,271 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en-us">
+   <head>
+	
+    
+    
+      <meta charset="utf-8">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <title>Highway Racer 2</title>
+      <style>
+         html,
+         body {
+         background: #000;
+         width: 100%;
+         height: 100%;
+         overflow: visible;
+         padding: 0;
+         margin: 0;
+         }
+         div#gameContainer {
+         background: transparent !important;
+         position: absolute;
+         }
+         div#gameContainer canvas {
+         position: absolute;
+         }
+         div#gameContainer canvas[data-pixel-art="true"] {
+         position: absolute;
+         image-rendering: optimizeSpeed;
+         image-rendering: -webkit-crisp-edges;
+         image-rendering: -moz-crisp-edges;
+         image-rendering: -o-crisp-edges;
+         image-rendering: crisp-edges;
+         image-rendering: -webkit-optimize-contrast;
+         image-rendering: optimize-contrast;
+         image-rendering: pixelated;
+         -ms-interpolation-mode: nearest-neighbor;
+         }
+      
+
+
+
+
+</style>
+      <script type="text/javascript" async>
+         !function(e,t){a=e.createElement("script"),m=e.getElementsByTagName("script")[0],a.async=1,a.src=t,m.parentNode.insertBefore(a,m)}(document,"https://universal.wgplayer.com/tag/?lh="+window.location.hostname+"&wp="+window.location.pathname+"&ws="+window.location.search);
+      </script>
+      <script>
+         function SubmitLeaderboardScore(newScore){}
+         function GetLeaderboardEntries(){}
+         
+         function InitApi(_appId) 
+            {
+         	var dateNow = new Date();
+         	var secondsSinceEpoch = Math.round(dateNow.getTime() / 1000);
+         	
+         	console.log('InitApi');
+         	
+         	window.callTime = secondsSinceEpoch - 121;
+            }
+         
+         function InitExternEval(_appId) 
+            {
+         	console.log("InitExternEval");
+         	
+         	ExternEval();
+            }
+            
+            function ExternEval() 
+            {
+         	console.log("ExternEval");
+         	
+         	var dateNow = new Date();
+         	var secondsSinceEpoch = Math.round(dateNow.getTime() / 1000);
+         	
+         	if (window.callTime != undefined && 
+         		secondsSinceEpoch - window.callTime > 120)
+         	{
+         		console.log('ExternEval 2');
+         		
+         		window.callTime = secondsSinceEpoch;
+         		
+         		if (typeof preroll !== 'undefined')
+         		{
+         			if (window[preroll.config.loaderObjectName] != undefined)
+         			{
+         				gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onOpen');
+         			
+         				try {
+         					window[preroll.config.loaderObjectName].refetchAd(ExternEvalResumeGame);
+         				}
+         				catch(err) {
+         					console.log(err.message);
+         					gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onClose');
+         				}
+         			}
+         		}
+         	}
+         	
+            }
+         
+         function ExternEvalResumeGame()
+         {
+         	console.log("ExternEvalResumeGame");
+         
+         	gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onClose');
+         }
+         
+         function PreloadRewarded() 
+         {
+         	console.log("PreloadRewarded");
+         
+         	if (window.rewardedCallbacks == undefined)
+         	{
+         		window.rewardedCallbacks = true;
+         		
+         		try {
+         			window[window.preroll.config.loaderObjectName].registerRewardCallbacks({
+         				onReady:RewardedReady, 
+         				onSuccess:RewardedSuccess, 
+         				onFail:RewardedFail,
+         				onClose:RewardedClose
+         			});
+         		}
+         		catch(err) {
+         			console.log(err.message);
+         		}
+         	}
+         }
+         	
+         function ShowRewarded() 
+         {
+         	console.log("ShowRewarded");
+         
+         	if (typeof preroll !== 'undefined')
+         	{
+         		if (window.rewardedCallbacks == undefined)
+         		{
+         			PreloadRewarded();
+         		}
+         	
+         		if (window[preroll.config.loaderObjectName] != undefined)
+         		{
+         			gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onOpen');
+         		
+         			try {
+         				window[preroll.config.loaderObjectName].showRewardAd();
+         			}
+         			catch(err) {
+         				console.log(err.message);
+         				gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onClose');
+         			}
+         		}
+         	}
+         
+         }
+         
+         function RewardedReady()
+         {
+         	console.log("RewardedReady");
+         	
+         	if (window.rewardedCount == undefined)
+         	{
+         		window.rewardedCount = 1;
+         		window.gameInstance.SendMessage('FreezeNovaAPI', 'RewardedReady');
+         	}
+         	else{
+         		window.rewardedCount = window.rewardedCount + 1;
+         		//setTimeout(function(){ window.gameInstance.SendMessage('FreezeNovaAPI', 'RewardedReady'); }, 30000);
+         		window.gameInstance.SendMessage('FreezeNovaAPI', 'RewardedReady');
+         	}
+         	
+         }
+         
+         function RewardedSuccess()
+         {
+         	console.log("RewardedSuccess");
+         	gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'RewardedOnRewarded');
+         	//gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onClose');
+         }
+         
+         function RewardedFail()
+         {
+         	console.log("RewardedFail");
+         	gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'RewardedOnFail');
+         	//gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onClose');
+         }
+         
+         function RewardedClose()
+         {
+         	console.log("RewardedClose");
+         	gameInstance.SendMessage('FreezeNovaAPI', 'AdMessage', 'onClose');
+         }
+         
+         InitApi(0);
+         
+         
+      </script>
+   </head>
+   <body>
+      <div id="gameContainer">
+         <canvas id="unity-canvas" data-pixel-art=""></canvas>
+         <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@c8207b769940d128480c318e32b5d366a665db5b/highway%20racer%202/Build/game.loader.js"></script>
+         <script>
+            var canvas = document.querySelector("#unity-canvas");
+            var config = {
+            	dataUrl: "https://rawcdn.githack.com/bubbls/UGS-Assets/c8207b769940d128480c318e32b5d366a665db5b/highway%20racer%202/Build/game.data.unityweb",
+            	frameworkUrl: "https://rawcdn.githack.com/bubbls/UGS-Assets/c8207b769940d128480c318e32b5d366a665db5b/highway%20racer%202/Build/game.framework.js.unityweb",
+            	codeUrl: "https://rawcdn.githack.com/bubbls/UGS-Assets/c8207b769940d128480c318e32b5d366a665db5b/highway%20racer%202/Build/game.wasm.unityweb",
+            	streamingAssetsUrl: "StreamingAssets",
+            	companyName: "FreezeNova",
+            	productName: "Crazy Drifter",
+            	productVersion: "0.1",
+            };
+            var scaleToFit;
+            try {
+            	scaleToFit = !!JSON.parse("true");
+            } catch (e) {
+            	scaleToFit = true;
+            }
+            function progressHandler(progress) {
+            	var percent = progress * 100 + '%';
+            	canvas.style.background = 'linear-gradient(to right, white, white ' + percent + ', transparent ' + percent + ', transparent) no-repeat center';
+            	canvas.style.backgroundSize = '100% 1rem';
+            }
+            function onResize() {
+            	var container = canvas.parentElement;
+            	var w;
+            	var h;
+            
+            	if (scaleToFit) {
+            		w = window.innerWidth;
+            		h = window.innerHeight;
+            
+            		var r = 540 / 960;
+            
+            		if (w * r > window.innerHeight) {
+            			w = Math.min(w, Math.ceil(h / r));
+            		}
+            		h = Math.floor(w * r);
+            	} else {
+            		w = 960;
+            		h = 540;
+            	}
+            
+            	container.style.width = canvas.style.width = w + "px";
+            	container.style.height = canvas.style.height = h + "px";
+            	container.style.top = Math.floor((window.innerHeight - h) / 2) + "px";
+            	container.style.left = Math.floor((window.innerWidth - w) / 2) + "px";
+            }
+            var gameInstance;
+            createUnityInstance(canvas, config, progressHandler).then(function (instance) {
+            	canvas = instance.Module.canvas;
+            	onResize();
+            	gameInstance = instance;
+            });
+            window.addEventListener('resize', onResize);
+            onResize();
+         </script>
+      </div>
+   
+
+</body>
+</html>

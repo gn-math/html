@@ -1,0 +1,222 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<base href="https://cdn.jsdelivr.net/gh/bubblfan/Quake3@master/">
+    <meta charset="UTF-8">
+    <title>Quake III Arena</title>
+    <link rel="stylesheet" href="Quake3.css">
+
+</head>
+
+<body>
+	<div id="loading-text" style="color: black; font-family: cursive; font-size: 48px; text-align: center; margin-top: 20px;">LOADING...</div>
+    <div id="viewport-frame"></div>
+    <script src="alertCustom.js"></script>
+    <script>
+        var userLanguage = window.navigator.userLanguage || window.navigator.language;
+        var STRING_ERROR_TITLE = "";
+        var STRING_ERROR_MESSAGE = "";
+        var STRING_ERROR_OK = "";
+        var profileData = null;
+        var CTRLS_IDLE = 0;
+        if (userLanguage.substring(0, 2) == "es") {
+            STRING_ERROR_TITLE = "MENSAJE";
+            STRING_ERROR_MESSAGE = "Debe seleccionar el archivo<br/>q3config.cfg que contiene su<br/>perfil de Quake III Arena.";
+            STRING_ERROR_OK = "Aceptar";
+        } else {
+            STRING_ERROR_TITLE = "MESSAGE";
+            STRING_ERROR_MESSAGE = "You must select the q3config.cfg file. It has your Quake III Arena profile.";
+            STRING_ERROR_OK = "OK";
+        }
+
+        function mergeFiles(fileParts) {
+            return new Promise((resolve, reject) => {
+                let buffers = [];
+
+                function fetchPart(index) {
+                    if (index >= fileParts.length) {
+                        let mergedBlob = new Blob(buffers);
+                        let mergedFileUrl = URL.createObjectURL(mergedBlob);
+                        resolve(mergedFileUrl);
+                        return;
+                    }
+                    fetch(fileParts[index]).then((response) => response.arrayBuffer()).then((data) => {
+                        buffers.push(data);
+                        fetchPart(index + 1);
+                    }).catch(reject);
+                }
+                fetchPart(0);
+            });
+        }
+
+        function getParts(file, start, end) {
+            let parts = [];
+            for (let i = start; i <= end; i++) {
+                parts.push(file + ".part" + i);
+            }
+            return parts;
+        }
+
+        function runQuake3() {
+            Promise.all([
+                mergeFiles(getParts("Quake3.js", 1, 3))
+            ]).then(([quake3jsmerged]) => {
+                try {
+					document.querySelector("#loading-text").remove();
+                    // LOADING AND RUNNING QUAKE 3
+                    var quakeLoader = document.createElement("script");
+                    quakeLoader.onload = function () {
+                        ioq3.viewport = document.getElementById("viewport-frame");
+                        ioq3.elementPointerLock = true;
+                        ioq3.exitHandler = function (err) {
+                            if (err != null) {
+                                alert(err);
+                            }
+                            location.reload();
+                        }
+                        ioq3.callMain();
+                    }
+                    quakeLoader.src = quake3jsmerged;
+                    document.body.appendChild(quakeLoader);
+                } catch (err) {}
+            });
+        }
+
+        function mouseChecker() {
+            try {
+                if (!ioq3) {
+                    return
+                };
+            } catch (err) {
+                return;
+            }
+            if (document.pointerLockElement == null) {
+                goBackButtonResetIncrement();
+            } else {
+                goBackButtonTimerIncrement();
+            }
+        }
+
+        function goBackButtonResetIncrement() {
+            try {
+                CTRLS_IDLE = 0;
+            } catch (err) {}
+        }
+
+        function goBackButtonTimerIncrement() {
+            try {
+                CTRLS_IDLE = CTRLS_IDLE + 1;
+                if (CTRLS_IDLE >= 3) {
+                    // HIDES THE DOWNLOAD BUTTON
+                }
+            } catch (err) {}
+        }
+        // --------------------------------------------------------------------------------------------------------
+        // PROFILE MANAGMENT FUNCTIONS
+        // --------------------------------------------------------------------------------------------------------
+        function getProfileData() {
+            if (profileData == null) {
+                profileData = "";
+            }
+            return profileData;
+        }
+
+        function clearProfileData() {
+            profileData = null;
+        }
+
+        function downloadProfileData() {
+            try {
+                var rawReading = FS.readFile("/base/baseq3/q3config.cfg");
+                var fileAsArray = new Uint8Array(rawReading);
+                download_Blob(fileAsArray, "q3config.cfg", "application/octet-stream");
+            } catch (err) {}
+        }
+
+        function download_Blob(data, fileName, mimeType) {
+            var blob = new Blob([data], {
+                type: mimeType
+            });
+            var url = window.URL.createObjectURL(blob);
+            download_URL(url, fileName);
+            setTimeout(function () {
+                return window.URL.revokeObjectURL(url);
+            }, 1000);
+        }
+
+        function download_URL(data, fileName) {
+            var a;
+            a = document.createElement("a");
+            a.href = data;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.style = "display: none";
+            a.click();
+            a.remove();
+        }
+
+        function readFile(files) {
+            try {
+                // CHECKING IF THE IS THE QUAKE 3 PROFILE/SAVEGAME FILE
+                if (files[0].name.toLowerCase() == "q3config.cfg") {
+                    // CREATING THE FILE READER
+                    var filereader = new FileReader();
+                    // SETTING THE FILENAME
+                    filereader.file_name = files[0].name;
+                    // SETTING WHAT WILL HAPPEN WHEN THE FILE IS READ
+                    filereader.onload = function () {
+                        // SETTING THE FILE CONTENT
+                        profileData = this.result;
+                        // CLEARING THE SELECTED FILE VALUE
+                        // STARTING QUAKE III ARENA
+                        runQuake3();
+                    };
+                    // READING THE FILE
+                    filereader.readAsText(files[0]);
+                } else {
+                    // CLEARING THE SELECTED FILE VALUE
+                    // SHOWING A MESSAGE SAYING THAT YOU CAN ONLY SELECT THE QUAKE 3 PROFILE/SAVEGAME FILE
+                    alertCustom(STRING_ERROR_TITLE, STRING_ERROR_MESSAGE, STRING_ERROR_OK, function () {});
+                }
+            } catch (err) {}
+        }
+        window.addEventListener("load", function () {
+            // CHECKING IF THE GAME IS NOT RUNNING WITHIN AN IFRAME
+            if (window.top == window.self) {
+                // CLEARING THE SELECTED FILE VALUE
+                runQuake3()
+                // HANDLING THE MOUSE BEHAVIOR
+                setInterval(goBackButtonTimerIncrement, 1000);
+                document.addEventListener("click", mouseChecker, false);
+                document.addEventListener("dblclick", mouseChecker, false);
+                document.addEventListener("mousemove", mouseChecker, false);
+                document.addEventListener("pointerlockchange", mouseChecker, false);
+                document.addEventListener("mozpointerlockchange", mouseChecker, false);
+                document.addEventListener("webkitpointerlockchange", mouseChecker, false);
+            }
+        });
+        window.addEventListener("resize", function () {
+            try {
+                if (!ioq3.canvas) {
+                    return
+                }
+                if ((document["webkitFullScreenElement"] || document["webkitFullscreenElement"] || document["mozFullScreenElement"] || document["mozFullscreenElement"] || document["fullScreenElement"] || document["fullscreenElement"])) {
+                    return
+                }
+                ioq3.setCanvasSize(ioq3.viewport.offsetWidth, ioq3.viewport.offsetHeight);
+            } catch (err) {}
+        });
+    </script>
+
+
+</body>
+
+</html>

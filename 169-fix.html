@@ -1,0 +1,50 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE HTML> 
+<html>
+  <head>
+    
+    
+    
+    <meta charset='utf8'>
+    <style> html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; } #ruffle { width: 100%; height: 100%; } 
+
+
+
+
+</style>
+  </head>
+  <body>
+    <div id='ruffle'></div>
+    <script src='https://unpkg.com/@ruffle-rs/ruffle'></script> <script>  var swfobject = {};
+swfobject.embedSWF = function (url, containerId) {
+  var ruffle = window.RufflePlayer.newest();
+  var container = document.getElementById(containerId);
+  var player = ruffle.createPlayer();
+  container.appendChild(player);
+  if (url) {
+    player.load({
+      url: url
+    });
+  } else {
+    console.error("No SWF file specified in the URL parameters.");
+  }
+  const resizePlayer = () => {
+    container.style.width = window.innerWidth + 'px';
+    container.style.height = window.innerHeight + 'px';
+    player.style.width = '100%';
+    player.style.height = '100%';
+  };
+  resizePlayer();
+  window.addEventListener('resize', resizePlayer);
+};
+swfobject.embedSWF("https://cdn.jsdelivr.net/gh/illusionTBA/React-Ruffle@f37551ff7c55cc61002445a0f1e334742f6832e4/public/swf/Bloxors.swf", 'ruffle'); </script> 
+  
+
+</body>
+</html>

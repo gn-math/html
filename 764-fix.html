@@ -1,0 +1,113 @@
+<!-- shxyder -->
+<!-- ultimate game stash file -->
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Five Nights at Shreks Hotel</title>
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/TemplateData/favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/TemplateData/style.css">
+    <style>	
+      @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@200;500&display=swap');	
+      @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@200;500&family=MuseoModerno:wght@600&display=swap');	
+    </style>
+  </head>
+  <body class="dark">
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas"></canvas>
+    </div>
+    <div id="loading-cover" style="display:none;">
+      <div id="unity-loading-bar">
+        <div id="unity-logo">	
+          <img src="https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/logo.png">	
+          <br>	
+          <p id="loading-txt" style="text-align: center; font-family: 'MuseoModerno', cursive;color: white;font-size: 50px;margin-top: 0px;margin-bottom: 0px;" >Loading...</p>	
+        </div>
+        <div id="unity-progress-bar-empty" style="display: none;">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+        <div class="spinner"></div>
+      </div>
+    </div>
+    <div id="unity-fullscreen-button" style="display: none;"></div>
+    <script>
+      const hideFullScreenButton = "";
+      const baseUrl = "https://cdn.jsdelivr.net/gh/shayderrr/newports@501858e7d2d24dad4467463cdad972db0b19cd37/fivenightsatshrek/Build/";
+      
+      const config = {
+        dataUrl: "",
+        frameworkUrl: baseUrl + "SREK.framework.js.unityweb",
+        codeUrl: baseUrl + "SREK.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Evony Games",
+        productName: "Five Nights at Shreks Hotel",
+        productVersion: "0.1",
+      };
+
+      const container = document.querySelector("#unity-container");
+      const canvas = document.querySelector("#unity-canvas");
+      const loadingCover = document.querySelector("#loading-cover");
+      const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+      const progressBarFull = document.querySelector("#unity-progress-bar-full");
+      const fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      const spinner = document.querySelector('.spinner');
+
+      const canFullscreen = (function() {
+        for (const key of [
+            'exitFullscreen',
+            'webkitExitFullscreen',
+            'webkitCancelFullScreen',
+            'mozCancelFullScreen',
+            'msExitFullscreen',
+          ]) {
+          if (key in document) {
+            return true;
+          }
+        }
+        return false;
+      }());
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        container.className = "unity-mobile";
+        config.devicePixelRatio = 1;
+      }
+      loadingCover.style.display = "";
+
+      const partUrls = [
+        baseUrl + "SREK.data.unityweb.part1",
+        baseUrl + "SREK.data.unityweb.part2",
+        baseUrl + "SREK.data.unityweb.part3"
+      ];
+
+      Promise.all(partUrls.map(url => fetch(url).then(res => res.arrayBuffer())))
+        .then(buffers => {
+          const blob = new Blob(buffers, { type: 'application/octet-stream' });
+          config.dataUrl = URL.createObjectURL(blob);
+
+          const script = document.createElement("script");
+          script.src = baseUrl + "SREK.loader.js";
+          script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+              spinner.style.display = "none";
+              progressBarEmpty.style.display = "";
+              progressBarFull.style.width = `${100 * progress}%`;
+            }).then((unityInstance) => {
+              loadingCover.style.display = "none";
+              if (canFullscreen) {
+                if (!hideFullScreenButton) {
+                  fullscreenButton.style.display = "";
+                }
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+              }
+            }).catch((message) => {
+              alert(message);
+            });
+          };
+          document.body.appendChild(script);
+        });
+    </script>
+  </body>

@@ -1,0 +1,121 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctype html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Sonic 2 Community's Cut</title>
+<base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/assets/sonic2/">
+<link rel="icon" type="x-icon" href="icon.png">
+<link rel="stylesheet" href="fonts/stylesheet.css">
+<style>
+  html, body { height: 100%; margin: 0; padding: 0; background:black; }
+  body { font-family: arial; background-image: url("./bg.gif"); background-repeat: repeat; }
+  #status { color: rgb(120,120,120); font-weight: bold; margin: 2rem 0 0 20px; }
+  #progress { width: 300px; height: 20px; }
+  #canvas { position: fixed; top:0; left:0; width:100% !important; height:100% !important; }
+  #container { font-family: 'sonic2systemregular'; color:white; text-shadow: .25rem .25rem black;
+    position: fixed; top:50%; left:50%; transform: translate(-50%, -50%); text-align:center; width:100%; }
+  a { color: yellow; text-decoration: none; }
+
+</style>
+</head>
+<body>
+
+<div id="status" class="emscripten">Downloading...</div>
+<progress id="progress" class="emscripten" value="0" max="100" hidden></progress>
+<canvas id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+
+<div id="container">
+    <img src="./sonic2.png" style="max-width:31rem; width:100%;" /><br>
+    <img src="./wait.gif" style="max-width:31rem; width:100%;" />
+</div>
+
+<script src="./s2cx.js"></script>
+<script src="./md5.min.js"></script>
+<script src="./jquery-3.5.1.slim.min.js"></script>
+
+<script>
+    // Keep a safe reference (if any)
+    const oldSetStatus = Module.setStatus ? Module.setStatus.bind(Module) : null;
+
+Module.setStatus = function (text) {
+    if (oldSetStatus) oldSetStatus(text);
+    console.log("[Module.setStatus]", text);
+
+    if (!text) return;
+
+    if (text.indexOf("All downloads complete") !== -1 || text.indexOf("Running") !== -1) {
+        console.log("[Module.setStatus] Runtime ready → Preload ROM now");
+        PreloadROM();
+    }
+};
+
+
+    function EmulatorStart() {
+        console.log("[EmulatorStart] Hiding UI and starting...");
+        $("#container").hide();
+        $("#status").hide();
+
+        let canvas = document.getElementById('canvas');
+        if (!canvas) {
+            console.error("[EmulatorStart] ERROR: canvas not found!");
+            return;
+        }
+
+        Module.canvas = canvas;
+
+        try {
+            console.log("[EmulatorStart] Calling _emscripten_main()...");
+            Module._emscripten_main();
+            console.log("[EmulatorStart] Emulator main returned.");
+        } catch (e) {
+            console.error("[EmulatorStart] Crash in _emscripten_main:", e);
+        }
+    }
+
+    async function PreloadROM() {
+        console.log("[PreloadROM] Starting...");
+        try {
+            console.log("[PreloadROM] Fetching ./SONIC2_W.68K ...");
+            let response = await fetch("./SONIC2_W.68K");
+            if (!response.ok) throw new Error("ROM not found at ./SONIC2_W.68K");
+
+            console.log("[PreloadROM] ROM fetch complete, converting to ArrayBuffer...");
+            let buffer = await response.arrayBuffer();
+            let fileArr = new Uint8Array(buffer);
+
+            console.log("[PreloadROM] ROM size:", fileArr.length, "bytes");
+
+            // optional checksum
+            let hash = md5(fileArr);
+            console.log("[PreloadROM] ROM checksum:", hash);
+            if (hash !== "9feeb724052c39982d432a7851c98d3e") {
+                console.warn("[PreloadROM] Wrong ROM checksum!");
+                alert("Wrong ROM checksum!");
+                return;
+            }
+
+            console.log("[PreloadROM] Writing ROM to FS...");
+            FS.writeFile("/home/web_user/rom.bin", fileArr);
+
+            console.log("[PreloadROM] ROM written, starting emulator...");
+            EmulatorStart();
+        } catch (e) {
+            console.error("[PreloadROM] FAILED:", e);
+            alert("ROM preload failed, check console.");
+        }
+    }
+</script>
+
+
+
+</body>
+</html>

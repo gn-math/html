@@ -1,0 +1,75 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctypehtml>
+    <html lang=en-us>
+
+    <head>
+      <base href="https://cdn.jsdelivr.net/gh/bubblfan/mcpeweb@latest/">
+        <meta charset=utf-8>
+        <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" name=viewport>
+        <title>Minecraft</title>
+        <link href=manifest.json rel=manifest>
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background-color: #000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                touch-action: none
+            }
+
+            canvas.emscripten {
+                display: block;
+                outline: 0;
+                width: 100vw;
+                height: 100vh
+            }
+        </style>
+    </head>
+
+    <body><canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+        <script>
+            var Module = {
+                canvas: document.getElementById("canvas")
+            };
+            ! function() {
+                var e = document.getElementById("canvas");
+                e.addEventListener("mousedown", (function(t) {
+                    !t.isTrusted || document.pointerLockElement || window.mcMenuOpen || e.requestPointerLock()
+                })), e.addEventListener("touchstart", (function(e) {
+                    e.preventDefault()
+                }), {
+                    passive: !1
+                }), document.addEventListener("touchstart", (function(e) {
+                    var t = e.target.tagName;
+                    "INPUT" !== t && "TEXTAREA" !== t && "BUTTON" !== t && "SELECT" !== t && "OPTION" !== t && e.preventDefault()
+                }), {
+                    passive: !1
+                })
+            }()
+        </script>
+        <script>
+            "serviceWorker" in navigator && window.addEventListener("load", (() => {
+                navigator.serviceWorker.register("./sw.js").then((e => {
+                    console.log("ServiceWorker registration successful with scope: ", e.scope)
+                }), (e => {
+                    console.log("ServiceWorker registration failed: ", e)
+                }))
+            }))
+        </script>
+        <script async src=index.js></script>
+    </body>
+
+    </html>
+

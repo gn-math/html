@@ -1,0 +1,54 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en-us">
+<base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/whatver/groongroon/">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | gg kart</title>
+    <script src="Build/UnityLoader.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      #unityContainer {
+        width: 100%;
+        height: 100%;
+      }
+    
+</style>
+  </head>
+  <body>
+    <div id="unityContainer"></div>
+
+    <script>
+      // Instantiate Unity with full window size
+      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/web build.json", {
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+
+      // Optional: make Unity resize dynamically if the window changes
+      window.addEventListener("resize", function() {
+        var container = document.getElementById("unityContainer");
+        container.style.width = window.innerWidth + "px";
+        container.style.height = window.innerHeight + "px";
+        if (unityInstance && unityInstance.SetFullscreen) {
+          unityInstance.SetFullscreen(true);
+        }
+      });
+    </script>
+  
+</body>
+</html>

@@ -1,0 +1,92 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctype html>
+<html>
+<head>
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/om-nom-run/">
+    <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover' />
+    <meta charset='utf-8'>
+    <link rel="stylesheet" type="text/css" href="styles.css" nonce="kxALQV0qa1UnXWc-RRIS-Q">
+    <link rel="manifest" href="manifest.json">
+    
+    <title>Om Nom Run</title>
+    
+    <script nonce="kxALQV0qa1UnXWc-RRIS-Q">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("om-nom-run-save") || ""); },
+      saveData: function (data) { localStorage.setItem("om-nom-run-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+    <script nonce="kxALQV0qa1UnXWc-RRIS-Q">ytgame.game.firstFrameReady();</script>
+
+    <!-- ---------------- API Snippet ---------------- -->
+    <script nonce="kxALQV0qa1UnXWc-RRIS-Q">
+        window.famobi_gameID = "om-nom-run"; // the actual GAMEID is added to the final version by Famobi
+        window.famobi_gameJS = [
+            function() {
+                window.ENABLE_PRIVACY_POLICY_AND_TOS = true; //set to true to enable ToS and Privacy Policy buttons in game setting menu
+                window.OPEN_TERMS_OF_SERVICE = () => window.open('https://famobi.com/terms-of-service'); //replace with an actual link
+                window.OPEN_PRIVACY_POLICY = () => window.open('https://famobi.com/privacy'); //replace with an actual link
+            },
+            "preloader.js",
+            "playcanvas-stable.min.js",
+            "__settings__.js",
+            "__modules__.js",
+            "__start__.js",
+            "__loading__.js"
+        ];
+        (function (document, url, fgJS, firstJS) {
+            fgJS = document.createElement('script');
+            firstJS = document.getElementsByTagName('script')[0];
+            fgJS.src = url + encodeURIComponent(document.location.href);
+            firstJS.parentNode.insertBefore(fgJS, firstJS);
+        })(document, 'html5games/gameapi/v1.js?e=');         
+    </script>
+
+    <!-- ---------------- API Snippet end ------------- -->
+
+</head>
+<body>  
+
+    <div id="application-splash-wrapper">
+        <div id="application-splash">
+            <div id="loaderBar"></div>
+            <span id="loadingText">0%</span>
+        </div>
+        <img id="logo" src="img/logo.png">
+    </div>
+
+
+
+</body>
+</html>

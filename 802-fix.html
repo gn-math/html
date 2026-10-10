@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+<title>GXC Game</title>
+<style>
+@keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+html, body {
+background: #000;
+margin: 0; padding: 0;
+width: 100vw; height: 100vh;
+overflow: hidden;
+display: flex; justify-content: center; align-items: center;
+}
+canvas.emscripten {
+display: none;
+border: 0;
+width: 100vw;
+height: 100vh;
+object-fit: contain;
+image-rendering: optimizeSpeed;
+image-rendering: -moz-crisp-edges;
+image-rendering: -webkit-optimize-contrast;
+image-rendering: pixelated;
+-ms-interpolation-mode: nearest-neighbor;
+transition: opacity 0.5s; opacity: 0;
+}
+canvas.active { display: block; opacity: 1; }
+.loading {
+position: absolute; display: flex; flex-direction: column; align-items: center; color: white; font-family: sans-serif;
+}
+.spinner {
+height: 40px; width: 40px; margin-bottom: 10px;
+animation: rotation 0.8s linear infinite;
+border: 5px solid #bdff00; border-top: 5px solid transparent; border-radius: 100%;
+}
+</style>
+</head>
+<body>
+<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+<div class="loading" id="loadingArea">
+<div class="spinner"></div>
+<div id="status">Loading...</div>
+</div>
+<script type="text/javascript">
+var g_pWadLoadCallback = undefined;
+function setWadLoadCallback(_wadLoadCallback) { g_pWadLoadCallback = _wadLoadCallback; }
+var g_pAddAsyncMethod = -1;
+function setAddAsyncMethod(asyncMethod) { g_pAddAsyncMethod = asyncMethod; }
+var g_pJSExceptionHandler = undefined;
+function setJSExceptionHandler(exceptionHandler) { g_pJSExceptionHandler = exceptionHandler; }
+function hasJSExceptionHandler() { return g_pJSExceptionHandler !== undefined; }
+
+function onFirstFrameRendered() {
+document.getElementById("loadingArea").style.display = "none";
+canvasElement.classList.add("active");
+}
+
+var canvasElement = document.getElementById("canvas");
+var mergedUnxBlob = "";
+var mergedDataBlob = "";
+
+const originalOpen = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function(method, url) {
+if (url.includes("runner.data")) url = mergedDataBlob;
+if (url.includes("game.unx")) url = mergedUnxBlob;
+return originalOpen.apply(this, arguments);
+};
+
+const unxParts = [
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part1",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part2",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part3",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part4",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part5",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part6",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part7",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/game.unx.part8"
+];
+
+const dataParts = [
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.data.part1",
+"https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.data.part2"
+];
+
+async function fetchAndMerge(urls) {
+const results = await Promise.all(urls.map(url => fetch(url).then(res => res.arrayBuffer())));
+return new Blob(results);
+}
+
+function manifestFiles() {
+return [mergedDataBlob, "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.js", "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.wasm", "https://cdn.jsdelivr.net/gh/shayderrr/port@main/audio-worklet.js", "https://cdn.jsdelivr.net/gh/shayderrr/port@main/creep.mp4", mergedUnxBlob].join(";");
+}
+function manifestFilesMD5() { return ["", "", "", "", "", ""]; }
+
+var Module = {
+canvas: canvasElement,
+setStatus: function(text) { if (!text) onFirstFrameRendered(); },
+print: function(text) {
+if (text === "Entering main loop.") {
+canvasElement.style.display = "block";
+canvasElement.classList.add("active");
+}
+},
+printErr: function(text) { console.error(text); },
+locateFile: function(path, prefix) {
+if (path.endsWith(".wasm")) return "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.wasm";
+if (path.endsWith(".audio-worklet.js")) return "https://cdn.jsdelivr.net/gh/shayderrr/port@main/audio-worklet.js";
+return prefix + path;
+}
+};
+
+function onGameSetWindowSize(width, height) {}
+
+(async function init() {
+try {
+const [unxBlob, dataBlob] = await Promise.all([
+fetchAndMerge(unxParts),
+fetchAndMerge(dataParts)
+]);
+mergedUnxBlob = URL.createObjectURL(unxBlob);
+mergedDataBlob = URL.createObjectURL(dataBlob);
+
+const script = document.createElement("script");
+script.src = "https://cdn.jsdelivr.net/gh/shayderrr/port@main/runner.js";
+document.body.appendChild(script);
+} catch (e) {
+document.getElementById("status").innerHTML = "Error";
+}
+})();
+</script>
+</body>
+</html>

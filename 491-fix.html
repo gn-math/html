@@ -1,0 +1,56 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/whatver/nextyou/">
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | I woke up next to you again</title>
+  <script src="Build/UnityLoader.js"></script>
+  <script>
+    var gameInstance;
+
+    window.addEventListener("load", function() {
+      gameInstance = UnityLoader.instantiate("gameContainer", "Build/web.json");
+      resizeGame();
+      window.addEventListener("resize", resizeGame);
+    });
+
+    function resizeGame() {
+      var container = document.getElementById("gameContainer");
+      container.style.width = window.innerWidth + "px";
+      container.style.height = window.innerHeight + "px";
+
+      if (gameInstance && gameInstance.Module) {
+        gameInstance.Module.canvas.style.width = window.innerWidth + "px";
+        gameInstance.Module.canvas.style.height = window.innerHeight + "px";
+      }
+    }
+  </script>
+  <link rel="" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+    #gameContainer {
+      display: block;
+    }
+  
+</style>
+</head>
+<body>
+  <div id="gameContainer"></div>
+
+</body>
+</html>

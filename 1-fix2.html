@@ -1,0 +1,132 @@
+<html><head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>OvO</title>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script>
+<script>
+(function() {
+    const originalFetch = window.fetch;
+    window.fetch = async function(url, options) {
+        const urlString = (typeof url === "string") ? url : (url.url || "");
+        if (urlString.includes("docs.google.com/spreadsheets") && urlString.includes("output=tsv")) {
+            console.log("(unlockalllevels)");
+            return new Response("", { status: 200, statusText: "OK" });
+        }
+        return originalFetch.apply(this, arguments);
+    };
+})();
+</script>
+
+  <base href="https://cdn.jsdelivr.net/gh/Replku/Ovo@2b17271c24535b96a49c4d1b9f64cd998aa2d060/">
+  <link rel="manifest" href="appmanifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="HandheldFriendly" content="true">
+  <style>
+    *{padding:0;margin:0}
+    html,body{background:#000;color:#fff;overflow:hidden;touch-action:none;-ms-touch-action:none}
+    canvas{touch-action:none;-ms-touch-action:none}
+  </style>
+  <link href="animate.css" rel="stylesheet" type="text/css">
+  <link href="hmmg_layoutTransition.css" rel="stylesheet" type="text/css">
+  <link href="jquery.gritter.css" rel="stylesheet" type="text/css">
+<script src="offlineClient.js"></script><style type="text/css">#button {
+  display:none;
+}
+.imgb_vis {
+  animation: imgb-animation 7s linear;
+}
+@keyframes imgb-animation {
+  10% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(100px);
+  }
+  90% {
+    transform: translateX(100px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}</style><style>.animated,animated.hinge,.animated.flipOutX,.animated.flipOutY,.animated.bounceIn,.animated.bounceOut,.animated.flipOutXX,.animated.flipInXX,.animated.flipInYY,.animated.flipOutYY{-webkit-animation-duration: 0.7s !important;animation-duration: 0.7s !important;}</style><script type="text/javascript" src="lzma.js"></script><script type="text/javascript" src="unlockalllevels.js"></script><script type="text/javascript" src="websdkwrapper.js"></script><script type="text/javascript" src="ovo-level-editor.js"></script><link rel="stylesheet" type="text/css" href="style.css"><link href="fonts.css" rel="stylesheet" type="text/css"><link href="./fonts.css" rel="stylesheet" type="text/css"><link href="./fonts.css" rel="stylesheet" type="text/css"></head>
+<body>
+  
+
+  <script>
+    (function(){
+      var m=['log','info','debug','warn','error','trace','group','groupCollapsed','groupEnd','time','timeEnd','table','assert'];
+      for(var i=0;i<m.length;i++){try{console[m[i]]=function(){}}catch(e){}}
+      window.onerror=function(){return true};
+      window.onunhandledrejection=function(){return true};
+    })();
+  </script>
+
+  <script>
+    (function () {
+      const _Image = window.Image;
+      window.Image = function Image() {
+        const img = new _Image();
+        try { img.crossOrigin = 'anonymous'; } catch(e) {}
+        return img;
+      };
+      window.Image.prototype = _Image.prototype;
+      const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,'src');
+      if (desc && desc.configurable) {
+        Object.defineProperty(HTMLImageElement.prototype,'src',{
+          get:desc.get,
+          set:function(v){
+            if(!this.crossOrigin){try{this.crossOrigin='anonymous'}catch(e){}}
+            return desc.set.call(this,v);
+          }
+        });
+      }
+      if (window.HTMLMediaElement) {
+        try{
+          const vdesc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'src');
+          if (vdesc && vdesc.configurable) {
+            Object.defineProperty(HTMLMediaElement.prototype,'src',{
+              get:vdesc.get,
+              set:function(v){
+                if(!this.crossOrigin){try{this.crossOrigin='anonymous'}catch(e){}}
+                return vdesc.set.call(this,v);
+              }
+            });
+          }
+        }catch(e){}
+      }
+    })();
+  </script>
+
+  <script src="jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+  <script src="GameAnalytics.js" crossorigin="anonymous"></script>
+  <script src="Tween.js" crossorigin="anonymous"></script>
+  <script src="html2canvas.min.js" crossorigin="anonymous"></script>
+  <script src="jquery.gritter.js" crossorigin="anonymous"></script>
+  <script src="howler.js" crossorigin="anonymous"></script>
+  <script src="c2runtime.js" crossorigin="anonymous"></script>
+
+  <script>
+    jQuery(function(){ cr_createRuntime("c2canvas"); });
+    function onVisibilityChanged(){
+      var h=document.hidden||document.mozHidden||document.webkitHidden||document.msHidden;
+      cr_setSuspended(!!h);
+    }
+    document.addEventListener("visibilitychange",onVisibilityChanged,false);
+    document.addEventListener("mozvisibilitychange",onVisibilityChanged,false);
+    document.addEventListener("webkitvisibilitychange",onVisibilityChanged,false);
+    document.addEventListener("msvisibilitychange",onVisibilityChanged,false);
+    window.C2_RegisterSW=function(){};
+  </script>
+
+
+<div id="c2canvasdiv" style="width: 817px; height: 949px; margin-left: 0px; margin-top: 0px;" class="">
+    <canvas id="c2canvas" width="817" height="949" ondragover="event.preventDefault();" ondrop="ovoLevelEditor.handleDrop(event)"></canvas>
+  </div></body></html>

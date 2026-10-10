@@ -1,0 +1,38 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><html lang="en-us">
+<base href="https://rawcdn.githack.com/bubbls/UGS-Assets/60243fe19e191ac4fc09b71c48b965cf25f30f5c/station%20141/">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | Station 141</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <script src="TemplateData/UnityProgress.js"></script>
+  <script src="Build/UnityLoader.js"></script>
+  <script>
+    var unityInstance = UnityLoader.instantiate("unityContainer", "Build/WebGL.json", {
+      onProgress: UnityProgress
+    });
+  </script>
+
+</head>
+
+<body>
+  <div class="webgl-content">
+    <div id="unityContainer" style="width: 1280px; height: 720px"></div>
+    <div class="footer">
+      <div class="webgl-logo"></div>
+      <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
+      <div class="title">Station 141</div>
+    </div>
+  </div>
+
+</body>
+
+</html>

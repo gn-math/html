@@ -1,0 +1,399 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+
+<html lang="en-us">
+<head>
+<base href="https://rawcdn.githack.com/genizy/brainrot/main/monster-box-3d/">
+<meta charset="utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<link rel="stylesheet" href="./style.css"/>
+<!-- Yandex Games SDK -->
+<script src="https://cdn.jsdelivr.net/gh/freebuisness/assets@main/yandex-sdk.js?lol"></script>
+<style>
+        canvas:focus {
+            outline: none;
+        }
+
+        html, body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            height: 100%;
+        }
+    
+
+
+
+
+</style>
+<!-- Additional head modules -->
+</head>
+<body class="dark">
+<div id="unity-container" class="unity-desktop">
+<canvas id="unity-canvas" tabindex="-1"></canvas>
+</div>
+<div id="loading-cover" style="display:none;">
+<div id="unity-loading-bar">
+<div id="unity-logo"><img src="Images/logo.png"/></div>
+<div id="unity-progress-bar-empty" style="display: none;">
+<div id="unity-progress-bar-full"></div>
+</div>
+<div class="spinner"></div>
+</div>
+</div>
+<!-- Additional body modules -->
+<script>
+        const hideFullScreenButton = "";
+        const buildUrl = "Build";
+        const loaderUrl = buildUrl + "/Builds.loader.js";
+        const config = {
+            dataUrl: buildUrl + "/Builds.data",
+            frameworkUrl: buildUrl + "/Builds.framework.js",
+            codeUrl: buildUrl + "/Builds.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "Monster-Box",
+            productVersion: "0.29"
+        };
+
+        const container = document.querySelector("#unity-container");
+        const canvas = document.querySelector("#unity-canvas");
+        const loadingCover = document.querySelector("#loading-cover");
+        const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+        const progressBarFull = document.querySelector("#unity-progress-bar-full");
+        const spinner = document.querySelector('.spinner');
+
+        const canFullscreen = (function () {
+            for (const key of [
+                'exitFullscreen',
+                'webkitExitFullscreen',
+                'webkitCancelFullScreen',
+                'mozCancelFullScreen',
+                'msExitFullscreen',
+            ]) {
+                if (key in document) {
+                    return true;
+                }
+            }
+            return false;
+        }());
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            container.className = "unity-mobile";
+            
+        }
+
+        // The background image when loading the game. When building a build, the code changes depending on the project settings.
+        
+        loadingCover.style.display = "";
+
+        let StartUnityInstance;
+        let ygGameInstance = null;
+        let ysdk = null;
+        let initYSDK = false;
+        let initGame = false;
+        let syncInit = false;
+        const NO_DATA = 'no data';
+
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        function FocusGame() {
+            window.focus();
+            canvas.focus();
+        }
+        window.addEventListener('pointerdown', () => {
+            FocusGame();
+        });
+        window.addEventListener('touchstart', () => {
+            FocusGame();
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (ysdk !== null && initGame == true) {
+                if (document.hidden) {
+                    YG2Instance('SetFocusWindowGame', 'false');
+                }
+                else {
+                    YG2Instance('SetFocusWindowGame', 'true');
+
+                    if ((ysdk.deviceInfo.isMobile() || ysdk.deviceInfo.isTablet()) && ysdk.screen.fullscreen.status == 'off')
+                        ysdk.screen.fullscreen.request();
+                }
+            }
+        });
+
+        const script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            StartUnityInstance = function () {
+                createUnityInstance(canvas, config, (progress) => {
+                    spinner.style.display = "none";
+                    progressBarEmpty.style.display = "";
+                    const adjustedProgress = Math.max(progress, 0.05);
+                    progressBarFull.style.width = `${100 * adjustedProgress}%`;
+                }).then((unityInstance) => {
+                    ygGameInstance = unityInstance;
+                    loadingCover.style.display = "none";
+                }).catch((message) => {
+                    console.error(message);
+                });
+            };
+            
+            if (IsLocalHost() || syncInit)
+                StartUnityInstance_IfUnloaded();
+        };
+
+        function StartUnityInstance_IfUnloaded() {
+            if (spinner.style.display !== "none")
+                StartUnityInstance();
+        }
+
+        function IsLocalHost() {
+            try {
+                if (window.top !== window) {
+                    console.warn("The application is running in an iframe");
+                    return false;
+                }
+
+                const host = window.location.hostname;
+                if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) {
+                    LogStyledMessage("Local Host");
+                    return true;
+                }
+            } 
+            catch (error) {
+                console.error("Error checking the local host:", error);
+                return false;
+            }
+        }
+
+        function YG2Instance(method) {
+            if (ygGameInstance == null)
+                return;
+
+            if (!initGame) {
+                setTimeout(function () {
+                    if (ygGameInstance)
+                        ygGameInstance.SendMessage('YG2Instance', method);
+                }, 100);
+            }
+            else {
+                ygGameInstance.SendMessage('YG2Instance', method);
+            }
+                
+        }
+        function YG2Instance(method, arg) {
+            if (ygGameInstance == null)
+                return;
+
+            if (!initGame) {
+                setTimeout(function () {
+                    ygGameInstance.SendMessage('YG2Instance', method, arg);
+                }, 100);
+            }
+            else {
+                ygGameInstance.SendMessage('YG2Instance', method, arg);
+            }
+        }
+
+        function LogStyledMessage(message, style) {
+            console.log('%c' + message, style);
+        }
+        function LogStyledMessage(message) {
+            console.log('%c' + message, 'color: #FFDF73; background-color: #454545');
+        }
+
+        InitYSDK();
+        async function InitYSDK() {
+            try {
+                if (IsLocalHost()) return;
+
+                ysdk = await YaGames.init();
+
+                // Additional init0 modules
+
+                // Additional init1 modules
+
+                // Additional init2 modules
+await InitPlayer();
+LogStyledMessage('Init Authorization ysdk');
+
+
+                // Additional init modules
+await LoadCloud();
+LogStyledMessage('Init Storage ysdk');
+
+
+                initYSDK = true;
+                if (ygGameInstance != null)
+                    ygGameInstance.SendMessage('YG2Instance', 'InitSDKComplete');
+
+                LogStyledMessage('Init YandexSDK Success');
+
+            } catch (e) {
+                console.error('CRASH Initialization SDK: ', e);
+            }
+
+            if (!IsLocalHost() && !syncInit)
+                StartUnityInstance_IfUnloaded();
+        }
+
+        function InitGame() {
+            initGame = true;
+
+            // Additional start modules
+        }
+
+        // Additional script modules
+LogStyledMessage('PluginYG2 v2.0031  build: 30');
+
+var cloudSaves = NO_DATA;
+
+function SaveCloud(jsonData, flush) {
+    if (player == null) {
+        console.error('CRASH Save Cloud: ', 'Didnt have time to load');
+        return;
+    }
+    try {
+        player.setData({
+            saves: [jsonData],
+        }, flush);
+    } catch (e) {
+        console.error('CRASH Save Cloud: ', e.message);
+    }
+}
+
+function LoadCloud() {
+    return new Promise((resolve) => {
+        if (ysdk == null) {
+            Final(NO_DATA);
+            return;
+        }
+        try {
+            player.getData(["saves"]).then(data => {
+                if (data.saves) {
+                    Final(JSON.stringify(data.saves));
+                } else {
+                    Final(NO_DATA);
+                }
+            }).catch(() => {
+                console.error('Load Cloud Error!');
+                Final(NO_DATA);
+            });
+        }
+        catch (e) {
+            console.error('CRASH Load saves Cloud: ', e.message);
+            Final(NO_DATA);
+        }
+
+        function Final(res) {
+            cloudSaves = res;
+            YG2Instance('SetLoadSaves', res);
+            resolve(res);
+        }
+    });
+}
+
+var playerData = NO_DATA;
+let player = null;
+
+function InitPlayer() {
+    return new Promise((resolve) => {
+        try {
+            if (ysdk == null) {
+                Final(NotAuthorized());
+            }
+            else {
+                let _scopes = true;
+                ysdk.getPlayer({ scopes: _scopes })
+                    .then(_player => {
+                        player = _player;
+
+                        let playerName = player.getName();
+                        let playerPhoto = player.getPhoto('medium');
+
+                        if (!_scopes) {
+                            playerName = "anonymous";
+                            playerPhoto = "NO_DATA";
+                        }
+
+                        if (player.getMode() === 'lite') {
+                            LogStyledMessage('Not Authorized');
+                            Final(NotAuthorized());
+                        }
+                        else {
+                            let authJson = {
+                                "playerAuth": "resolved",
+                                "playerName": playerName,
+                                "playerId": player.getUniqueID(),
+                                "playerPhoto": playerPhoto,
+                                "payingStatus": player.getPayingStatus()
+                            };
+                            Final(JSON.stringify(authJson));
+                        }
+                    }).catch(e => {
+                        console.error('Authorized err: ', e.message);
+                        Final(NotAuthorized());
+                    });
+            }
+        }
+        catch (e) {
+            console.error('CRASH init Player: ', e.message);
+            Final(NotAuthorized());
+        }
+
+        function Final(res) {
+            playerData = res;
+            YG2Instance('SetAuth', res);
+            resolve(res);
+        }
+    });
+}
+
+function NotAuthorized() {
+    let authJson = {
+        "playerAuth": "rejected",
+        "playerName": "unauthorized",
+        "playerId": "unauthorized",
+        "playerPhoto": "null",
+        "payingStatus": "unknown"
+    };
+    return JSON.stringify(authJson);
+}
+
+function OpenAuthDialog() {
+    if (ysdk !== null) {
+        try {
+            ysdk.auth.openAuthDialog().then(() => {
+                InitPlayer(true)
+                    .then(() => {
+                        YG2Instance('GetDataInvoke');
+                    });
+            });
+        }
+        catch (e) {
+            LogStyledMessage('CRASH Open Auth Dialog: ', e.message);
+        }
+    }
+}
+
+
+        document.body.appendChild(script);
+    </script>
+
+
+</body>
+</html>

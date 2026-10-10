@@ -1,0 +1,99 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE HTML>
+<html>
+
+<head>
+    
+    
+    
+    <meta charset="utf-8">
+    <script type="text/javascript">
+        document.domain = '4399.com'
+    </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="full-screen" content="true" />
+    <meta name="screen-orientation" content="portrait" />
+    <meta name="x5-fullscreen" content="true" />
+    <meta name="360-fullscreen" content="true" />
+    <style>
+        html,
+        body {
+            -ms-touch-action: none;
+            background: #5E5858;
+            padding: 0;
+            border: 0;
+            margin: 0;
+            height: 100%;
+        }
+    
+
+
+
+
+</style>
+</head>
+
+<body onload="sdk.showBanner();">
+    <script>
+        window.$T_GAME_VERSION = "1.0.9"
+        window.$T_GAME_ARGS = {};
+        window.$T__RES__FILE = "https://cdn.jsdelivr.net/gh/yrgen73/draw-cl@8733508d84acdb41f47f102753e570de9f0a9971/resource/default.res.json";
+        window.$T__THE__FILE = "resource/default.thm.json";
+    </script>
+    <div style="margin: auto;width: 100%;height: 100%;" class="egret-player" data-entry-class="Main" data-orientation="auto" data-scale-mode="showAll" data-frame-rate="60" data-content-width="640" data-content-height="1136" data-multi-fingered="2" data-show-fps="false" data-show-log="false" data-show-fps-style="x:0,y:0,size:12,textColor:0xffffff,bgAlpha:0.9"> </div>
+    <script>
+        var loadScript = function (list, callback) {
+            var loaded = 0;
+            var loadNext = function () {
+                loadSingleScript(list[loaded], function () {
+                    loaded++;
+                    if (loaded >= list.length) {
+                        callback();
+                    } else {
+                        loadNext();
+                    }
+                })
+            };
+            loadNext();
+        };
+        var loadSingleScript = function (src, callback) {
+            var s = document.createElement('script');
+            s.async = false;
+            s.src = src;
+            s.addEventListener('load', function () {
+                s.parentNode.removeChild(s);
+                s.removeEventListener('load', arguments.callee, false);
+                callback();
+            }, false);
+            document.body.appendChild(s);
+        };
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://cdn.jsdelivr.net/gh/yrgen73/draw-cl@5cebc8634ca87bab6a76bf0ce2ef0fb99fa2548c/manifest.json?v=' + Math.random(), true);
+        xhr.addEventListener("load", function () {
+            var manifest = JSON.parse(xhr.response);
+            var list = manifest.initial.concat(manifest.game);
+            loadScript(list, function () {
+                egret.runEgret({
+                    renderMode: "webgl",
+                    audioType: 0,
+                    calculateCanvasScaleFactor: function (context) {
+                        var backingStore = context.backingStorePixelRatio || context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
+                        return (window.devicePixelRatio || 1) / backingStore;
+                    }
+                });
+            });
+        });
+        xhr.send(null);
+    </script>
+
+
+</body>
+
+</html>

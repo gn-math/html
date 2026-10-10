@@ -1,0 +1,146 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script>        <!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>myTeardrop</title>
+    <base href="https://cdn.jsdelivr.net/gh/waycrosspublicmedia/teardrop/play/">
+    <meta content="myTeardrop" property="og:title" />
+    <meta content="Take care of your very own Teardrop!" property="og:description" />
+    <meta content="#4291ff" property="theme-color" />
+    <link rel="manifest" href="manifest.json" />
+</head>
+
+</html>
+<style>
+    canvas {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        /*top: 0px;
+        left: 0px;*/
+        position: fixed;
+        object-fit: contain;
+    }
+
+    #collecting {
+        left: 50%;
+        transform: translate(-50%, 0%);
+        position: fixed;
+        animation-iteration-count: infinite;
+        animation: scale 4s infinite ease-in-out;
+        filter: drop-shadow(0px 5px 10px rgba(0, 0, 0, 0.2));
+    }
+
+    @keyframes scale {
+        0% {
+            width: calc(20% + 80px);
+        }
+
+        50% {
+            width: calc(20% + 90px);
+        }
+
+        100% {
+            width: calc(20% + 80px);
+        }
+    }
+
+    body {
+        background-color: black;
+        overflow: hidden;
+    }
+
+    * {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    #loader {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        /*top: 0px;
+        left: 0px;*/
+        position: fixed;
+        background-color: white;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-weight: 400;
+        line-height: 5px;
+        font-size: 12px;
+        width: calc(40% + 80px);
+        border-radius: 100px;
+        height: 10px;
+        padding: 1px;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+        outline: 2px solid #00000020;
+    }
+
+    #loader p {
+        margin-left: 10px;
+        font-size: 15px;
+        position: fixed;
+    }
+
+    #bar {
+        width: 0px;
+        height: 100%;
+        background: linear-gradient(#4bbdff 50%, #1e34ff 50%, #4bbdff);
+        border-radius: 100px;
+    }
+
+    #loadbackground {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        image-rendering: optimizeSpeed;
+    }
+
+</style>
+<img id="collecting" src="Sprites/Load.png" style="bottom: calc(52%);">
+<div id="loader">
+    <div id="bar"></div>
+</div>
+<!--<img id="loadbackground" src="Sprites/bg1024x1024.png">-->
+
+<!--<script>
+    let scale = 640 / (1920 / 4);
+    let landscapeMode = (640 * (window.innerWidth / window.innerHeight)) >= 360;
+
+    let resolution = window.innerHeight / 640;
+    let width = (640 * (window.innerWidth / window.innerHeight));
+    let height = 640;
+    if (landscapeMode == false) {
+        width = 360;
+        height = (360 * (window.innerHeight / window.innerWidth));
+        resolution = window.innerWidth / 360;
+    };
+    scale *= resolution;
+
+    if (scale * 1024 < window.innerWidth) {
+        scale = window.innerWidth / 1024;
+    };
+    if (scale * 1024 < window.innerHeight) {
+        scale = window.innerHeight / 1024;
+    };
+    let loadbackground = document.getElementById("loadbackground");
+    loadbackground.style.transform = `translate(-50%, -50%) scale(${scale}, ${scale})`;
+</script>-->
+<script src="pixi.js"></script>
+<script src="matter.js"></script>
+<script src="pizzicato.js"></script>
+<script type="module" src="ease.js"></script>
+<script type="module" src="bfdi/bfdi.js"></script>
+

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+<title>Outhold</title>
+<style>
+html,body,#canvas{margin:0;padding:0;border:0;width:100%;height:100%}
+body{color:white;background-color:black;overflow:hidden;touch-action:none;display:flex}
+#canvas{display:block}
+#canvas:focus{outline:none}
+#status,#status-splash,#status-progress{position:absolute;left:0;right:0}
+#status,#status-splash{top:0;bottom:0}
+#status{background-color:#242424;display:flex;flex-direction:column;justify-content:center;align-items:center;visibility:hidden;z-index:10}
+#status-splash{max-height:100%;max-width:100%;margin:auto;object-fit:contain}
+#status-progress{bottom:10%;width:50%;margin:0 auto;display:none}
+#status-notice{background-color:#5b3943;border-radius:.5rem;border:1px solid #9b3943;color:#e0e0e0;font-family:sans-serif;line-height:1.3;margin:0 2rem;padding:1rem;text-align:center;display:none;z-index:11}
+</style>
+</head>
+<body>
+<canvas id="canvas">Your browser does not support the canvas tag.</canvas>
+<div id="status">
+<img id="status-splash" src="" alt="">
+<progress id="status-progress"></progress>
+<div id="status-notice"></div>
+</div>
+<script>
+(function () {
+const HASH = '206c998cd5a35e4a5ae132f132e3cd5292e5328c';
+const BASE = 'https://cdn.jsdelivr.net/gh/shayderrr/new@' + HASH + '/13820450-1489126/';
+const RAW_NAME = 'index';
+const SIDE_NAME = 'index.side.wasm';
+const SENTRY_LIB = 'libsentry.web.release.wasm32.nothreads.wasm';
+const TOTAL_PARTS = 7;
+let loadedParts = 0;
+const statusOverlay = document.getElementById('status');
+const statusProgress = document.getElementById('status-progress');
+const statusNotice = document.getElementById('status-notice');
+const statusSplash = document.getElementById('status-splash');
+function setStatusMode(mode) {
+statusOverlay.style.visibility = 'visible';
+statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+if (mode === 'hidden') statusOverlay.remove();
+}
+function setStatusNotice(text) {
+statusNotice.innerText = text;
+statusNotice.style.display = 'block';
+}
+async function fetchFile(urlSuffix) {
+const response = await fetch(BASE + urlSuffix);
+if (!response.ok) throw new Error('Failed: ' + urlSuffix);
+const buf = await response.arrayBuffer();
+loadedParts++;
+statusProgress.value = loadedParts;
+statusProgress.max = TOTAL_PARTS;
+setStatusNotice('Downloading: ' + loadedParts + ' / ' + TOTAL_PARTS);
+return buf;
+}
+async function fetchAndMerge(name, count) {
+const parts = [];
+let totalLength = 0;
+for (let i = 1; i <= count; i++) {
+const buf = await fetchFile(name + '.part' + i);
+parts.push(buf);
+totalLength += buf.byteLength;
+}
+const merged = new Uint8Array(totalLength);
+let offset = 0;
+for (const part of parts) {
+merged.set(new Uint8Array(part), offset);
+offset += part.byteLength;
+}
+return merged.buffer;
+}
+async function start() {
+try {
+statusSplash.src = BASE + RAW_NAME + '.png';
+setStatusMode('progress');
+const script = document.createElement('script');
+script.src = BASE + RAW_NAME + '.js';
+await new Promise((res, rej) => { script.onload = res; script.onerror = rej; document.head.appendChild(script); });
+const mainWasmBuf = await fetchFile(RAW_NAME + '.wasm');
+const sideWasmBuf = await fetchAndMerge(SIDE_NAME, 3);
+const sentryBuf = await fetchFile(SENTRY_LIB);
+const pckBuffer = await fetchAndMerge(RAW_NAME + '.pck', 2);
+const wasmBlobUrl = URL.createObjectURL(new Blob([mainWasmBuf], { type: 'application/wasm' }));
+const GODOT_CONFIG = {
+"args":[],
+"canvasResizePolicy":2,
+"ensureCrossOriginIsolationHeaders":false,
+"executable": wasmBlobUrl,
+"wasmBinary": mainWasmBuf,
+"fileSizes":{"index.pck":36755564},
+"focusCanvas":true,
+"gdextensionLibs":[SIDE_NAME, SENTRY_LIB]
+};
+const _origFetch = window.fetch;
+window.fetch = function (url) {
+const u = typeof url === 'string' ? url : (url.href || '');
+if (u.endsWith('.wasm')) {
+let buf = mainWasmBuf;
+if (u.includes('side')) buf = sideWasmBuf;
+if (u.includes('sentry')) buf = sentryBuf;
+return Promise.resolve(new Response(buf, {headers:{'Content-Type':'application/wasm'}}));
+}
+if (u.endsWith('.pck')) return Promise.resolve(new Response(pckBuffer, {headers:{'Content-Type':'application/octet-stream'}}));
+return _origFetch.apply(this, arguments);
+};
+const engine = new Engine(GODOT_CONFIG);
+await engine.init(BASE);
+engine.copyToFS('/' + RAW_NAME + '.pck', pckBuffer);
+engine.copyToFS('/' + SIDE_NAME, sideWasmBuf);
+engine.copyToFS('/' + SENTRY_LIB, sentryBuf);
+await engine.startGame({
+executable: wasmBlobUrl,
+wasmBinary: mainWasmBuf,
+mainPack: '/' + RAW_NAME + '.pck',
+onProgress: (cur, tot) => {
+if (tot > 0) {
+statusProgress.value = cur;
+statusProgress.max = tot;
+setStatusNotice('Loading: ' + Math.floor((cur/tot)*100) + '%');
+}
+}
+});
+setStatusMode('hidden');
+} catch (err) {
+console.error(err);
+setStatusNotice('Error: ' + (err.message || err));
+setStatusMode('notice');
+}
+}
+start();
+})();
+</script>
+</body>
+</html>

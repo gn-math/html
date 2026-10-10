@@ -1,0 +1,751 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctype html>
+<html lang="en">
+<base href="https://cdn.jsdelivr.net/gh/bubbls/WebMonkeyBall@main/">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SMB1 Web Gameplay</title>
+
+  <!-- iOS: run without Safari UI when launched from Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)">
+
+  <link rel="stylesheet" href="./style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "gl-matrix": "https://cdn.jsdelivr.net/npm/gl-matrix@3.4.3/esm/index.js"
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <canvas id="game"></canvas>
+  <canvas id="hud-canvas"></canvas>
+  <div id="stage-fade" class="stage-fade"></div>
+  <div id="overlay" class="overlay">
+
+    <div class="menu-actions">
+      <div class="menu-actions-top">
+        <div class="credits-menu" id="credits-menu">
+          <button class="credits-label" id="credits-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+            Credits
+          </button>
+
+          <div class="credits-panel" id="credits-panel">
+            <div>
+              <a href="https://ko-fi.com/twilightpb" target="_blank" rel="noopener">TwilightPB</a>
+              <span>— Porting</span>
+            </div>
+            <div>
+              <a href="https://complexplane.dev" target="_blank" rel="noopener">ComplexPlane</a>
+              <span>— Renderer</span>
+            </div>
+            <div>
+              camthesaxman <span>— SMB1 Decompilation</span>
+            </div>
+            <div class="credits-multiline">
+              <div class="credits-title">SMB2 Decompilation</div>
+              <div class="credits-sublist">
+                <div>ComplexPlane</div>
+                <div>CraftedCart</div>
+                <div>EELI</div>
+                <div>Eucalyptus</div>
+                <div>The BombSquad</div>
+              </div>
+            </div>
+            <div>
+              Amusement Vision <span>— Original game</span>
+            </div>
+            <div>
+              <a href="https://discord.gg/CEYjvDj" target="_blank" rel="noopener">SMB Custom Level Community</a>
+              <span>— Tools and resources</span>
+            </div>
+          </div>
+        </div>
+        <button id="open-settings" class="ghost compact settings-button" type="button">Settings</button>
+      </div>
+      <a id="discord-server-link" class="menu-action-link" href="https://discord.gg/j9RRPBTGxt" target="_blank" rel="noopener noreferrer">
+        <img class="discord-server-icon" src="./discord-favicon.ico" alt="" aria-hidden="true" />
+        <span>Discord Server</span>
+      </a>
+    </div>
+    <div class="panel" id="main-menu">
+      <h1>Super Monkey Ball</h1>
+      <p>Select a mode.</p>
+
+      <div class="panel-section">
+        <button id="open-singleplayer" class="menu-button" type="button">
+          <span class="menu-button-title">Singleplayer</span>
+          <span class="menu-button-subtitle">Course play and practice</span>
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <button id="open-multiplayer" class="menu-button" type="button">
+          <span class="menu-button-title">Online Multiplayer</span>
+          <span id="lobby-online-count" class="menu-button-subtitle">0 players online</span>
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <button id="open-replay-library" class="menu-button" type="button">
+          <span class="menu-button-title">Replays</span>
+          <span class="menu-button-subtitle">Saved local replay library</span>
+        </button>
+      </div>
+
+      <div class="row hidden">
+        <button id="start" disabled>Start</button>
+        <button id="resume" class="ghost" disabled>Resume</button>
+      </div>
+      <div class="hint">
+        <div>Controls: WASD / Arrow Keys = tilt, R = reset stage, N = skip stage</div>
+        <div>If you have a controller plugged in, it should work too.</div>
+      </div>
+      <div id="main-menu-version" class="menu-version" aria-label="Build version"></div>
+    </div>
+    <div class="panel hidden" id="singleplayer-menu">
+      <div class="menu-header">
+        <button id="singleplayer-back" class="ghost compact" type="button">Back</button>
+        <div>
+          <h1>Singleplayer</h1>
+          <p>Pick course play or practice.</p>
+        </div>
+      </div>
+      <div class="panel-section">
+        <button id="open-course-play" class="menu-button" type="button">
+          <span class="menu-button-title">Course Play</span>
+          <span class="menu-button-subtitle">Start from floor 1</span>
+        </button>
+      </div>
+      <div class="panel-section">
+        <button id="open-practice" class="menu-button" type="button">
+          <span class="menu-button-title">Practice</span>
+          <span class="menu-button-subtitle">Choose any stage, then repeat it</span>
+        </button>
+      </div>
+    </div>
+    <div class="panel hidden" id="course-play-menu">
+      <div class="menu-header">
+        <button id="course-play-back" class="ghost compact" type="button">Back</button>
+        <div>
+          <h1>Course Play</h1>
+          <p>Choose source and difficulty.</p>
+        </div>
+      </div>
+      <div class="panel-section">
+        <label class="field">
+          <span>Game Source</span>
+          <select id="course-play-source"></select>
+        </label>
+      </div>
+      <div class="panel-section">
+        <label class="field">
+          <span>Difficulty</span>
+          <select id="course-play-difficulty"></select>
+        </label>
+      </div>
+      <div class="panel-section">
+        <button id="course-play-start" type="button">Start Course</button>
+      </div>
+    </div>
+    <div class="panel hidden pause-menu-panel" id="pause-menu">
+      <div class="pause-menu-frame">
+        <div class="pause-menu-title">PAUSE</div>
+        <div class="pause-menu-list" role="menu" aria-label="Pause Menu">
+          <button id="pause-resume" class="pause-menu-item" type="button">Resume</button>
+          <button id="pause-retry" class="pause-menu-item" type="button">Retry</button>
+          <button id="pause-save-replay" class="pause-menu-item" type="button">Save Replay</button>
+          <button id="pause-view-stage" class="pause-menu-item" type="button">View Stage</button>
+          <button id="pause-return-main-menu" class="pause-menu-item" type="button">Return to Main Menu</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel hidden" id="level-select-menu">
+      <div class="menu-header">
+        <button id="level-select-back" class="ghost compact" type="button">Back</button>
+        <div>
+          <h1 id="level-select-title">Level Select</h1>
+          <p id="level-select-subtitle">Choose the game source, course, and stage.</p>
+        </div>
+      </div>
+      <div class="panel-section">
+        <label class="field">
+          <span>Game Source</span>
+          <select id="game-source">
+            <option value="smb1">Super Monkey Ball 1</option>
+            <option value="smb2">Super Monkey Ball 2</option>
+            <option value="mb2ws">Super Monkey Ball 2 (MB2WS)</option>
+          </select>
+        </label>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <h2>Packs</h2>
+        </div>
+        <div class="pack-controls">
+          <button id="pack-load" class="ghost compact" type="button">Load Pack</button>
+          <div id="pack-picker" class="pack-picker hidden">
+            <button id="pack-load-zip" class="ghost compact" type="button">Zip File</button>
+            <button id="pack-load-folder" class="ghost compact" type="button">Folder</button>
+          </div>
+          <div id="pack-status" class="pack-status">No pack loaded</div>
+        </div>
+        <input id="pack-file" class="hidden" type="file" accept=".zip" />
+        <input id="pack-folder" class="hidden" type="file" webkitdirectory />
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <h2>Stage Selection</h2>
+        </div>
+        <div id="smb1-fields">
+          <label class="field">
+            <span>Difficulty</span>
+            <select id="difficulty">
+              <option value="beginner">Beginner</option>
+              <option value="advanced">Advanced</option>
+              <option value="expert">Expert</option>
+              <option value="beginner-extra">Beginner (Extra)</option>
+              <option value="advanced-extra">Advanced (Extra)</option>
+              <option value="expert-extra">Expert (Extra)</option>
+              <option value="master">Master</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Stage</span>
+            <select id="smb1-stage"></select>
+          </label>
+        </div>
+        <div id="smb2-fields" class="hidden">
+          <label class="field">
+            <span>SMB2 Mode</span>
+            <select id="smb2-mode">
+              <option value="challenge">Challenge</option>
+              <option value="story">Story</option>
+            </select>
+          </label>
+          <div id="smb2-challenge-fields">
+            <label class="field">
+              <span>Challenge Difficulty</span>
+              <select id="smb2-challenge">
+                <option value="beginner">Beginner</option>
+                <option value="advanced">Advanced</option>
+                <option value="expert">Expert</option>
+                <option value="beginner-extra">Beginner Extra</option>
+                <option value="advanced-extra">Advanced Extra</option>
+                <option value="expert-extra">Expert Extra</option>
+                <option value="master">Master</option>
+                <option value="master-extra">Master Extra</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Challenge Stage</span>
+              <select id="smb2-challenge-stage"></select>
+            </label>
+          </div>
+          <div id="smb2-story-fields" class="hidden">
+            <label class="field">
+              <span>Story World</span>
+              <select id="smb2-story-world"></select>
+            </label>
+            <label class="field">
+              <span>Story Stage</span>
+              <select id="smb2-story-stage"></select>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div id="level-select-actions" class="panel-section">
+        <button id="level-select-confirm" type="button">Confirm</button>
+        <div class="control-hint">Return to main menu with this selection.</div>
+      </div>
+      <div id="lobby-stage-actions" class="panel-section hidden">
+        <div class="panel-section-header">
+          <h2>Lobby Stage</h2>
+        </div>
+        <button id="lobby-stage-choose" type="button">Choose</button>
+        <div class="control-hint">Updates the lobby selection without starting the match.</div>
+      </div>
+    </div>
+    <div class="panel hidden" id="replay-library-menu">
+      <div class="menu-header">
+        <button id="replay-library-back" class="ghost compact" type="button">Back</button>
+        <div>
+          <h1>Replays</h1>
+          <p>Local replay library.</p>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="row">
+          <button id="replay-library-import" class="ghost" type="button">Import Replay</button>
+          <button id="replay-library-refresh" class="ghost" type="button">Refresh</button>
+          <div id="replay-library-status" class="pack-status">Replays: idle</div>
+        </div>
+        <input id="replay-library-file" class="hidden" type="file" accept=".json" />
+        <div id="replay-library-list" class="leaderboard-list"></div>
+      </div>
+    </div>
+    <div class="multiplayer-layout hidden" id="multiplayer-layout">
+      <div class="panel hidden" id="multiplayer-menu">
+        <div class="menu-header">
+          <button id="multiplayer-back" class="ghost compact" type="button">Back</button>
+          <div>
+            <h1>Online Multiplayer</h1>
+            <p>Join public lobbies, invite friends, or host your own room.</p>
+          </div>
+        </div>
+        <div id="multiplayer-browser" class="multiplayer-view">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Public Lobbies</h2>
+              <button id="lobby-refresh" class="ghost compact" type="button">Refresh</button>
+            </div>
+            <div id="lobby-status" class="pack-status">Lobby: idle</div>
+            <div id="lobby-list" class="lobby-list"></div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Join Private Room</h2>
+            </div>
+            <div class="multiplayer-row">
+              <input id="lobby-code" class="text-input" type="password" placeholder="Room code" autocomplete="off" />
+              <button id="lobby-join" class="ghost compact" type="button">Join</button>
+            </div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Host Room</h2>
+            </div>
+            <div class="multiplayer-row">
+              <button id="lobby-create" class="ghost compact" type="button">Create Room</button>
+              <label class="checkbox-field">
+                <input id="lobby-public" type="checkbox" checked />
+                <span>Public</span>
+              </label>
+            </div>
+            <div class="multiplayer-row">
+              <input id="lobby-name" class="text-input" type="text" placeholder="Lobby name (optional)" maxlength="64" />
+            </div>
+          </div>
+        </div>
+        <div id="multiplayer-lobby" class="multiplayer-view hidden">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Lobby</h2>
+              <button id="lobby-copy-code" class="ghost compact hidden" type="button">Copy Room Code</button>
+              <button id="lobby-leave" class="ghost compact hidden" type="button">Leave Room</button>
+            </div>
+            <div id="lobby-room-info" class="lobby-room-info"></div>
+            <label class="field">
+              <span>Lobby Name</span>
+              <input id="lobby-room-name" class="text-input" type="text" maxlength="64" />
+            </label>
+            <div id="lobby-room-status" class="lobby-room-status"></div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Players</h2>
+            </div>
+            <div id="lobby-player-list" class="lobby-player-list"></div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Match Settings</h2>
+            </div>
+            <div class="lobby-setting">
+              <span>Selected Stage</span>
+              <button id="lobby-stage-button" class="lobby-setting-value lobby-setting-button" type="button">
+                <span id="lobby-stage-info">Unknown</span>
+              </button>
+            </div>
+            <label class="field">
+              <span>Gamemode</span>
+              <select id="lobby-gamemode">
+                <option value="standard">Standard</option>
+                <option value="chained_together">Chained Together</option>
+              </select>
+            </label>
+            <div id="lobby-gamemode-options" class="lobby-gamemode-options hidden"></div>
+            <label class="field">
+              <span>Max Players</span>
+              <select id="lobby-max-players">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+              </select>
+            </label>
+            <div id="lobby-max-players-warning" class="control-hint lobby-max-players-warning hidden">
+              Increased max players may negatively impact gameplay performance.
+            </div>
+            <label class="checkbox-field">
+              <input id="lobby-collision" type="checkbox" checked />
+              <span>Player Collision</span>
+            </label>
+            <label class="checkbox-field">
+              <input id="lobby-infinite-time" type="checkbox" />
+              <span>Infinite Time</span>
+            </label>
+            <label class="checkbox-field">
+              <input id="lobby-locked" type="checkbox" />
+              <span>Lock Room</span>
+            </label>
+            <div class="control-hint">Only the host can change match settings.</div>
+          </div>
+          <div class="panel-section">
+            <button id="lobby-start" type="button">Start Match</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel lobby-chat-panel hidden" id="lobby-chat-panel">
+        <div class="panel-section-header">
+          <h2>Chat</h2>
+        </div>
+        <div id="lobby-chat-list" class="chat-list"></div>
+        <div class="chat-input-row">
+          <input id="lobby-chat-input" class="text-input" type="text" placeholder="Type a message..." maxlength="200" />
+          <button id="lobby-chat-send" class="ghost compact" type="button">Send</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel hidden" id="multiplayer-ingame-menu">
+      <div class="menu-header">
+        <div>
+          <h1>Match Menu</h1>
+          <p>Multiplayer session controls.</p>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-header">
+          <h2>Players</h2>
+        </div>
+        <div id="ingame-player-list" class="lobby-player-list"></div>
+      </div>
+      <div class="panel-section">
+        <div class="row">
+          <button id="ingame-resume" class="ghost" type="button">Resume</button>
+          <button id="ingame-return-lobby" class="ghost hidden" type="button">Return to Lobby</button>
+          <button id="ingame-leave" type="button">Leave Match</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel hidden" id="settings-menu">
+      <div class="menu-header">
+        <button id="settings-back" class="ghost compact" type="button">Back</button>
+        <div>
+          <h1>Settings</h1>
+          <p>Adjust controls, audio, and multiplayer preferences.</p>
+        </div>
+      </div>
+      <div class="settings-tabs" role="tablist">
+        <button class="settings-tab-button active" type="button" data-settings-tab="input">Input</button>
+        <button class="settings-tab-button" type="button" data-settings-tab="audio">Audio</button>
+        <button class="settings-tab-button" type="button" data-settings-tab="multiplayer">Multiplayer</button>
+      </div>
+      <div class="settings-tab-panels">
+        <div class="settings-tab-panel" data-settings-panel="input">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Controls</h2>
+            </div>
+            <label id="control-mode-field" class="field hidden">
+              <span>Control Mode</span>
+              <div class="control-mode-row">
+                <select id="control-mode"></select>
+                <button id="gyro-recalibrate" class="ghost compact hidden" type="button">Recalibrate</button>
+                <div id="gyro-helper" class="gyro-helper hidden" aria-hidden="true">
+                  <div class="gyro-helper-frame">
+                    <div id="gyro-helper-ghost" class="gyro-helper-ghost"></div>
+                    <div id="gyro-helper-device" class="gyro-helper-device"></div>
+                  </div>
+                </div>
+              </div>
+            </label>
+            <div id="control-mode-settings" class="control-mode-settings hidden">
+              <div id="gyro-settings" class="control-mode-block hidden">
+                <label class="field slider-field">
+                  <span>Gyro Sensitivity <output id="gyro-sensitivity-value">25°</output></span>
+                  <input id="gyro-sensitivity" type="range" min="10" max="25" step="1" value="25" />
+                </label>
+                <div id="gyro-hint" class="control-hint">Tap the screen during gameplay to recalibrate gyro.</div>
+              </div>
+              <div id="touch-settings" class="control-mode-block hidden">
+                <label class="field slider-field">
+                  <span>Virtual Joystick Size <output id="joystick-size-value">1.0x</output></span>
+                  <input id="joystick-size" type="range" min="0.5" max="2" step="0.1" value="1" />
+                </label>
+              </div>
+              <div id="input-falloff-block" class="control-mode-block">
+                <label class="field slider-field">
+                  <span>Input Falloff <output id="input-falloff-value">1.5</output></span>
+                  <input id="input-falloff" type="range" min="1" max="2" step="0.05" value="1" />
+                </label>
+                <div class="input-falloff-visuals">
+                  <div id="input-falloff-curve-wrap" class="response-curve">
+                    <svg id="input-falloff-curve" viewBox="0 0 100 100" role="img" aria-hidden="true">
+                      <path id="input-falloff-path" d="M 0 100 L 100 0"></path>
+                    </svg>
+                  </div>
+                  <div id="input-preview" class="input-preview" aria-hidden="true">
+                    <div class="input-preview-grid"></div>
+                    <div id="input-raw-dot" class="input-dot raw"></div>
+                    <div id="input-processed-dot" class="input-dot processed"></div>
+                  </div>
+                </div>
+                <div class="control-hint">
+                  A lower value makes joystick input more linear. Higher makes small adjustments more precise.
+                </div>
+              </div>
+              <div id="gamepad-calibration-block" class="control-mode-block hidden">
+                <button id="gamepad-calibrate" class="ghost compact" type="button">Calibrate Stick</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-tab-panel hidden" data-settings-panel="audio">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Audio</h2>
+            </div>
+            <div class="slider-group">
+              <label class="field slider-field">
+                <span>Music Volume <output id="music-volume-value">50%</output></span>
+                <input id="music-volume" type="range" min="0" max="100" value="50" />
+              </label>
+              <label class="field slider-field">
+                <span>SFX Volume <output id="sfx-volume-value">30%</output></span>
+                <input id="sfx-volume" type="range" min="0" max="100" value="30" />
+              </label>
+              <label class="field slider-field">
+                <span>Announcer Volume <output id="announcer-volume-value">30%</output></span>
+                <input id="announcer-volume" type="range" min="0" max="100" value="30" />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="settings-tab-panel hidden" data-settings-panel="multiplayer">
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Profile</h2>
+            </div>
+            <label class="field">
+              <span>Display Name</span>
+              <input id="profile-name" class="text-input" type="text" maxlength="64" />
+            </label>
+            <div class="profile-avatar-row">
+              <div id="profile-avatar-preview" class="profile-avatar-preview" aria-hidden="true"></div>
+              <div class="profile-avatar-controls">
+                <input id="profile-avatar-input" class="text-input" type="file" accept="image/png,image/jpeg,image/webp" />
+                <button id="profile-avatar-clear" class="ghost compact" type="button">Clear Avatar</button>
+                <div id="profile-avatar-error" class="control-hint hidden"></div>
+              </div>
+            </div>
+            <div class="control-hint">PNG/JPG/WebP only. Max 512x512 and 150kb.</div>
+            <div class="profile-ball-row">
+              <label class="field">
+                <span>Hemisphere 1 Color</span>
+                <input id="profile-ball-hemi1-color" class="color-input" type="color" value="#ff0000" />
+              </label>
+              <label class="field">
+                <span>Hemisphere 2 Color</span>
+                <input id="profile-ball-hemi2-color" class="color-input" type="color" value="#ffffff" />
+              </label>
+            </div>
+            <div class="profile-ball-texture-row">
+              <label class="field">
+                <span>Hemisphere 1 Texture</span>
+                <input id="profile-ball-hemi1-texture-input" class="text-input" type="file" accept="image/png,image/jpeg,image/webp" />
+                <button id="profile-ball-hemi1-texture-clear" class="ghost compact" type="button">Clear Hemisphere 1 Texture</button>
+              </label>
+              <label class="field">
+                <span>Hemisphere 2 Texture</span>
+                <input id="profile-ball-hemi2-texture-input" class="text-input" type="file" accept="image/png,image/jpeg,image/webp" />
+                <button id="profile-ball-hemi2-texture-clear" class="ghost compact" type="button">Clear Hemisphere 2 Texture</button>
+              </label>
+            </div>
+            <div class="profile-ball-preview-row">
+              <div class="profile-ball-preview-label">Ball Preview</div>
+              <div class="profile-ball-preview-window">
+                <canvas id="profile-ball-preview" width="320" height="220" aria-label="Ball preview"></canvas>
+              </div>
+            </div>
+            <div id="profile-ball-texture-error" class="control-hint hidden"></div>
+            <div class="control-hint">Ball textures sync in multiplayer. Max 512x512 and 100kb per hemisphere.</div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-header">
+              <h2>Privacy</h2>
+            </div>
+            <label class="checkbox-field">
+              <input id="hide-player-names" type="checkbox" />
+              <span>Hide Player Names</span>
+            </label>
+            <label class="checkbox-field">
+              <input id="hide-lobby-names" type="checkbox" />
+              <span>Hide Lobby Names</span>
+            </label>
+            <label class="checkbox-field">
+              <input id="hide-remote-ball-textures" type="checkbox" />
+              <span>Hide Remote Ball Textures</span>
+            </label>
+            <div class="control-hint">Replaces names with deterministic aliases for safer sharing.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ingame-chat" class="ingame-chat hidden">
+    <div id="ingame-chat-list" class="chat-list chat-list-ingame"></div>
+    <div id="ingame-chat-input-row" class="chat-input-row collapsed">
+      <input id="ingame-chat-input" class="text-input" type="text" placeholder="ENTER to chat..." maxlength="200" />
+    </div>
+  </div>
+
+  <div id="touch-controls" class="touch-controls hidden" aria-hidden="true">
+    <div class="joystick hidden" aria-hidden="true">
+      <div class="joystick-base"></div>
+      <div class="joystick-handle"></div>
+    </div>
+  </div>
+
+  <button id="mobile-menu-button" class="mobile-menu-button hidden" type="button">
+    Menu
+  </button>
+
+  <button id="fullscreen-button" class="ghost compact fullscreen-button hidden" type="button">
+    Fullscreen
+  </button>
+
+  <div id="gamepad-calibration" class="modal hidden" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card">
+      <h2>Stick Calibration</h2>
+      <p>Move the left stick in slow circles to map the gate. Use the full range.</p>
+      <canvas id="gamepad-calibration-map" width="240" height="240"></canvas>
+      <div class="control-hint">Click anywhere or press any controller button to close.</div>
+    </div>
+  </div>
+
+  <script type="module">
+    const field = document.getElementById('control-mode-field');
+    const select = document.getElementById('control-mode');
+    const hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints ?? 0) > 0);
+    const hasCoarsePointer = window.matchMedia?.('(pointer: coarse)')?.matches ?? false;
+    const hasGyro = typeof window.DeviceOrientationEvent !== 'undefined' && (hasTouch || hasCoarsePointer);
+    const gyroButton = document.getElementById('gyro-recalibrate');
+    const gyroHelper = document.getElementById('gyro-helper');
+
+    if (!field || !select || (!hasTouch && !hasGyro)) {
+      field?.classList.add('hidden');
+    } else {
+      const options = [];
+      if (hasGyro) options.push({
+        value: 'gyro',
+        label: 'Gyro'
+      });
+      if (hasTouch) options.push({
+        value: 'touch',
+        label: 'Touchscreen'
+      });
+
+      if (options.length === 0) {
+        field.classList.add('hidden');
+      } else {
+        field.classList.remove('hidden');
+        select.innerHTML = '';
+        for (const opt of options) {
+          const el = document.createElement('option');
+          el.value = opt.value;
+          el.textContent = opt.label;
+          select.appendChild(el);
+        }
+
+        const key = 'smb_control_mode';
+        const saved = localStorage.getItem(key);
+        if (saved && options.some((o) => o.value === saved)) {
+          select.value = saved;
+        } else {
+          select.value = hasTouch ? 'touch' : 'gyro';
+          localStorage.setItem(key, select.value);
+        }
+
+        const syncGyroUi = () => {
+          const showGyro = select.value === 'gyro';
+          gyroButton?.classList.toggle('hidden', !showGyro);
+          gyroHelper?.classList.toggle('hidden', !showGyro);
+        };
+
+        syncGyroUi();
+
+        const requestGyroPermission = async () => {
+          const requests = [];
+          const orientationPermission = window.DeviceOrientationEvent?.requestPermission;
+          if (typeof orientationPermission === 'function') {
+            requests.push(orientationPermission.call(window.DeviceOrientationEvent));
+          }
+          const motionPermission = window.DeviceMotionEvent?.requestPermission;
+          if (typeof motionPermission === 'function') {
+            requests.push(motionPermission.call(window.DeviceMotionEvent));
+          }
+          if (requests.length === 0) {
+            return 'granted';
+          }
+          try {
+            const results = await Promise.all(requests);
+            return results.every((result) => result === 'granted') ? 'granted' : 'denied';
+          } catch {
+            return 'denied';
+          }
+        };
+
+        select.addEventListener('change', async () => {
+          let next = select.value;
+
+          // iOS: gyro requires a user-gesture permission prompt.
+          if (next === 'gyro') {
+            const result = await requestGyroPermission();
+            if (result !== 'granted') {
+              next = hasTouch ? 'touch' : 'gyro';
+              select.value = next;
+            }
+          }
+
+          localStorage.setItem(key, next);
+          syncGyroUi();
+        });
+      }
+    }
+  </script>
+
+  <script>
+    window.LOBBY_URL = "https://webmonkeyball-lobby.sndrec32exe.workers.dev";
+  </script> 
+
+  <script type="module" src="./dist/rain.js"></script>
+  <!-- Cloudflare Pages Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ba4e488caf8849e9af3e0cc5ff39ffaf"}'></script><!-- Cloudflare Pages Analytics -->
+</body>
+
+</html>

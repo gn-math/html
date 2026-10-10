@@ -1,0 +1,75 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html>
+    <head>
+<base href="https://cdn.jsdelivr.net/gh/giorgirick2-gif/game-webports-onawebsite@main/dead-plate/">
+        <meta charset="UTF-8">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="viewport" content="user-scalable=no">
+        <link rel="icon" href="icon/icon.png" type="image/png">
+        <link rel="apple-touch-icon" href="icon/icon.png">
+        <link rel="stylesheet" type="text/css" href="fonts/gamefont.css">
+        <title>DEAD PLATE</title>
+    
+</head>
+    <body style="background-color: black">
+        <script type="text/javascript" src="js/libs/pixi.js"></script>
+        <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
+        <script type="text/javascript" src="js/libs/pixi-picture.js"></script>
+        <script type="text/javascript" src="js/libs/fpsmeter.js"></script>
+        <script type="text/javascript" src="js/libs/lz-string.js"></script>
+        <script type="text/javascript" src="js/libs/iphone-inline-video.browser.js"></script>
+        <script type="text/javascript" src="js/rpg_core.js"></script>
+        <script type="text/javascript" src="js/rpg_managers.js"></script>
+        <script type="text/javascript" src="js/rpg_objects.js"></script>
+        <script type="text/javascript" src="js/rpg_scenes.js"></script>
+        <script type="text/javascript" src="js/rpg_sprites.js"></script>
+        <script type="text/javascript" src="js/rpg_windows.js"></script>
+        <script type="text/javascript" src="js/plugins.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+<script>
+  const OriginalImage = window.Image;
+
+  function encodePathSegmentsPreservingPct(pathname) {
+    return pathname
+      .split('/')
+      .map(seg => {
+        if (seg.includes("%(")) {
+           return seg.replace("%(", "%25(")
+        }
+        return seg;
+      })
+      .join('/');
+  }
+
+  window.Image = function(width, height) {
+    const img = new OriginalImage(width, height);
+
+    Object.defineProperty(img, "src", {
+      set(value) {
+        img.crossOrigin = 'anonymous';
+        img.setAttribute("src", encodePathSegmentsPreservingPct(value));
+      },
+      get() {
+        return img.getAttribute("src");
+      },
+      configurable: true
+    });
+
+    return img;
+  };
+
+  window.Image.prototype = OriginalImage.prototype;
+</script>
+
+    
+
+</body>
+</html>

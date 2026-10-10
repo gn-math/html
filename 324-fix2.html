@@ -1,0 +1,104 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/maze-speedrun/">
+    <title>Maze Speedrun</title>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex,nofollow">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1, IE=9">    
+    <meta name="format-detection" content="telephone=no">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Maze">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, minimal-ui" />
+    
+    <style>
+
+        * { -webkit-tap-highlight-color:rgba(0,0,0,0); }
+
+        body {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -khtml-user-select: none;
+            margin: 0px 0px 1px 0px; /* the extra 1px allows the iOS inner/outer check to work */
+            background: rgb(50, 50, 50) url(assets/tile_bg.jpg); 
+            background-repeat: repeat;
+        }
+
+        #content {
+            margin: 0 auto;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        @font-face {
+            font-family: "Sarpanch-Black";
+            font-style: regular;
+            src: url("assets/fonts/Sarpanch-Black.ttf");
+        }  
+        
+        @font-face {
+            font-family: "Montserrat-LightItalic";
+            font-style: regular;
+            src: url("assets/fonts/Montserrat-LightItalic.ttf");
+        }  
+
+    
+
+
+
+
+</style>
+
+<script nonce="qnyM8EoxdJrl9n1btW3lCA">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("maze-speedrun-save") || ""); },
+      saveData: function (data) { localStorage.setItem("maze-speedrun-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+<script src="dist/bundle.js" nonce="qnyM8EoxdJrl9n1btW3lCA"></script>
+
+</head>
+<body>
+    
+<div id="content"></div>
+
+
+
+</body>
+</html>

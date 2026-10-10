@@ -1,0 +1,117 @@
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L7856P3VNT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L7856P3VNT');
+</script><!doctype html>
+<html lang="en">
+
+<head>
+    
+    
+    
+    <base href="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/state%20io/">
+    <title>state.io yt</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="format-detection" content="telephone-no" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width,height=device-height" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <script nonce="ahujkgjYWpFG19oTpLNlow">
+if (!window.ytgame) {
+  window.ytgame = {
+    SDK_VERSION: "standalone",
+    IN_PLAYABLES_ENV: false,
+    SdkError: function (t) { this.errorType = t; this.message = ""; },
+    SdkErrorType: { UNDEFINED: 0, GAMEAPI_UNDEFINED: 1 },
+    game: {
+      firstFrameReady: function () {},
+      gameReady: function () {},
+      loadData: function () { return Promise.resolve(localStorage.getItem("state io-save") || ""); },
+      saveData: function (data) { localStorage.setItem("state io-save", data); return Promise.resolve(); }
+    },
+    engagement: { sendScore: function () { return Promise.resolve(); } },
+    ads: {
+      requestAd: function () { return Promise.resolve(3); },
+      requestInterstitialAd: function () { return Promise.resolve(); },
+      AdResult: { UNKNOWN: 0, SHOWED: 1, REJECTED: 3, DISMISSED: 2 }
+    },
+    health: { logError: function () {}, logWarning: function () {} },
+    system: {
+      getLanguage: function () { return Promise.resolve("en"); },
+      isAudioEnabled: function () { return true; },
+      onAudioEnabledChange: function () { return function () {}; },
+      onPause: function () { return function () {}; },
+      onResume: function () { return function () {}; }
+    }
+  };
+  window.ytgamehelper = { myConsoleLog: function () {} };
+}
+</script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+        }
+
+        #game-root {
+            position: absolute;
+        }
+
+        #game-canvas,
+        #game-root {
+            width: 100%;
+            height: 100%;
+        }
+    
+
+
+
+
+</style>
+    <script nonce="ahujkgjYWpFG19oTpLNlow">
+        (function (b) {
+            console.info("SDK", ytgame.SDK_VERSION);
+            var _loaded = 0;
+            Object.defineProperty(b, "loaded", {
+                set: function (v) {
+                    _loaded = v;
+                },
+                get: function () {
+                    return _loaded;
+                }
+            });
+            b.onLoaded = function (params) {
+                b.ready = true;
+                while (b.cbc.length) {
+                    var cb = b.cbc.pop();
+                    cb && cb(params);
+                }
+            };
+            ytgame.game.firstFrameReady();
+            b.params = b.params || {};
+            b.params.ytgame = ytgame;
+            b.onLoaded(ytgame);
+        })((window.__diffbus = {
+            ready: false,
+            cbc: [],
+            params: undefined
+        }));
+    </script>
+    <script defer="defer" src="main.js" nonce="ahujkgjYWpFG19oTpLNlow"></script>
+    <link href="main.css" rel="stylesheet" nonce="ahujkgjYWpFG19oTpLNlow">
+</head>
+
+<body>
+    <div id="game-root"><canvas id="game-canvas"></canvas></div>
+
+
+</body>
+
+</html>

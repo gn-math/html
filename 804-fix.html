@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/67-Factory/web-ports@main/idkwhatthisis/">
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1,
+               maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Vampire Survivors" />
+    <meta name="apple-mobile-web-app-title" content="Vampire Survivors" />
+    <meta name="msapplication-starturl" content="./" />
+    <link rel="icon"             type="image/png" sizes="192x192" href="./icons/icons-192.png" />
+    <link rel="apple-touch-icon" type="image/png" sizes="192x192" href="./icons/icons-192.png" />
+    <link rel="icon"             type="image/png" sizes="512x512" href="./icons/icons-512.png" />
+    <link rel="apple-touch-icon" type="image/png" sizes="512x512" href="./icons/icons-512.png" />
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+
+    <title>Vampire Survivors</title>
+
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background-color: #000000;
+      }
+	  .imagething {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+}
+#phaser-game {
+  position: relative;
+  z-index: 1;
+}
+    </style>
+
+    <noscript>Please enable javascript to continue using this application.</noscript>
+<script>
+ document.addEventListener('DOMContentLoaded', function () {
+    console.log('script running');
+    const interval = setInterval(function () {
+      const canvas = document.querySelector('#phaser-game canvas');
+      if (canvas) {
+        clearInterval(interval);
+        const img = document.querySelector('.imagething');
+        img.style.opacity = '0';
+        setTimeout(function () {
+          img.remove();
+        }, 500);
+      }
+    }, 100);
+  });
+</script>
+    <script defer src="vendors.862890c96fb2f6cc421a.bundle.js"></script>
+    <script defer src="main.364c22b224c8899d4d20.bundle.js"></script>
+  </head>
+
+  <body>
+	<img class="imagething" src="./loadingscreen.png" alt="Loading..." />
+    <div id="phaser-game"></div>
+  </body>
+</html>
