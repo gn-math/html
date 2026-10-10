@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+
+                                 
+                                                                                                                              
+
+
+
+    <meta charset="utf-8">
+      
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>google.com</title>
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/classroomusers/notlook@main/TemplateData/favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bubbls/cheesechomp@7adf6b379977b88fe2becd36070c546d462f1eec/TemplateData/styles.css">
+  
+  
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" tabindex="-1" width="940" height="598" style="cursor: default;"></canvas>
+      <div id="unity-loading-bar" style="display: none;">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full" style="width: 100%;"></div>
+        </div>
+      </div>
+      <div id="unity-warning" style="display: block;"><div style="background: yellow; padding: 10px;">Birleştiriliyor: CheeseChompers3dWebUpdate.wasm.unityweb</div></div>
+    </div>
+    <script>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "https://cdn.jsdelivr.net/gh/bubbls/cheesechomp@7adf6b379977b88fe2becd36070c546d462f1eec/Build";
+      const totalParts = 13;                    
+      let partsLoaded = 0;
+
+      async function fetchAndCombineParts(partUrls, fileName) {
+        try {
+          unityShowBanner(`yellow box: ${fileName}`, 'warning');
+          const buffers = [];
+          for (const partUrl of partUrls) {
+            const response = await fetch(partUrl);
+            if (!response.ok) throw new Error(`Parça yüklenemedi: ${partUrl}`);
+            const buffer = await response.arrayBuffer();
+            buffers.push(buffer);
+            partsLoaded++;
+                                                        
+            const partProgress = (partsLoaded / totalParts) * 0.5;                                          
+            progressBarFull.style.width = (partProgress * 100) + "%";
+          }
+          const combined = new Blob(buffers, { type: 'application/octet-stream' });
+          return URL.createObjectURL(combined);
+        } catch (error) {
+          unityShowBanner(`Hata: ${fileName} uh oh - ${error.message}`, 'error');
+          throw error;
+        }
+      }
+
+      const dataParts = Array.from({ length: 10 }, (_, i) => `${buildUrl}/CheeseChompers3dWebUpdate.data.unityweb.part${i + 1}`);
+      const wasmParts = Array.from({ length: 3 }, (_, i) => `${buildUrl}/CheeseChompers3dWebUpdate.wasm.unityweb.part${i + 1}`);
+
+      async function loadUnity() {
+        try {
+          loadingBar.style.display = "block";
+          
+          const dataUrl = await fetchAndCombineParts(dataParts, 'CheeseChompers3dWebUpdate.data.unityweb');
+          const wasmUrl = await fetchAndCombineParts(wasmParts, 'CheeseChompers3dWebUpdate.wasm.unityweb');
+
+          var config = {
+            dataUrl: dataUrl,
+            frameworkUrl: `${buildUrl}/CheeseChompers3dWebUpdate.framework.js.unityweb`,
+            codeUrl: wasmUrl,
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "CheeseChompers 3D",
+            productVersion: "0.1",
+            showBanner: unityShowBanner,
+          };
+
+          var script = document.createElement("script");
+          script.src = `${buildUrl}/CheeseChompers3dWebUpdate.loader.js`;
+          script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                                                                  
+              const unityProgress = 0.5 + (progress * 0.5);
+              const progressPercent = Math.min(Math.max(unityProgress, 0), 1) * 100;
+              progressBarFull.style.width = progressPercent + "%";
+            }).then((unityInstance) => {
+              loadingBar.style.display = "none";
+            }).catch((message) => {
+              unityShowBanner(`Hata: ${message}`, 'error');
+              loadingBar.style.display = "none";
+            });
+          };
+          document.body.appendChild(script);
+        } catch (error) {
+          unityShowBanner(`Unity yüklenemedi: ${error.message}`, 'error');
+          loadingBar.style.display = "none";
+        }
+      }
+
+      loadUnity();
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+      }
+    </script>
+  
+
+
+
+
+
+]]&gt;</content>
+</moduleprefs></module><script src="https://cdn.jsdelivr.net/gh/bubbls/cheesechomp@7adf6b379977b88fe2becd36070c546d462f1eec/Build/CheeseChompers3dWebUpdate.loader.js"></script></body></html>

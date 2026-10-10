@@ -1,0 +1,277 @@
+<!DOCTYPE html><html lang="en-us"><head>
+<base href="https://cdn.jsdelivr.net/gh/greeniYT/y@main/rdbal/">   
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="css/style.css">
+                                
+                         
+<style>
+        /* Убираем выделение по нажатию клавиш */
+        canvas:focus {
+            outline: none;
+        }
+
+        html, body {
+            /* Убираем отступы */
+            padding: 0;
+            margin: 0;
+            /* Отключаем скролл и лонгтап на IOS */
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            /* Ставим высоту на 100% */
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="dark">
+                                
+<div id="unity-container" class="unity-desktop">
+<canvas id="unity-canvas" tabindex="-1"></canvas>
+</div>
+<div id="loading-cover" style="display:none;">
+<div id="unity-loading-bar">
+<div id="unity-logo"><img src="images/logo.png"></div>
+<img src="https://cdn.jsdelivr.net/gh/greeniYT/gug@main/assets/raebg.png"></div>
+<div id="unity-progress-bar-empty" style="display: none;">
+<div id="unity-progress-bar-full"></div>
+</div>
+<div class="spinner"></div>
+</div>
+</div>
+<script type="1773c947205f11713234924c-text/javascript">
+        const hideFullScreenButton = "";
+        const buildUrl = "https://cdn.jsdelivr.net/gh/greeniYT/y@main/rdbal/Build/";
+        const loaderUrl = buildUrl + "/10801.loader.js";
+        const config = {
+            dataUrl: buildUrl + "/bf616606c4f19470d0f951aa35961a3b.data.unityweb",
+            frameworkUrl: buildUrl + "/08bdb8fb617daeef39a3c78ef2090d55.js.unityweb",
+            codeUrl: buildUrl + "/74289b12ca3fa42af25a544ac9be0571.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+            companyName: "Yohoho Games",
+            productName: "Red Ball 4",
+            productVersion: "1.08.01"
+        };
+
+        const container = document.querySelector("#unity-container");
+        const canvas = document.querySelector("#unity-canvas");
+        const loadingCover = document.querySelector("#loading-cover");
+        const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+        const progressBarFull = document.querySelector("#unity-progress-bar-full");
+        const spinner = document.querySelector('.spinner');
+
+        const canFullscreen = (function () {
+            for (const key of [
+                'exitFullscreen',
+                'webkitExitFullscreen',
+                'webkitCancelFullScreen',
+                'mozCancelFullScreen',
+                'msExitFullscreen',
+            ]) {
+                if (key in document) {
+                    return true;
+                }
+            }
+            return false;
+        }());
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            container.className = "unity-mobile";
+            
+        }
+
+                                                                                                                 
+        
+        loadingCover.style.background = "url('https://cdn.jsdelivr.net/gh/greeniYT/y@main/rdbal/images/background.jpg') center / cover";
+
+        loadingCover.style.display = "";
+
+                                                         
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+                                                    
+        function FocusGame() {
+            window.focus();
+            canvas.focus();
+        }
+
+        window.addEventListener('pointerdown', () => {
+            FocusGame();
+        });
+        window.addEventListener('touchstart', () => {
+            FocusGame();
+        });
+
+        let StartUnityInstance;
+        let myGameInstance = null;
+        let ysdk = null;
+        let player = null;
+        let leaderboard;
+        let payments = null;
+        let initGame = false;
+        let nowFullAdOpen = false;
+
+        const script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            StartUnityInstance = function () {
+                createUnityInstance(canvas, config, (progress) => {
+                    spinner.style.display = "none";
+                    progressBarEmpty.style.display = "";
+                    progressBarFull.style.width = `${100 * progress}%`;
+                }).then((unityInstance) => {
+                    myGameInstance = unityInstance;
+                    loadingCover.style.display = "none";
+                }).catch((message) => {
+                    console.error(message);
+                });
+            };
+            if (LocalHost())
+                StartUnityInstance_IfUnloaded();
+        };
+
+        function StartUnityInstance_IfUnloaded() {
+            if (spinner.style.display !== "none")
+                StartUnityInstance();
+        }
+
+        function LocalHost() {
+            var host = window.location.hostname;
+            if (host == "localhost" || host == "127.0.0.1")
+                return true;
+            else return false;
+        }
+
+        setTimeout(()=> {
+            InitYSDK();
+        }, 2000);
+      
+        async function InitYSDK() {
+            StartUnityInstance_IfUnloaded();
+        }
+
+        function StaticRBTDeactivate() {
+        }
+
+        function InitGame() {
+            console.log('Init Game Success');
+            initGame = true;
+            environmentData = RequestingEnvironmentData();
+            console.log('Init Envir ysdk');
+                                       
+        }
+
+        function FullAdShow() {
+            console.error('Error Ad Interstitial');
+            myGameInstance.SendMessage('YandexGame', 'CloseFullAd', 'true');
+            FocusGame();
+        }
+
+        function RewardedShow(id) {
+        
+        }
+
+        function StickyAdActivity(show) {
+ 
+        }
+
+        function InitLeaderboard() {
+       
+    
+        }
+
+        function SetLeaderboardScores(_name, score) {
+       
+        }
+
+        function GetLeaderboardScores(nameLB, maxPlayers, quantityTop, quantityAround, photoSize, auth) {
+            
+        }
+
+        function EntriesLB(res, maxPlayers, photoSize) {
+           
+        }
+
+        function Review() {
+            
+        }
+
+        function PromptShow() {
+           
+        }
+
+                                     
+
+var cloudSaves = 'noData';
+
+function SaveCloud(jsonData, flush) {
+   
+}
+
+function LoadCloud(sendback) {
+    
+}
+
+
+var paymentsData = 'none';
+
+function GetPayments(sendback) {
+   
+}
+
+function BuyPayments(id) {
+    
+}
+
+function ConsumePurchase(id) {
+   
+}
+
+function ConsumePurchases() {
+    
+}
+
+
+var environmentData = 'null';
+
+function RequestingEnvironmentData() {
+
+
+    let jsonEnvir = {
+        "language": "en",
+        "browserLang": "en"
+    };
+
+    myGameInstance.SendMessage('YandexGame', 'SetEnvirData', JSON.stringify(jsonEnvir));    
+ 
+    console.log("Environment Data: " + JSON.stringify(jsonEnvir));
+                    
+}
+
+
+var playerData = 'noData';
+
+function InitPlayer(sendback) {
+    
+}
+
+function NotAuthorized() {
+   
+}
+
+function OpenAuthDialog() {
+ 
+}
+
+
+        document.body.appendChild(script);
+    </script>
+<script src="js/rocket-loader.min.js" data-cf-settings="1773c947205f11713234924c-|49" defer=""></script>
+
+</body></html>

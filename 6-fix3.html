@@ -1,0 +1,133 @@
+                                
+                                                                                                                              
+                      
+
+<!DOCTYPE html-->
+
+<script src="https://pagead2.googlesyndication.com/pagead/managed/js/adsense/m202502250101/show_ads_impl_fy2021.js"></script>
+<script
+  async=""
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5221630201042895"
+  crossorigin="anonymous"
+  data-checked-head="true"
+></script>
+<script
+  async=""
+  src="https://www.googletagmanager.com/gtag/js?id=G-CC4ZKKC8EF"
+></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-CC4ZKKC8EF");
+  let displayMode = "browser";
+  let isPwa = false;
+  const mqStandAlone = "(display-mode: fullscreen)";
+  if (navigator.standalone || window.matchMedia(mqStandAlone).matches) {
+    displayMode = "fullscreen";
+    isPwa = true;
+  }
+  gtag("event", "pwa_check", { pwa: isPwa });
+</script>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Block Blast Puzzle</title>
+<link
+  rel="shortcut icon"
+  href="https://cdn.jsdelivr.net/gh/bubblfan/bl/TemplateData/favicon.ico"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/bubblfan/bl/TemplateData/style.css"
+/>
+<link
+  rel="manifest"
+  href="https://cdn.jsdelivr.net/gh/bubblfan/bl/manifest.webmanifest"
+/>
+
+<div id="unity-container">
+  <canvas
+    id="unity-canvas"
+    width="1117"
+    height="911"
+    tabindex="-1"
+    style="cursor: default"
+  ></canvas>
+  <div id="unity-loading-bar" style="display: none">
+    <div id="unity-logo"></div>
+    <div id="unity-progress-bar-empty">
+      <div id="unity-progress-bar-full" style="width: 100%"></div>
+    </div>
+  </div>
+  <div id="unity-warning"></div>
+</div>
+<script>
+  window.addEventListener("load", function () {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register(
+        "https://cdn.jsdelivr.net/gh/bubblfan/bl/ServiceWorker.js",
+      );
+    }
+  });
+  var container = document.querySelector("#unity-container");
+  var canvas = document.querySelector("#unity-canvas");
+  var loadingBar = document.querySelector("#unity-loading-bar");
+  var progressBarFull = document.querySelector("#unity-progress-bar-full");
+  var warningBanner = document.querySelector("#unity-warning");
+  function unityShowBanner(msg, type) {
+    function updateBannerVisibility() {
+      warningBanner.style.display = warningBanner.children.length
+        ? "block"
+        : "none";
+    }
+    var div = document.createElement("div");
+    div.innerHTML = msg;
+    warningBanner.appendChild(div);
+    if (type == "error") div.style = "background: red; padding: 10px;";
+    else {
+      if (type == "warning") div.style = "background: yellow; padding: 10px;";
+      setTimeout(function () {
+        warningBanner.removeChild(div);
+        updateBannerVisibility();
+      }, 5000);
+    }
+    updateBannerVisibility();
+  }
+
+  var buildUrl = "https://cdn.jsdelivr.net/gh/bubblfan/bl/Build";
+  var loaderUrl = buildUrl + "/BlockBlast1.1-8.loader.js";
+  var config = {
+    dataUrl: buildUrl + "/BlockBlast1.1-8.data.unityweb",
+    frameworkUrl: buildUrl + "/BlockBlast1.1-8.framework.js.unityweb",
+    codeUrl: buildUrl + "/BlockBlast1.1-8.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "reun",
+    productName: "Block Blast Puzzle",
+    productVersion: "1.1",
+    showBanner: unityShowBanner,
+  };
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    var meta = document.createElement("meta");
+    meta.name = "viewport";
+    meta.content =
+      "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+    document.getElementsByTagName("head")[0].appendChild(meta);
+  }
+  loadingBar.style.display = "block";
+  var script = document.createElement("script");
+  script.src = loaderUrl;
+  script.onload = () => {
+    createUnityInstance(canvas, config, (progress) => {
+      progressBarFull.style.width = 100 * progress + "%";
+    })
+      .then((unityInstance) => {
+        loadingBar.style.display = "none";
+      })
+      .catch((message) => {
+        alert(message);
+      });
+  };
+  document.body.appendChild(script);
+</script>
