@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en-us"><head><meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <base href="https://cdn.jsdelivr.net/gh/galaxyking16/d@main/gs/">
+
+    <style>
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #unity-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: #000;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="unity-container">
+    <canvas id="unity-canvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.querySelector("#unity-canvas");
+
+    const config = {
+        dataUrl: "Build/864872d3e8c17c58e54028c101dae7a5.data.br",
+        frameworkUrl: "Build/frame.js",
+        codeUrl: "Build/c0f8b2f06ae4c7c89b1e883b3d07ca8f.wasm.wasm",
+
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Company",
+        productName: "Game",
+        productVersion: "1.0"
+    };
+
+    const script = document.createElement("script");
+    script.src = "Build/loader-v2.js";
+
+    script.onload = async () => {
+ config.dataUrl=URL.createObjectURL(new Blob([await (await fetch(config.dataUrl)).arrayBuffer()],{type:"application/octet-stream"}));
+        createUnityInstance(canvas, config, (progress) => {
+            console.log("Loading:", Math.round(progress * 100) + "%");
+        }).then((unityInstance) => {
+            window.unityInstance = unityInstance;
+            console.log("Unity loaded!");
+        }).catch((message) => {
+            console.error(message);
+        });
+    };
+
+    document.body.appendChild(script);
+</script>
+
+
+</body></html>
