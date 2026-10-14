@@ -14,9 +14,6 @@
 
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>game</title>
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
   <style>
@@ -77,8 +74,8 @@
     var progressBarFull = document.querySelector("#unity-progress-bar-full");
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      document.getElementsByTagName("head")[0].innerHTML += '<meta name="viewport" content="user-scalable=no">';
-      document.getElementsByTagName("head")[0].innerHTML += '<meta name="HandheldFriendly" content="true" />';
+      document.getElementsByTagName("head")[0].innerHTML += '';
+      document.getElementsByTagName("head")[0].innerHTML += '';
 
       document.addEventListener("gesturestart", function(e) {
         e.preventDefault();
