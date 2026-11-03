@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="https://cdn.jsdelivr.net/gh/web-ports/garten-of-banban@main/">
+<style>
+  :root { color-scheme: dark; --bg: #000; --panel: rgba(12, 14, 18, 0.86); --ink: #fff; --dim: #8b95a3; --accent: #fff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden; }
+  #stage { position: fixed; inset: 0; display: grid; place-items: center; }
+  canvas { display: block; background: #000; width: min(100vw, calc(100vh * var(--canvas-aspect, 1.7777778))); height: min(100vh, calc(100vw / var(--canvas-aspect, 1.7777778))); outline: none; image-rendering: auto; }
+  #overlay { position: fixed; inset: 0; display: grid; place-items: center; background: #000; transition: opacity .4s; }
+  #overlay.hidden { opacity: 0; pointer-events: none; }
+  .card { width: min(1000px, calc(100vw - 32px)); text-align: center; padding: 24px; }
+  .start-row { display: none; justify-content: center; align-items: center; gap: 16px; }
+  #play { font: inherit; color: #000; background: #fff; border: 0; padding: 10px 28px; cursor: pointer; }
+  #play:disabled { opacity: .5; cursor: default; }
+  #loading-text {
+    margin: 24px 0 10px;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-size: clamp(22px, 4vw, 48px);
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+    font-weight: bold;
+    background: linear-gradient(
+      270deg,
+      #ff0000,
+      #ff7f00,
+      #ffff00,
+      #00ff00,
+      #0000ff,
+      #4b0082,
+      #8f00ff
+    );
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 3s ease infinite;
+  }
+
+  @keyframes rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  #status { margin-top: 18px; min-height: 1.4em; color: #fff; font-variant-numeric: tabular-nums; }
+  #startup-log { display: none; max-height: 180px; overflow: auto; margin: 14px 0 0; padding: 10px; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #242424; border: 1px solid #30343b; border-radius: 6px; color: #fff; font: 11px/1.4 ui-monospace, monospace; }
+  #startup-log.show { display: block; }
+  #bar { height: 4px; margin-top: 10px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
+  #bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  #bar.indeterminate > div { width: 35% !important; transition: none; animation: loading-sweep 1.4s ease-in-out infinite; }
+  @keyframes loading-sweep { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+  #fps { position: fixed; z-index: 2; top: 8px; right: 10px; color: #fff; background: rgba(0,0,0,.65); padding: 3px 6px; pointer-events: none; }
+  #busy { position: fixed; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #fff; background: rgba(0,0,0,.55); padding: 8px 14px; border-radius: 10px; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #busy.show { opacity: 1; }
+  #busy i { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; will-change: transform; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style></head>
+<body>
+<div id="stage"><canvas id="view" width="1280" height="720" tabindex="0"></canvas></div>
+<span id="fps">0 fps</span>
+<div id="busy"><i></i><span>Loading…</span></div>
+<div id="overlay"><div class="card">
+  <h1>Garten of Banban</h1>
+  <div class="start-row"><button id="play">Play</button><label><input id="multithreading" type="checkbox" disabled> Multithreading</label></div>
+  <pre id="startup-log" role="log" aria-live="polite"></pre>
+  <div id="loading-text" role="status">Preparing download…</div>
+  <div id="status"></div>
+  <div id="bar"><div></div></div>
+</div></div>
+<script src="split-loader.js"></script>
+<script>
+// where the game data (manifest.json + game/) is served from: '' = next to this page, or a CDN base such as
+// 'https://cdn.jsdelivr.net/gh/<user>/<repo>@<tag>/' (build.py pack writes the chunked tree)
+const GAME_BASE = '';
+const BASE_DEPTH_FIX = [
+  '9be4bc7f38cddc89', 'c50e90db15d00113', '14cecf7f47a3f4af',
+  '2a8002f9ce4c293e', 'b2f7d886496edd36'
+].map(hash => `${hash}|gl_Position =|gl_Position.z += 0.000002 * gl_Position.w;`).join('@');
+const PORT_ENV = {
+  REXCOMP_EXE_PATH: 'C:\\game\\Clay\\Binaries\\Win64\\Clay-Win64-Shipping.exe',
+  REXCOMP_LOCK_CLIP: '1',
+  REXCOMP_MIRROR_UPDATE: '1',
+  // This UE5 compute pass resets the local ANGLE/D3D11 context at startup.
+  REXCOMP_CS_SKIP: '9397e42f02312491',
+  // Temporary fallback for UE5's unsupported lighting and color-grading passes.
+  REXCOMP_PSOVERRIDE: 'da0a8425f47d2884|vec4 hlslcc_FragCoord|vec2 rxc_uv = hlslcc_FragCoord.xy * p_cb0_data[128].zw; vec3 rxc_n = textureLod(p_t1TEX_with_SMPp_s0, rxc_uv, 0.0).xyz * 2.0 - 1.0; float rxc_d = textureLod(p_t0TEX_with_SMPp_s0, rxc_uv, 0.0).x; float rxc_z = rxc_d * p_cb0_data[67].x + p_cb0_data[67].y + 1.0 / (rxc_d * p_cb0_data[67].z - p_cb0_data[67].w); vec2 rxc_xy = ((hlslcc_FragCoord.xy - p_cb0_data[124].xy) * p_cb0_data[125].zw - 0.5) * hlslcc_FragCoord.ww * vec2(2.0, -2.0); vec3 rxc_rel = (rxc_xy.x * p_cb0_data[52].xyz + rxc_xy.y * p_cb0_data[53].xyz + p_cb0_data[54].xyz) * rxc_z + p_cb0_data[55].xyz; float rxc_height = rxc_rel.z; vec2 rxc_wxy = rxc_rel.xy + p_cb0_data[51].xy; float rxc_lobby = 0.0; float rxc_hall = 0.0; { vec2 q = rxc_wxy - vec2(864.0,6949.0); rxc_lobby = max(rxc_lobby, 1.0 - smoothstep(10000.0,4000000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(1170.0,6949.0); rxc_lobby = max(rxc_lobby, 1.0 - smoothstep(10000.0,4000000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(959.0,7659.0); rxc_lobby = max(rxc_lobby, 1.0 - smoothstep(10000.0,4000000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(959.0,8485.0); rxc_lobby = max(rxc_lobby, 1.0 - smoothstep(10000.0,4000000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(1451.0,5826.0); rxc_hall = max(rxc_hall, 1.0 - smoothstep(10000.0,2560000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(3256.0,6134.0); rxc_hall = max(rxc_hall, 1.0 - smoothstep(10000.0,2560000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(3867.0,6134.0); rxc_hall = max(rxc_hall, 1.0 - smoothstep(10000.0,2560000.0,dot(q,q))); } { vec2 q = rxc_wxy - vec2(5136.0,6576.0); rxc_hall = max(rxc_hall, 1.0 - smoothstep(10000.0,2560000.0,dot(q,q))); } float rxc_zone = max(0.015, max(0.60 * rxc_lobby, 0.45 * rxc_hall)); if (p_cb0_data[51].z > 450.0 && distance(p_cb0_data[51].xyz,vec3(1350.46,6787.13,467.294)) < 200.0) rxc_zone = 1.0; float rxc_abs_z = rxc_rel.z + p_cb0_data[51].z; float rxc_down = 1.0 - smoothstep(-1200.0,-300.0,p_cb0_data[51].z); float rxc_far = 1.0 - smoothstep(1000000.0,12250000.0,dot(rxc_rel,rxc_rel)); rxc_zone *= smoothstep(-700.0,-200.0,rxc_abs_z) * mix(1.0,rxc_far,rxc_down); float rxc_wall = 0.045 + 1.00 * smoothstep(-120.0, 180.0, rxc_height); rxc_wall *= 0.28 + 0.72 * max(rxc_n.y, 0.0); float rxc_light = mix(rxc_wall, 0.065, clamp(abs(rxc_n.z) * 1.8, 0.0, 1.0)); SV_Target0 = vec4(textureLod(p_t3TEX_with_SMPp_s0, rxc_uv, 0.0).xyz * rxc_light * rxc_zone, 0.0); return;@dfbcb4bcb464902d|u_xlat3.xyz = texture(p_t1TEX_with_SMPp_s0|vec3 rxc_hdr = max(u_xlat3.xyz,vec3(0.0)); vec3 rxc_film = clamp((rxc_hdr * (2.51 * rxc_hdr + 0.03)) / (rxc_hdr * (2.43 * rxc_hdr + 0.59) + 0.14),0.0,1.0); SV_Target0 = vec4(pow(rxc_film,vec3(0.4545)),1.0); return;' + '@' + "17742060b8edef23|SV_Target0 = u_xlat0 * p_cb0_data[132].zzzz;|if (p_cb0_data[70].z < 350.0 && distance(p_cb0_data[70].xy,vec2(6101.0,6322.0)) < 1700.0) { vec2 rxc_ray = vs_TEXCOORD0.xy / vs_TEXCOORD0.ww; vec2 rxc_uv = rxc_ray * p_cb0_data[68].xy + p_cb0_data[68].wz; float rxc_d = textureLod(p_t2TEX_with_SMPp_s1,rxc_uv,0.0).x; float rxc_z = rxc_d * p_cb0_data[67].x + p_cb0_data[67].y + 1.0 / (rxc_d * p_cb0_data[67].z - p_cb0_data[67].w); vec3 rxc_world = (rxc_ray.x * p_cb0_data[52].xyz + rxc_ray.y * p_cb0_data[53].xyz + p_cb0_data[54].xyz) * rxc_z + p_cb0_data[55].xyz; float rxc_down = 1.0 - smoothstep(-1200.0,-300.0,p_cb0_data[70].z); float rxc_near = mix(1800.0,700.0,rxc_down); float rxc_far = mix(3300.0,1800.0,rxc_down); float rxc_fog = 1.0 - smoothstep(rxc_near,rxc_far,length(rxc_world-p_cb0_data[70].xyz)); SV_Target0.rgb *= mix(1.0,rxc_fog,1.0-smoothstep(-700.0,-200.0,rxc_world.z));}" + '@' + BASE_DEPTH_FIX
+};
+(() => {
+  const $ = id => document.getElementById(id);
+  const canvas = $('view'), statusEl = $('status');
+  let checkingPackages = false;
+  const startupLog = $('startup-log'); let startupLogActive = false, startupLogStart = 0, startupPending = '', startupTimer = 0, lastStartupStatus = '';
+  const flushStartupLog = () => {
+    startupTimer = 0;
+    if (!startupPending) return;
+    startupLog.textContent = (startupLog.textContent + startupPending).slice(-24000);
+    startupPending = '';
+    startupLog.scrollTop = startupLog.scrollHeight;
+  };
+  const appendStartupLog = line => {
+    if (!startupLogActive) return;
+    startupPending += '[' + ((performance.now() - startupLogStart) / 1000).toFixed(1) + 's] ' + line.slice(0, 4000) + '\n';
+    if (startupPending.length > 48000) startupPending = startupPending.slice(-24000);
+    if (!startupTimer) startupTimer = setTimeout(flushStartupLog, 100);
+  };
+  for (const level of ['log', 'info', 'warn', 'error', 'debug']) {
+    const original = console[level].bind(console);
+    console[level] = (...args) => {
+      appendStartupLog('[' + level + '] ' + args.map(v => v instanceof Error ? v.stack || String(v) : String(v)).join(' '));
+      original(...args);
+    };
+  }
+  addEventListener('error', e => { if (checkingPackages) { e.preventDefault(); packageError(); } else appendStartupLog('[error] ' + (e.message || e.error || e)); });
+  addEventListener('unhandledrejection', e => { if (checkingPackages) { e.preventDefault(); packageError(); } else appendStartupLog('[error] ' + (e.reason && e.reason.stack || e.reason)); });
+  let packageFailed = false;
+  const packageError = error => {
+    packageFailed = true; startupLogActive = false; startupPending = ''; clearTimeout(startupTimer);
+    startupLog.textContent = ''; startupLog.classList.remove('show');
+    bar.parentElement.classList.remove('indeterminate'); bar.parentElement.style.display = 'none';
+    const message = error instanceof Error ? error.message : 'The game could not start. Reload to retry.';
+    $('loading-text').textContent = 'Loading failed: ' + message;
+    statusEl.textContent = message;
+    $('overlay').classList.remove('hidden');
+    if (M && M.gfxWorker) M.gfxWorker.terminate();
+  };
+  const status = s => { if (packageFailed) return; statusEl.textContent = s; if (s !== lastStartupStatus) { lastStartupStatus = s; appendStartupLog('[status] ' + s); } };
+  if (!('Suspending' in WebAssembly)) { status('This browser lacks WebAssembly JavaScript Promise Integration — use Chrome or Edge 137 or newer.'); $('play').disabled = true; }
+
+  // physical key (KeyboardEvent.code) -> [virtual key, scan code, extended]
+  const K = {};
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((ch, i) => { K['Key' + ch] = [65 + i, [0x1E,0x30,0x2E,0x20,0x12,0x21,0x22,0x23,0x17,0x24,0x25,0x26,0x32,0x31,0x18,0x19,0x10,0x13,0x1F,0x14,0x16,0x2F,0x11,0x2D,0x15,0x2C][i], 0]; });
+  for (let d = 0; d <= 9; d++) K['Digit' + d] = [48 + d, d === 0 ? 0x0B : d + 1, 0];
+  Object.assign(K, { Escape: [0x1B, 0x01, 0], Minus: [0xBD, 0x0C, 0], Equal: [0xBB, 0x0D, 0], Backspace: [0x08, 0x0E, 0], Tab: [0x09, 0x0F, 0], BracketLeft: [0xDB, 0x1A, 0], BracketRight: [0xDD, 0x1B, 0],
+    Enter: [0x0D, 0x1C, 0], ControlLeft: [0x11, 0x1D, 0], Semicolon: [0xBA, 0x27, 0], Quote: [0xDE, 0x28, 0], Backquote: [0xC0, 0x29, 0], ShiftLeft: [0x10, 0x2A, 0], Backslash: [0xDC, 0x2B, 0],
+    Comma: [0xBC, 0x33, 0], Period: [0xBE, 0x34, 0], Slash: [0xBF, 0x35, 0], ShiftRight: [0x10, 0x36, 0], NumpadMultiply: [0x6A, 0x37, 0], AltLeft: [0x12, 0x38, 0], Space: [0x20, 0x39, 0],
+    CapsLock: [0x14, 0x3A, 0], F1: [0x70, 0x3B, 0], F2: [0x71, 0x3C, 0], F3: [0x72, 0x3D, 0], F4: [0x73, 0x3E, 0], F5: [0x74, 0x3F, 0], F6: [0x75, 0x40, 0], F7: [0x76, 0x41, 0], F10: [0x79, 0x44, 0],
+    F12: [0x7B, 0x58, 0], Numpad7: [0x67, 0x47, 0], Numpad8: [0x68, 0x48, 0], Numpad9: [0x69, 0x49, 0], NumpadSubtract: [0x6D, 0x4A, 0], Numpad4: [0x64, 0x4B, 0], Numpad5: [0x65, 0x4C, 0],
+    Numpad6: [0x66, 0x4D, 0], NumpadAdd: [0x6B, 0x4E, 0], Numpad1: [0x61, 0x4F, 0], Numpad2: [0x62, 0x50, 0], Numpad3: [0x63, 0x51, 0], Numpad0: [0x60, 0x52, 0], NumpadDecimal: [0x6E, 0x53, 0],
+    NumpadEnter: [0x0D, 0x1C, 1], ControlRight: [0x11, 0x1D, 1], AltRight: [0x12, 0x38, 1], ArrowUp: [0x26, 0x48, 1], ArrowLeft: [0x25, 0x4B, 1], ArrowRight: [0x27, 0x4D, 1], ArrowDown: [0x28, 0x50, 1],
+    Insert: [0x2D, 0x52, 1], Delete: [0x2E, 0x53, 1], Home: [0x24, 0x47, 1], End: [0x23, 0x4F, 1], PageUp: [0x21, 0x49, 1], PageDown: [0x22, 0x51, 1] });
+
+  let M = null, started = false;
+  const q = new URLSearchParams(location.search);
+  const res = [1920, 1080];
+  const launchArgs = () => '-dx11 -nosteam -windowed -NoAsyncLoadingThread';
+  const mt = $('multithreading');
+  const firefox = /Firefox\//.test(navigator.userAgent);
+  mt.checked = false;
+  mt.disabled = true;
+  mt.title = 'Multithreading is off for automatic startup.';
+  let wantsCapture = false;
+  const grab = () => {
+    if (!wantsCapture || document.pointerLockElement === canvas || !canvas.requestPointerLock) return;
+    try { const p = canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {}
+  };
+  addEventListener('rxclock', e => { wantsCapture = !!e.detail; if (!wantsCapture && document.pointerLockElement === canvas) document.exitPointerLock(); else if (navigator.userActivation?.isActive) grab(); });
+  addEventListener('focus', () => { if (navigator.userActivation?.isActive) grab(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && navigator.userActivation?.isActive) grab(); });
+  let canvasAspect = 0;
+  setInterval(() => {
+    const t = M && M.__lastPresent, s = globalThis.__rxcStats;
+    $('fps').textContent = `${!window.__rxcLost && t && performance.now() - t < 1500 && s ? Math.round(s.fps) : 0} fps`;
+    const w = M && M.canvasW, h = M && M.canvasH, aspect = w > 0 && h > 0 ? w / h : 0;
+    if (aspect && aspect !== canvasAspect) { canvasAspect = aspect; canvas.style.setProperty('--canvas-aspect', String(aspect)); }
+  }, 250);
+
+  // ---- input -> guest window messages
+  const ev = (name, ...a) => { if (M && M['_' + name]) M['_' + name](...a); };
+  const locked = () => document.pointerLockElement === canvas;
+  const pos = e => { const r = canvas.getBoundingClientRect(), cw = (M && M.canvasW) || canvas.width, ch = (M && M.canvasH) || canvas.height; return [Math.round((e.clientX - r.left) * cw / r.width), Math.round((e.clientY - r.top) * ch / r.height)]; };
+  addEventListener('keydown', e => {
+    if (!started) return;
+    if (e.code === 'Escape' && document.pointerLockElement === canvas) document.exitPointerLock();
+    const k = K[e.code]; if (!k) return;
+    ev('rxc_ev_key', 1, k[0], k[1], (e.repeat ? 1 : 0) | (k[2] ? 2 : 0));
+    if (e.key.length === 1 && !e.ctrlKey && !e.altKey) ev('rxc_ev_char', e.key.charCodeAt(0));
+    else if (e.code === 'Enter' || e.code === 'Backspace' || e.code === 'Tab' || e.code === 'Escape') ev('rxc_ev_char', k[0]);
+    e.preventDefault();
+  });
+  addEventListener('keyup', e => { if (!started) return; const k = K[e.code]; if (!k) return; ev('rxc_ev_key', 0, k[0], k[1], k[2] ? 2 : 0); e.preventDefault(); });
+  canvas.addEventListener('mousemove', e => {
+    if (locked()) { if (e.movementX || e.movementY) ev('rxc_ev_mouse_raw', e.movementX, e.movementY); }
+    else {
+      const [x, y] = pos(e); ev('rxc_ev_mouse', 0, x, y, 0, 0);
+      // Windows raw input reports mouse deltas whether or not the cursor is locked: games that read the mouse through
+      // WM_INPUT get them as well as the absolute position
+      if ((e.movementX || e.movementY) && M && M._rxc_raw_mouse_wanted && M._rxc_raw_mouse_wanted()) ev('rxc_ev_mouse_raw', e.movementX, e.movementY);
+    }
+  });
+  canvas.addEventListener('mousedown', e => {
+    canvas.focus();
+    const [x, y] = locked() ? [-1, -1] : pos(e); ev('rxc_ev_mouse', 1, x, y, e.button, 0); e.preventDefault();
+    if (started && wantsCapture && !locked()) grab();
+  });
+  addEventListener('mouseup', e => { if (!started) return; const [x, y] = locked() ? [-1, -1] : pos(e); ev('rxc_ev_mouse', 2, x, y, e.button, 0); });
+  canvas.addEventListener('wheel', e => { ev('rxc_ev_mouse', 3, -1, -1, 0, -Math.sign(e.deltaY) * 120); e.preventDefault(); }, { passive: false });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  addEventListener('focus', () => ev('rxc_ev_focus', 1)); addEventListener('blur', () => ev('rxc_ev_focus', 0));
+  canvas.addEventListener('webglcontextlost', e => { window.__rxcLost = true; status('The graphics context was lost (GPU reset). Reload the page to continue.'); $('overlay').classList.remove('hidden'); });
+
+  // ---- audio: an AudioWorklet playing the PCM the game's audio device produces (rt/win32/wasapi.c). A small jitter
+  // buffer: playback starts with 80 ms queued and increases that target after an underrun, so late delivery plays in longer pieces instead of
+  // crackling; a gap decays to silence and the stream fades back in (no clicks); a backlog over 350 ms (the game ran
+  // ahead of the device) skips to 150 ms. Every second it reports underruns ({a: stats}: frames of silence, gaps,
+  // frames dropped, queue low/high in frames) - globalThis.__rxcAudio, read by tools/mc2bench.py.
+  const WORKLET = `class RexcompOut extends AudioWorkletProcessor {
+    constructor() { super(); this.q = []; this.off = 0; this.queued = 0; this.play = false; this.began = false; this.gain = 1; this.l = 0; this.r = 0; this.k = 0;
+      this.target = sampleRate * 0.08;
+      this.st = { starve: 0, gaps: 0, drop: 0, qmin: 1e9, qmax: 0 };
+      this.port.onmessage = e => { if (e.data && e.data.reset) { this.q = []; this.off = this.queued = 0; this.play = this.began = false; this.target = sampleRate * 0.08; this.gain = 0; this.l = this.r = 0; return; }
+        this.q.push(e.data); this.queued += e.data.length / 2;
+        if (this.queued > sampleRate * 0.35) { while (this.q.length > 1) { const f = this.q[0].length / 2 - this.off; if (this.queued - f < Math.max(sampleRate * 0.15, this.target)) break; this.q.shift(); this.queued -= f; this.st.drop += f; this.off = 0; } this.gain = 0; } }; }
+    process(inputs, outputs) { const out = outputs[0], L = out[0], R = out[1] || out[0], n = L.length; let i = 0;
+      if (!this.play && this.queued >= this.target) { this.play = true; this.began = true; this.gain = 0; }
+      if (this.play) {
+        while (i < n && this.q.length) { const b = this.q[0], frames = b.length / 2, take = Math.min(n - i, frames - this.off);
+          for (let k = 0; k < take; k++) { const g = this.gain; L[i + k] = b[(this.off + k) * 2] * g; R[i + k] = b[(this.off + k) * 2 + 1] * g; if (g < 1) this.gain = Math.min(1, g + 1 / 128); }
+          i += take; this.off += take; this.queued -= take; if (this.off >= frames) { this.q.shift(); this.off = 0; } }
+        if (i) { this.l = L[i - 1]; this.r = R[i - 1]; }
+        if (i < n) { this.play = false; this.target = Math.min(sampleRate * 0.24, this.target + sampleRate * 0.04); this.st.gaps++; }
+      }
+      if (i < n && this.began) this.st.starve += n - i;
+      for (; i < n; i++) { this.l *= 0.9; this.r *= 0.9; L[i] = this.l; R[i] = this.r; }
+      if (this.queued < this.st.qmin) this.st.qmin = this.queued; if (this.queued > this.st.qmax) this.st.qmax = this.queued;
+      if (++this.k % 375 === 0) { this.st.targetMs = this.target * 1000 / sampleRate; this.port.postMessage({ a: this.st }); this.st = { starve: 0, gaps: 0, drop: 0, qmin: 1e9, qmax: 0 }; }
+      return true; } }
+  registerProcessor('rexcomp-out', RexcompOut);`;
+  async function startAudio(M) {
+    try {
+      const ctx = new AudioContext({ sampleRate: 48000, latencyHint: 'interactive' });
+      M.audioContext = ctx; M.soundOn = true;
+      ctx.resume().catch(() => {});
+      const ensureAudio = () => { if (M.soundOn && ctx.state !== 'running') ctx.resume().catch(() => {}); };
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) ensureAudio(); });
+      addEventListener('focus', ensureAudio);
+      addEventListener('pointerdown', ensureAudio, true);
+      addEventListener('keydown', ensureAudio, true);
+      await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' })));
+      const node = new AudioWorkletNode(ctx, 'rexcomp-out', { numberOfInputs: 0, outputChannelCount: [2] });
+      node.connect(ctx.destination); M.audioNode = node;
+      const an = ctx.createAnalyser(); an.fftSize = 2048; node.connect(an);
+      window.rxcAudioLevel = async ms => {
+        const buf = new Float32Array(an.fftSize), end = performance.now() + (ms || 3000); let n = 0, sum = 0, peak = 0, loud = 0, polls = 0;
+        while (performance.now() < end) { an.getFloatTimeDomainData(buf); let s = 0; for (const v of buf) { s += v * v; if (Math.abs(v) > peak) peak = Math.abs(v); } sum += s; n += buf.length; polls++; if (Math.sqrt(s / buf.length) > 0.001) loud++; await new Promise(r => setTimeout(r, 40)); }
+        return { state: ctx.state, rms: Math.sqrt(sum / Math.max(1, n)), peak, audibleFraction: loud / Math.max(1, polls), destinationChannels: ctx.destination.channelCount };
+      };
+      // underrun totals since the last read (tools/mc2bench.py reads and resets them)
+      node.port.onmessage = e => { const a = e.data.a, t = globalThis.__rxcAudio || (globalThis.__rxcAudio = { starve: 0, gaps: 0, drop: 0, qmin: 1e9, qmax: 0 });
+        t.starve += a.starve; t.gaps += a.gaps; t.drop += a.drop; t.qmin = Math.min(t.qmin, a.qmin); t.qmax = Math.max(t.qmax, a.qmax); t.targetMs = a.targetMs; };
+    } catch (e) { console.warn('[audio] unavailable:', e); }
+  }
+
+  // ---- debug: window.rxcDump(glTexture, w, h, isFloat, name) reads a render target back from the graphics worker and POSTs it
+  // as a PNG to the dev server (tools/serve_web.py -> build/<name>/shots/<name>.png). Texture ids come from the pass log
+  // (window.rexcomp.gfxWorker.postMessage({passlog: 1}), lines "-> rt texN").
+  window.rxcProfile = async (ms, name) => {
+    const P = new Profiler({ sampleInterval: 1, maxBufferSize: 200000 });
+    await new Promise(r => setTimeout(r, ms || 5000));
+    const t = await P.stop(), self = new Map(), incl = new Map(), fname = i => { const f = t.frames[i]; return f ? (f.name || '?') + (f.resourceId !== undefined && !f.name ? '@' + f.line : '') : '?'; };
+    let n = 0;
+    for (const s of t.samples) {
+      if (s.stackId === undefined) continue; n++;
+      let st = t.stacks[s.stackId]; const top = fname(st.frameId); self.set(top, (self.get(top) || 0) + 1);
+      const seen = new Set(); while (st) { const nm = fname(st.frameId); if (!seen.has(nm)) { seen.add(nm); incl.set(nm, (incl.get(nm) || 0) + 1); } st = st.parentId !== undefined ? t.stacks[st.parentId] : null; }
+    }
+    const top = (m, k) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, k).map(([f, c]) => `${(100 * c / n).toFixed(1)}% ${f}`);
+    const out = { samples: n, self: top(self, 80), inclusive: top(incl, 120) };
+    await fetch('/upload/' + (name || 'profile') + '.json', { method: 'POST', body: JSON.stringify(out, null, 1) });
+    return n;
+  };
+  window.rxcDump = (tex, w, h, fl, name) => window.rexcomp.gfxWorker.postMessage({ readtex: [tex, w, h, fl ? 1 : 0, name || ('tex' + tex)] });
+  function rxcImage(im) {
+    const c = new OffscreenCanvas(im.w, im.h); c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(im.data.buffer), im.w, im.h), 0, 0);
+    c.convertToBlob({ type: 'image/png' }).then(b => fetch('/upload/' + im.name + '.png', { method: 'POST', body: b })).then(() => console.log('[dump] uploaded ' + im.name));
+  }
+
+  const PROG_KEY = 'rxcPrograms';
+  const loadLearned = () => { try { const a = JSON.parse(localStorage.getItem(PROG_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+  const saveLearned = () => {
+    const cur = globalThis.__rxcPrograms; if (!cur || !cur.length) return;
+    try { const all = new Set(loadLearned()); for (const k of cur) all.add(k); localStorage.setItem(PROG_KEY, JSON.stringify([...all].slice(-8000))); } catch (e) {}
+  };
+
+  // ---- start
+  const bar = $('bar').firstElementChild;
+  let splitLoader;
+  async function downloadAssets() {
+    const response = await fetch('split-assets.json', {cache: 'no-cache'});
+    if (!response.ok) throw new Error(`Could not load split-assets.json (HTTP ${response.status})`);
+    const allAssets = await response.json();
+    const dataBase = new URL((q.get('base') || GAME_BASE || './').replace(/\/?$/, '/'), document.baseURI).href;
+    const assets = allAssets.filter(asset => !asset.url.endsWith('.wasm') ||
+      (firefox ? asset.url.startsWith('gbb_fflean') : asset.url === 'gbb.wasm'))
+      .map(asset => ({...asset, baseURL: asset.gameData ? dataBase : document.baseURI}));
+    splitLoader = createSplitLoader(assets, $('loading-text'), {onProgress: (loaded, total) => {
+      bar.style.width = (total ? Math.min(100, 100 * loaded / total) : 0) + '%';
+    }});
+    await splitLoader.download();
+  }
+  const loadEngine = threaded => new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = threaded ? 'gbb_mt.js' : firefox ? 'gbb_fflean.js' : 'gbb.js';
+    script.onload = resolve; script.onerror = () => reject(new Error('Could not load the game engine.'));
+    document.head.appendChild(script);
+  });
+  $('play').onclick = async () => {
+    if (started) return; started = true; checkingPackages = true;
+    startupLogStart = performance.now(); startupLogActive = true; startupLog.textContent = '[0.0s] Starting…\n';
+    $('play').disabled = true; mt.disabled = true; status('Downloading game…');
+    mt.checked = false;
+    const threaded = false;
+    try { await downloadAssets(); } catch (error) { packageError(error); return; }
+    if (packageFailed) return;
+    status('Preparing engine…');
+    const t0 = performance.now();
+    M = {
+      locateFile: path => new URL(path, document.baseURI).href,
+      canvas, arguments: [launchArgs()], yieldMode: 'mc',
+      // ?mt=N: N guest threads get a host thread of their own (0 = the threaded module, still cooperative)
+      gameBase: q.get('base') || GAME_BASE,
+      iniSeed: [{ file: 'C:/Users/Player/AppData/Local/Unreal Engine/Engine/Config/UserEngine.ini', section: 'SystemSettings', values: { 'r.MotionBlurQuality': '0', 'r.DefaultFeature.MotionBlur': '0', 'r.AntiAliasingMethod': '1', 'r.TranslucencyLightingVolumeDim': '32', 'r.ViewDistanceScale': '0.8', 'r.LightMaxDrawDistanceScale': '0.85', 'r.MinScreenRadiusForDepthPrepass': '0.04', 'r.MinScreenRadiusForLights': '0.04', 'r.MinScreenRadiusForCSMDepth': '0.015' } }],
+      preRun: [m => { m.ENV.REXCOMP_MT = threaded ? '1' : '0'; if (threaded) m.ENV.REXCOMP_MTNAMES = 'Render'; m.ENV.REXCOMP_SCREEN = res.join('x'); Object.assign(m.ENV, PORT_ENV); m.ENV.REXCOMP_CORES = threaded ? '2' : '1'; for (const [k, v] of q) if (k.startsWith('REXCOMP_')) m.ENV[k] = v; m.ENV.REXCOMP_MT = '0'; m.ENV.REXCOMP_CORES = '1'; }],
+      print: s => { console.log(s); if (globalThis.__rxcSink) globalThis.__rxcSink.push(s); },
+      printErr: s => { console.error(s); if (globalThis.__rxcSink) globalThis.__rxcSink.push(s); },
+      // These callbacks consume merged Blobs; their bytes were already counted.
+      onDownloadProgress: () => {},
+      onPackageError: packageError,
+      onPackageProgress: () => {},
+      onStatus: s => {
+        if (checkingPackages && /^(cannot|failed|error)/i.test(s)) { packageError(); return; }
+        if (/^reserving guest memory/i.test(s)) checkingPackages = false;
+        status(s);
+      },
+      onFirstFrame: () => { flushStartupLog(); startupLogActive = false; bar.parentElement.classList.remove('indeterminate'); bar.style.width = '100%'; $('overlay').classList.add('hidden'); canvas.focus(); },
+    };
+    const useWorker = !firefox && q.get('gfxworker') !== '0' && !!canvas.transferControlToOffscreen;
+    window.rexcomp = M;
+    // graphics on a worker thread: the canvas is handed to rt/gfxworker (OffscreenCanvas) and the engine thread only
+    // records commands (rt/web/gfx_remote.c). ?gfxworker=0 keeps WebGL on the engine thread.
+    if (useWorker) {
+      try {
+        const off = canvas.transferControlToOffscreen(), w = new Worker('gfx_worker.js'), env = { REXCOMP_PSOVERRIDE: PORT_ENV.REXCOMP_PSOVERRIDE };
+        for (const [k, v] of q) if (k.startsWith('REXCOMP_') && !['REXCOMP_INPUT', 'REXCOMP_EXIT_AT', 'REXCOMP_SHOT'].includes(k)) env[k] = v;
+        M.__gfxEarly = [];
+        w.onmessage = e => { if (e.data.img) return rxcImage(e.data.img); M.__gfxmsg ? M.__gfxmsg(e.data) : M.__gfxEarly.push(e.data); };
+        w.onerror = e => { console.error('[gfx worker] ' + (e.message || e)); status('The graphics worker failed to start: ' + (e.message || e)); };
+        const noprelink = M.prelinkShaders === false || q.has('noprelink');
+        w.postMessage({ init: true, canvas: off, env, noprelink, learned: noprelink ? [] : loadLearned() }, [off]);
+        setInterval(saveLearned, 15000); addEventListener('pagehide', saveLearned);
+        M.gfxWorker = w;
+      } catch (e) { console.warn('[web] graphics worker unavailable, WebGL stays on the engine thread:', e); }
+    }
+    // the engine loads levels synchronously (no frames for many seconds): show a spinner whenever frames stop for 1.5 s
+    setInterval(() => { const t = M.__lastPresent; $('busy').classList.toggle('show', !!t && performance.now() - t > 1500); }, 250);
+    if (q.has('logsink')) {
+      globalThis.__rxcSink = [];
+      fetch('/log?start=1', { method: 'POST', body: '' });
+      setInterval(() => { const b = globalThis.__rxcSink; if (!b.length) return; globalThis.__rxcSink = []; fetch('/log', { method: 'POST', body: b.join('\n') + '\n' }); }, 1000);
+      let dumped = 0;
+      setInterval(() => { const t = M.__lastPresent; if (t && performance.now() - t > 12000 && performance.now() - dumped > 60000 && M._rxc_dbg_thrdump) { dumped = performance.now(); M._rxc_dbg_thrdump(); } }, 2000);
+    }
+    const audioReady = startAudio(M);
+    try { await Promise.all([audioReady, loadEngine(threaded)]); status('Loading engine…'); await (firefox ? Rexcomp_fflean : Rexcomp)(M); }
+    catch (e) { packageError(e); }
+    // the page stays interactive while main() runs on its own JSPI stack; clicking the canvas captures the mouse
+    canvas.focus();
+  };
+  if (!$('play').disabled) $('play').onclick();
+})();
+</script>
+</body></html>
