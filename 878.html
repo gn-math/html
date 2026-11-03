@@ -1,0 +1,118 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bear Haven</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lostgemsy/gameList-284@main/Bear-Haven/styles.css">
+
+    <link rel="canonical" href="https://cdn.jsdelivr.net/gh/lostgemsy/gameList-284@main/Bear-Haven/">
+
+    <!-- CrazyGames SDK -->
+    <script src="https://cdn.jsdelivr.net/gh/lostgemsy/gameList-284@main/crazygames-sdk-v1.js"></script>
+
+    <script>
+        var sdk = null;
+        var ylang = "en";
+
+        // Initialize CrazyGames SDK safely
+        try {
+            if (window.CrazyGames && window.CrazyGames.CrazySDK) {
+                sdk = window.CrazyGames.CrazySDK.getInstance();
+                sdk.init();
+                console.log("[JS-SDK] initialized");
+            } else {
+                console.warn("[JS-SDK] SDK unavailable");
+            }
+        } catch (error) {
+            console.error("[JS-SDK] Initialization failed:", error);
+        }
+
+        function iadStarted() {
+            if (window.adw) window.adw("mute");
+            console.log("Ad started");
+        }
+
+        function iadError() {
+            if (window.adw) window.adw("unmute");
+            console.log("Ad error");
+        }
+
+        function iadFinished() {
+            if (window.adw) window.adw("unmute");
+            console.log("Ad finished");
+        }
+
+        function removel() {
+            if (!sdk) return;
+
+            sdk.removeEventListener("adStarted", iadStarted);
+            sdk.removeEventListener("adFinished", iadFinished);
+            sdk.removeEventListener("adError", iadError);
+        }
+
+        function requestGameAd(type) {
+            if (!sdk) {
+                console.warn("CrazyGames SDK unavailable");
+                return;
+            }
+
+            removel();
+
+            sdk.addEventListener("adStarted", iadStarted);
+            sdk.addEventListener("adError", iadError);
+            sdk.addEventListener("adFinished", iadFinished);
+
+            sdk.requestAd(type);
+        }
+
+        function showFullscreenAd() {
+            requestGameAd("midgame");
+        }
+
+        function showRewardedAd() {
+            requestGameAd("rewarded");
+        }
+    </script>
+</head>
+
+<body>
+    <div align="center" id="embed-html"></div>
+
+    <!-- GWT game loader -->
+    <script>
+        window.addEventListener("error", function(event) {
+            console.error("[Bear Haven Error]", event.message, event.filename, event.lineno);
+        });
+
+        window.addEventListener("unhandledrejection", function(event) {
+            console.error("[Bear Haven Promise Error]", event.reason);
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/gh/lostgemsy/gameList-284@main/Bear-Haven/html/html.nocache.js"></script>
+
+    <script>
+        function handleMouseDown(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            window.focus();
+        }
+
+        function handleMouseUp(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+
+        document.addEventListener("contextmenu", function(event) {
+            event.preventDefault();
+        });
+
+        document.getElementById("embed-html").addEventListener("mousedown", handleMouseDown, false);
+        document.getElementById("embed-html").addEventListener("mouseup", handleMouseUp, false);
+    </script>
+</body>
+</html>
+```
