@@ -332,7 +332,7 @@ const PORT_ENV = {
       },
       onFirstFrame: () => { flushStartupLog(); startupLogActive = false; bar.parentElement.classList.remove('indeterminate'); bar.style.width = '100%'; $('overlay').classList.add('hidden'); canvas.focus(); },
     };
-    const useWorker = !firefox && q.get('gfxworker') !== '0' && !!canvas.transferControlToOffscreen;
+    const useWorker = false; // GitHub Pages: keep WebGL on the main thread; never transfer canvas
     window.rexcomp = M;
     // graphics on a worker thread: the canvas is handed to rt/gfxworker (OffscreenCanvas) and the engine thread only
     // records commands (rt/web/gfx_remote.c). ?gfxworker=0 keeps WebGL on the engine thread.

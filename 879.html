@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="https://cdn.jsdelivr.net/gh/web-ports/the-joy-of-creation-story-mode@main/">
+<style>
+  :root { color-scheme: dark; --bg: #07080a; --panel: rgba(12, 14, 18, 0.86); --ink: #e8ecf1; --dim: #8b95a3; --accent: #5fbf3f; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; display: grid; place-items: center; }
+  canvas { display: block; background: #000; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); outline: none; image-rendering: auto; }
+  #overlay { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at center, rgba(20, 24, 30, 0.75), rgba(0, 0, 0, 0.95)); transition: opacity .4s; }
+  #overlay.hidden { opacity: 0; pointer-events: none; }
+  .card { width: min(520px, calc(100vw - 32px)); text-align: center; padding: 28px 24px; }
+  .card h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: .02em; }
+  .card p { margin: 0 0 22px; color: var(--dim); }
+  .resolution { display: block; margin: 0 0 16px; color: var(--dim); }
+  select { font: inherit; color: var(--ink); background: #151820; border: 1px solid #404550; border-radius: 6px; padding: 5px 9px; margin-left: 6px; }
+  #resolution-hud { font-size: 12px; }
+  #play { font: inherit; font-size: 17px; font-weight: 600; color: #111; background: var(--accent); border: 0; border-radius: 10px; padding: 12px 34px; cursor: pointer; }
+  #play:disabled { opacity: .5; cursor: default; }
+  #status { margin-top: 18px; min-height: 1.4em; color: var(--dim); font-variant-numeric: tabular-nums; }
+  #startup-log { display: none; max-height: 180px; overflow: auto; margin: 14px 0 0; padding: 10px; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #050607; border: 1px solid #30343b; border-radius: 6px; color: #b5c0ca; font: 11px/1.4 ui-monospace, monospace; }
+  #startup-log.show { display: block; }
+  #bar { height: 4px; margin-top: 10px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
+  #bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  #bar.indeterminate > div { width: 35% !important; transition: none; animation: loading-sweep 1.4s ease-in-out infinite; }
+  @keyframes loading-sweep { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+  #hud { position: fixed; top: 8px; right: 10px; display: flex; gap: 8px; align-items: center; opacity: .0; transition: opacity .3s; }
+  body:hover #hud, #hud.show { opacity: 1; }
+  #hud button { font: inherit; font-size: 12px; color: var(--ink); background: var(--panel); border: 1px solid rgba(255,255,255,.1); border-radius: 7px; padding: 4px 10px; cursor: pointer; }
+  #fps { font: 12px ui-monospace, monospace; color: var(--dim); background: var(--panel); padding: 4px 8px; border-radius: 7px; display: none; }
+  #log { position: fixed; left: 0; right: 0; bottom: 0; height: 38vh; margin: 0; padding: 8px 12px; overflow: auto; white-space: pre-wrap; font: 11px/1.35 ui-monospace, monospace; color: #9aa6b4; background: rgba(5, 6, 8, .92); border-top: 1px solid #222; display: none; }
+  #hint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--dim); background: var(--panel); padding: 5px 12px; border-radius: 8px; opacity: 0; transition: opacity .4s; pointer-events: none; }
+  #hint.show { opacity: 1; }
+  #busy { position: fixed; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #fff; background: rgba(0,0,0,.55); padding: 8px 14px; border-radius: 10px; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #busy.show { opacity: 1; }
+  #busy i { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; will-change: transform; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  html, body { background: #000; color: #fff; font-family: initial; }
+  #overlay { background: #000; }
+  .card p, #status { color: #fff; }
+  #play { background: #fff; color: #000; border-radius: 0; font-weight: normal; }
+  #startup-log, #log { background: #292929; color: #fff; border-radius: 0; }
+  #bar > div { background: #fff; }
+  .resolution, #resolution-hud { display: none; }
+  .quality { display: block; margin: 14px 0 8px; }
+  .quality select { background: #292929; color: #fff; border-radius: 0; }
+  .card #quality-description { font-size: 13px; min-height: 2.9em; margin-bottom: 16px; }
+  #fps { position: fixed; top: 0; left: 0; z-index: 20; display: block; color: #fff; background: #0009; padding: 4px 8px; pointer-events: none; }
+  #game-pointer { position: fixed; z-index: 19; width: 15px; height: 20px; pointer-events: none; background: #fff; filter: drop-shadow(1px 1px 1px #000); clip-path: polygon(0 0, 0 85%, 30% 65%, 50% 100%, 70% 90%, 50% 58%, 90% 58%); }
+</style></head>
+<body>
+<div id="stage"><canvas id="canvas" width="1280" height="720" tabindex="0"></canvas></div>
+<div id="fps" role="status">0 fps</div><div id="game-pointer" hidden></div>
+<div id="hint">Click to capture the mouse. Esc releases it; click to recapture.</div>
+<div id="busy"><i></i><span>Loading…</span></div>
+<pre id="log"></pre>
+<div id="overlay"><div class="card">
+  <h1>The Joy of Creation: Story Mode</h1>
+  <label class="resolution">Resolution <select id="resolution"><option value="960x540">540p</option><option value="1280x720">720p</option><option value="1920x1080">1080p</option><option value="2560x1440">1440p</option></select></label>
+  <label class="quality">Graphics <select id="quality" aria-describedby="quality-description"><option value="performance">Performance</option><option value="balanced">Balanced</option><option value="original">Original</option></select></label>
+  <p id="quality-description"></p>
+  <button id="play">Play</button>
+  <pre id="startup-log" role="log" aria-live="polite"></pre>
+  <div id="loading-text" role="status" aria-live="polite"></div>
+  <div id="status"></div>
+  <div id="bar"><div></div></div>
+</div></div>
+<script src="tjoc_sm_split_loader.js"></script>
+<script src="tjoc_sm.js"></script>
+<script>
+// where the game data (manifest.json + game/) is served from: '' = next to this page, or a CDN base such as
+// 'https://cdn.jsdelivr.net/gh/<user>/<repo>@<tag>/' (build.py pack writes the chunked tree)
+const GAME_BASE = '';
+const PORT_ENV = { REXCOMP_EXE_PATH: 'C:\\game\\TJoC_SM\\Binaries\\Win64\\TJoC_SM-Win64-Shipping.exe', REXCOMP_CORES: '1', REXCOMP_FL: 'b000' };
+(() => {
+  const $ = id => document.getElementById(id);
+  const canvas = $('canvas'), statusEl = $('status');
+  const startupLog = $('startup-log'); let startupLogActive = false, startupLogStart = 0, startupPending = '', startupTimer = 0, lastStartupStatus = '';
+  const flushStartupLog = () => {
+    startupTimer = 0;
+    if (!startupPending) return;
+    startupLog.textContent = (startupLog.textContent + startupPending).slice(-24000);
+    startupPending = '';
+    startupLog.scrollTop = startupLog.scrollHeight;
+  };
+  const appendStartupLog = line => {
+    if (!startupLogActive) return;
+    startupPending += '[' + ((performance.now() - startupLogStart) / 1000).toFixed(1) + 's] ' + line.slice(0, 4000) + '\n';
+    if (startupPending.length > 48000) startupPending = startupPending.slice(-24000);
+    if (!startupTimer) startupTimer = setTimeout(flushStartupLog, 100);
+  };
+  for (const level of ['log', 'info', 'warn', 'error', 'debug']) {
+    const original = console[level].bind(console);
+    console[level] = (...args) => {
+      appendStartupLog('[' + level + '] ' + args.map(v => v instanceof Error ? v.stack || String(v) : String(v)).join(' '));
+      original(...args);
+    };
+  }
+  addEventListener('error', e => appendStartupLog('[error] ' + (e.message || e.error || e)));
+  addEventListener('unhandledrejection', e => appendStartupLog('[error] ' + (e.reason && e.reason.stack || e.reason)));
+  const status = s => { statusEl.textContent = s; if (s !== lastStartupStatus) { lastStartupStatus = s; appendStartupLog('[status] ' + s); } };
+  if (!('Suspending' in WebAssembly)) { status('This browser lacks WebAssembly JavaScript Promise Integration — use Chrome or Edge 137 or newer.'); $('play').disabled = true; }
+
+  // physical key (KeyboardEvent.code) -> [virtual key, scan code, extended]
+  const K = {};
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((ch, i) => { K['Key' + ch] = [65 + i, [0x1E,0x30,0x2E,0x20,0x12,0x21,0x22,0x23,0x17,0x24,0x25,0x26,0x32,0x31,0x18,0x19,0x10,0x13,0x1F,0x14,0x16,0x2F,0x11,0x2D,0x15,0x2C][i], 0]; });
+  for (let d = 0; d <= 9; d++) K['Digit' + d] = [48 + d, d === 0 ? 0x0B : d + 1, 0];
+  Object.assign(K, { Escape: [0x1B, 0x01, 0], Minus: [0xBD, 0x0C, 0], Equal: [0xBB, 0x0D, 0], Backspace: [0x08, 0x0E, 0], Tab: [0x09, 0x0F, 0], BracketLeft: [0xDB, 0x1A, 0], BracketRight: [0xDD, 0x1B, 0],
+    Enter: [0x0D, 0x1C, 0], ControlLeft: [0x11, 0x1D, 0], Semicolon: [0xBA, 0x27, 0], Quote: [0xDE, 0x28, 0], Backquote: [0xC0, 0x29, 0], ShiftLeft: [0x10, 0x2A, 0], Backslash: [0xDC, 0x2B, 0],
+    Comma: [0xBC, 0x33, 0], Period: [0xBE, 0x34, 0], Slash: [0xBF, 0x35, 0], ShiftRight: [0x10, 0x36, 0], NumpadMultiply: [0x6A, 0x37, 0], AltLeft: [0x12, 0x38, 0], Space: [0x20, 0x39, 0],
+    CapsLock: [0x14, 0x3A, 0], F1: [0x70, 0x3B, 0], F2: [0x71, 0x3C, 0], F3: [0x72, 0x3D, 0], F4: [0x73, 0x3E, 0], F5: [0x74, 0x3F, 0], F6: [0x75, 0x40, 0], F7: [0x76, 0x41, 0], F10: [0x79, 0x44, 0],
+    F12: [0x7B, 0x58, 0], Numpad7: [0x67, 0x47, 0], Numpad8: [0x68, 0x48, 0], Numpad9: [0x69, 0x49, 0], NumpadSubtract: [0x6D, 0x4A, 0], Numpad4: [0x64, 0x4B, 0], Numpad5: [0x65, 0x4C, 0],
+    Numpad6: [0x66, 0x4D, 0], NumpadAdd: [0x6B, 0x4E, 0], Numpad1: [0x61, 0x4F, 0], Numpad2: [0x62, 0x50, 0], Numpad3: [0x63, 0x51, 0], Numpad0: [0x60, 0x52, 0], NumpadDecimal: [0x6E, 0x53, 0],
+    NumpadEnter: [0x0D, 0x1C, 1], ControlRight: [0x11, 0x1D, 1], AltRight: [0x12, 0x38, 1], ArrowUp: [0x26, 0x48, 1], ArrowLeft: [0x25, 0x4B, 1], ArrowRight: [0x27, 0x4D, 1], ArrowDown: [0x28, 0x50, 1],
+    Insert: [0x2D, 0x52, 1], Delete: [0x2E, 0x53, 1], Home: [0x24, 0x47, 1], End: [0x23, 0x4F, 1], PageUp: [0x21, 0x49, 1], PageDown: [0x22, 0x51, 1] });
+
+  let M = null, started = false;
+  addEventListener('beforeunload', e => { if (started) { e.preventDefault(); e.returnValue = ''; } });
+  const q = new URLSearchParams(location.search);
+  // Browser launch arguments and runtime settings.
+  // Use CVars present in this game's cooked UE4 4.16 BaseScalability.ini.
+  // Keep view distance, material variants and particle counts intact: they can
+  // carry enemy silhouettes and other gameplay cues in later memories.
+  const qualityPresets = {
+    performance: { label: 'Performance', resolution: [960, 540], cacheMB: 256,
+      description: '540p, lighter shadows and effects, smaller texture cache. Best for slower devices.',
+      settings: { 'r.ShadowQuality': 2, 'r.Shadow.MaxResolution': 512,
+        'r.Shadow.MaxCSMResolution': 512, 'r.Shadow.CSM.MaxCascades': 1,
+        'r.Streaming.MipBias': 1, 'r.Streaming.PoolSize': 400, 'r.MaxAnisotropy': 2,
+        'r.PostProcessAAQuality': 2, 'r.BloomQuality': 2 } },
+    balanced: { label: 'Balanced', resolution: [1280, 720], cacheMB: 384,
+      description: '720p with reduced shadows and effects. A balance of clarity and speed.',
+      settings: { 'r.ShadowQuality': 3, 'r.Shadow.MaxResolution': 1024,
+        'r.Shadow.MaxCSMResolution': 1024, 'r.Shadow.CSM.MaxCascades': 2,
+        'r.Streaming.MipBias': 0, 'r.Streaming.PoolSize': 600, 'r.MaxAnisotropy': 4,
+        'r.PostProcessAAQuality': 3, 'r.BloomQuality': 3 } },
+    original: { label: 'Original', resolution: [1280, 720], cacheMB: 768,
+      description: '720p with the original graphics settings. Highest visual quality.', settings: {} }
+  };
+  const lighterEffects = {
+    'r.DistanceFieldShadowing': 0, 'r.DistanceFieldAO': 0,
+    'r.VolumetricFog': 0, 'r.MotionBlurQuality': 0,
+    'r.AmbientOcclusionLevels': 0, 'r.DepthOfFieldQuality': 0,
+    'r.LensFlareQuality': 0, 'r.SceneColorFringeQuality': 0,
+    'r.SSR.Quality': 0, 'r.SSS.Scale': 0,
+    'r.TranslucencyLightingVolumeDim': 32, 'r.TranslucencyVolumeBlur': 0,
+    // GPU query readbacks serialize the browser renderer in this port. More
+    // hidden surfaces are drawn, but avoid the expensive synchronous wait.
+    'r.AllowOcclusionQueries': 0
+  };
+  const qualitySelect = $('quality'), qualityDescription = $('quality-description');
+  let savedQuality;
+  try { savedQuality = localStorage.getItem('tjocQuality'); } catch (_) {}
+  const requestedQuality = q.get('quality') || savedQuality;
+  qualitySelect.value = Object.hasOwn(qualityPresets, requestedQuality) ? requestedQuality : 'balanced';
+  const selectedQuality = () => qualityPresets[qualitySelect.value];
+  const updateQualityDescription = () => { qualityDescription.textContent = selectedQuality().description; };
+  qualitySelect.onchange = updateQualityDescription;
+  updateQualityDescription();
+  const selectedResolution = () => {
+    const explicit = /^(\d{3,4})x(\d{3,4})$/.exec(q.get('res') || '');
+    if (explicit && +explicit[1] >= 640 && +explicit[1] <= 3840 && +explicit[2] >= 360 && +explicit[2] <= 2160)
+      return [+explicit[1], +explicit[2]];
+    return selectedQuality().resolution.slice();
+  };
+  const qualitySettings = base => {
+    const settings = JSON.parse(JSON.stringify(base));
+    const original = qualitySelect.value === 'original';
+    const allKeys = new Set([...Object.keys(lighterEffects), ...Object.keys(qualityPresets.performance.settings)]);
+    // Remove our previous overrides when switching back to Original, including
+    // values the engine may have saved in the browser's persistent overlay.
+    const values = Object.fromEntries([...allKeys].map(key => [key, null]));
+    if (!original) Object.assign(values, lighterEffects, selectedQuality().settings);
+    const system = settings.find(s => s.section === 'SystemSettings');
+    Object.assign(system.values, Object.fromEntries(Object.entries(values).map(([key, value]) =>
+      [key, value === null ? null : String(value)])));
+    return settings;
+  };
+  const rememberQuality = () => {
+    try { localStorage.setItem('tjocQuality', qualitySelect.value); } catch (_) {}
+    qualitySelect.disabled = true;
+  };
+
+  let res = selectedResolution();
+  const launchArgs = () => {
+    const base = q.has('args') ? q.get('args') : `-dx11 -nohmd -nosteam -windowed -ResX=${res[0]} -ResY=${res[1]} -norenderthread -nothreading -NoAsyncLoadingThread`;
+    return base.replace(/-screen-width\s+\d+/gi, `-screen-width ${res[0]}`).replace(/-screen-height\s+\d+/gi, `-screen-height ${res[1]}`).replace(/-ResX=\d+/gi, `-ResX=${res[0]}`).replace(/-ResY=\d+/gi, `-ResY=${res[1]}`);
+  };
+
+  const toggle = el => { el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
+  const fullscreen = () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  };
+  let locking = false;
+  const grab = async () => {
+    if (!started || document.pointerLockElement === canvas || locking || !document.hasFocus()) return;
+    locking = true;
+    try { await canvas.requestPointerLock({ unadjustedMovement: true }); }
+    catch (_) { try { await canvas.requestPointerLock(); } catch (_) {} }
+    finally { locking = false; }
+  };
+  let mouseX = canvas.width / 2, mouseY = canvas.height / 2;
+  const pointer = $('game-pointer');
+  const syncPointer = () => {
+    const rect = canvas.getBoundingClientRect();
+    const width = M?.canvasW || canvas.width, height = M?.canvasH || canvas.height;
+    pointer.style.left = (rect.left + mouseX * rect.width / width) + 'px';
+    pointer.style.top = (rect.top + mouseY * rect.height / height) + 'px';
+    pointer.hidden = !started || document.pointerLockElement !== canvas || canvas.style.cursor === 'none';
+  };
+  new MutationObserver(syncPointer).observe(canvas, {attributes: true, attributeFilter: ['style']});
+  addEventListener('resize', syncPointer);
+  document.addEventListener('pointerlockchange', () => {
+    syncPointer();
+    $('hint').classList.toggle('show', started && document.pointerLockElement !== canvas);
+  });
+  setInterval(() => {
+    const stats = globalThis.__rxcStats;
+    $('fps').textContent = (stats ? stats.fps.toFixed(0) : '0') + ' fps';
+  }, 500);
+
+
+  // ---- input -> guest window messages
+  const ev = (name, ...args) => { if (M?.['_' + name]) M['_' + name](...args); };
+  let guestFocused = null;
+  const notifyFocus = (focused, force = false) => {
+    if (!M?._rxc_ev_focus || (!force && guestFocused === focused)) return;
+    ev('rxc_ev_focus', focused ? 1 : 0);
+    guestFocused = focused;
+  };
+  let inputActivated = false, pendingButtons = null, activationId = 0;
+  const activateInput = () => {
+    if (inputActivated || !M?._rxc_ev_focus) return;
+    notifyFocus(true, true);
+    inputActivated = true;
+    pendingButtons = [];
+    const id = ++activationId, start = performance.now();
+    let last = M.__lastPresent, frames = 0;
+    const ready = () => {
+      if (id !== activationId) return;
+      if (M.__lastPresent !== last) { last = M.__lastPresent; frames++; }
+      // Unreal applies activation during its tick. Preserve the first click until
+      // that has happened, including a quick mouse-up received in the meantime.
+      if (frames < 2 && performance.now() - start < 250) { requestAnimationFrame(ready); return; }
+      const queued = pendingButtons;
+      pendingButtons = null;
+      for (const args of queued) ev('rxc_ev_mouse', ...args);
+    };
+    requestAnimationFrame(ready);
+  };
+  const mouseButton = (...args) => {
+    if (pendingButtons) pendingButtons.push(args);
+    else ev('rxc_ev_mouse', ...args);
+  };
+  const locked = () => document.pointerLockElement === canvas;
+  const pos = event => {
+    const rect = canvas.getBoundingClientRect();
+    return [Math.round((event.clientX - rect.left) * (M?.canvasW || canvas.width) / rect.width),
+      Math.round((event.clientY - rect.top) * (M?.canvasH || canvas.height) / rect.height)];
+  };
+  addEventListener('keydown', event => {
+    if (!started) return;
+    if (event.code !== 'Escape') grab();
+    if (event.code === 'F9') { toggle($('log')); event.preventDefault(); return; }
+    if (event.code === 'F8' || event.code === 'F10') { event.preventDefault(); return; }
+    if (event.code === 'F11') { fullscreen(); event.preventDefault(); return; }
+    const key = K[event.code];
+    if (!key) return;
+    ev('rxc_ev_key', 1, key[0], key[1], (event.repeat ? 1 : 0) | (key[2] ? 2 : 0));
+    if (event.key.length === 1 && !event.ctrlKey && !event.altKey) ev('rxc_ev_char', event.key.charCodeAt(0));
+    else if (['Enter', 'Backspace', 'Tab', 'Escape'].includes(event.code)) ev('rxc_ev_char', key[0]);
+    event.preventDefault();
+  });
+  addEventListener('keyup', event => {
+    if (!started) return;
+    const key = K[event.code];
+    if (!key) return;
+    ev('rxc_ev_key', 0, key[0], key[1], key[2] ? 2 : 0);
+    event.preventDefault();
+  });
+  canvas.addEventListener('mousemove', event => {
+    activateInput();
+    if (locked()) {
+      const rect = canvas.getBoundingClientRect();
+      const width = M?.canvasW || canvas.width, height = M?.canvasH || canvas.height;
+      mouseX = Math.max(0, Math.min(width - 1, mouseX + event.movementX * width / rect.width));
+      mouseY = Math.max(0, Math.min(height - 1, mouseY + event.movementY * height / rect.height));
+    } else [mouseX, mouseY] = pos(event);
+    // Preserve a virtual cursor for the game's menus while the browser pointer stays captured.
+    ev('rxc_ev_mouse', 0, Math.round(mouseX), Math.round(mouseY), 0, 0);
+    if ((event.movementX || event.movementY) && (locked() || M?._rxc_raw_mouse_wanted?.()))
+      ev('rxc_ev_mouse_raw', event.movementX, event.movementY);
+    syncPointer();
+  });
+  canvas.addEventListener('mousedown', event => {
+    canvas.focus();
+    activateInput();
+    if (!locked()) [mouseX, mouseY] = pos(event);
+    mouseButton(1, Math.round(mouseX), Math.round(mouseY), event.button, 0);
+    grab();
+    syncPointer();
+    event.preventDefault();
+  });
+  addEventListener('mouseup', event => {
+    if (!started) return;
+    mouseButton(2, Math.round(mouseX), Math.round(mouseY), event.button, 0);
+  });
+  canvas.addEventListener('wheel', event => {
+    ev('rxc_ev_mouse', 3, -1, -1, 0, -Math.sign(event.deltaY) * 120);
+    event.preventDefault();
+  }, {passive: false});
+  canvas.addEventListener('contextmenu', event => event.preventDefault());
+  addEventListener('focus', () => { notifyFocus(true); grab(); });
+  addEventListener('blur', () => {
+    activationId++; inputActivated = false; pendingButtons = null;
+    notifyFocus(false);
+  });
+  canvas.addEventListener('webglcontextlost', () => {
+    window.__rxcLost = true;
+    status('The graphics context was lost. Reload the page to continue.');
+    $('overlay').classList.remove('hidden');
+  });
+
+
+  // ---- audio: an AudioWorklet playing the PCM the game's audio device produces (rt/win32/wasapi.c). A small jitter
+  // buffer: playback starts with 80 ms queued and increases that target after an underrun, so late delivery plays in longer pieces instead of
+  // crackling; a gap decays to silence and the stream fades back in (no clicks); a backlog over 350 ms (the game ran
+  // ahead of the device) skips to 150 ms. Every second it reports underruns ({a: stats}: frames of silence, gaps,
+  // frames dropped, queue low/high in frames) - globalThis.__rxcAudio, read by tools/mc2bench.py.
+  const WORKLET = `class RexcompOut extends AudioWorkletProcessor {
+    constructor() { super(); this.q = []; this.off = 0; this.queued = 0; this.play = false; this.began = false; this.gain = 1; this.l = 0; this.r = 0; this.k = 0;
+      this.target = sampleRate * 0.08;
+      this.st = { starve: 0, gaps: 0, drop: 0, qmin: 1e9, qmax: 0 };
+      this.port.onmessage = e => { if (e.data && e.data.reset) { this.q = []; this.off = this.queued = 0; this.play = this.began = false; this.target = sampleRate * 0.08; this.gain = 0; this.l = this.r = 0; return; }
+        this.q.push(e.data); this.queued += e.data.length / 2;
+        if (this.queued > sampleRate * 0.35) { while (this.q.length > 1) { const f = this.q[0].length / 2 - this.off; if (this.queued - f < Math.max(sampleRate * 0.15, this.target)) break; this.q.shift(); this.queued -= f; this.st.drop += f; this.off = 0; } this.gain = 0; } }; }
+    process(inputs, outputs) { const out = outputs[0], L = out[0], R = out[1] || out[0], n = L.length; let i = 0;
+      if (!this.play && this.queued >= this.target) { this.play = true; this.began = true; this.gain = 0; }
+      if (this.play) {
+        while (i < n && this.q.length) { const b = this.q[0], frames = b.length / 2, take = Math.min(n - i, frames - this.off);
+          for (let k = 0; k < take; k++) { const g = this.gain; L[i + k] = b[(this.off + k) * 2] * g; R[i + k] = b[(this.off + k) * 2 + 1] * g; if (g < 1) this.gain = Math.min(1, g + 1 / 128); }
+          i += take; this.off += take; this.queued -= take; if (this.off >= frames) { this.q.shift(); this.off = 0; } }
+        if (i) { this.l = L[i - 1]; this.r = R[i - 1]; }
+        if (i < n) { this.play = false; this.target = Math.min(sampleRate * 0.24, this.target + sampleRate * 0.04); this.st.gaps++; }
+      }
+      if (i < n && this.began) this.st.starve += n - i;
+      for (; i < n; i++) { this.l *= 0.9; this.r *= 0.9; L[i] = this.l; R[i] = this.r; }
+      if (this.queued < this.st.qmin) this.st.qmin = this.queued; if (this.queued > this.st.qmax) this.st.qmax = this.queued;
+      if (++this.k % 375 === 0) { this.st.targetMs = this.target * 1000 / sampleRate; this.port.postMessage({ a: this.st }); this.st = { starve: 0, gaps: 0, drop: 0, qmin: 1e9, qmax: 0 }; }
+      return true; } }
+  registerProcessor('rexcomp-out', RexcompOut);`;
+  async function startAudio(M) {
+    try {
+      const ctx = new AudioContext({ sampleRate: 48000, latencyHint: 'interactive' });
+      M.audioContext = ctx; M.soundOn = true;
+      const soundLabel = () => { M.soundOn = true; };
+      ctx.onstatechange = soundLabel; soundLabel();
+      ctx.resume().catch(() => soundLabel());
+      const ensureAudio = () => { if (M.soundOn && ctx.state !== 'running') ctx.resume().catch(soundLabel); };
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) ensureAudio(); });
+      addEventListener('focus', ensureAudio);
+      addEventListener('pointerdown', ensureAudio, true);
+      addEventListener('keydown', ensureAudio, true);
+      await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' })));
+      const node = new AudioWorkletNode(ctx, 'rexcomp-out', { numberOfInputs: 0, outputChannelCount: [2] });
+      node.connect(ctx.destination); M.audioNode = node;
+      const an = ctx.createAnalyser(); an.fftSize = 2048; node.connect(an);
+      window.rxcAudioLevel = async ms => {
+        const buf = new Float32Array(an.fftSize), end = performance.now() + (ms || 3000); let n = 0, sum = 0, peak = 0, loud = 0, polls = 0;
+        while (performance.now() < end) { an.getFloatTimeDomainData(buf); let s = 0; for (const v of buf) { s += v * v; if (Math.abs(v) > peak) peak = Math.abs(v); } sum += s; n += buf.length; polls++; if (Math.sqrt(s / buf.length) > 0.001) loud++; await new Promise(r => setTimeout(r, 40)); }
+        return { state: ctx.state, rms: Math.sqrt(sum / Math.max(1, n)), peak, audibleFraction: loud / Math.max(1, polls), destinationChannels: ctx.destination.channelCount };
+      };
+      // underrun totals since the last read (tools/mc2bench.py reads and resets them)
+      node.port.onmessage = e => { const a = e.data.a, t = globalThis.__rxcAudio || (globalThis.__rxcAudio = { starve: 0, gaps: 0, drop: 0, qmin: 1e9, qmax: 0 });
+        t.starve += a.starve; t.gaps += a.gaps; t.drop += a.drop; t.qmin = Math.min(t.qmin, a.qmin); t.qmax = Math.max(t.qmax, a.qmax); t.targetMs = a.targetMs; };
+    } catch (e) { console.warn('[audio] unavailable:', e); }
+  }
+
+  const openExternalLink = url => {
+    if (!/^https?:\/\//i.test(url)) return 0;
+    if (document.pointerLockElement) document.exitPointerLock();
+    let opened = null;
+    try { opened = window.open(url, '_blank'); if (opened) opened.opener = null; } catch (_) {}
+    if (!opened) {
+      let link = $('external-link');
+      if (!link) {
+        link = document.createElement('a'); link.id = 'external-link';
+        link.target = '_blank'; link.rel = 'noopener noreferrer';
+        link.style.cssText = 'position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:30;padding:12px 18px;background:#fff;color:#000;font:16px serif';
+        link.onclick = () => { link.hidden = true; };
+        document.body.appendChild(link);
+      }
+      link.href = url; link.textContent = 'Open ' + new URL(url).host;
+      link.hidden = false; link.focus();
+    }
+    return 1;
+  };
+
+  // ---- start
+  const bar = $('bar').firstElementChild;
+  let gameDataComplete = false;
+  const splitLoader = createSplitLoader([{"url":"image.bin","type":"application/octet-stream","bytes":84934656,"sha256":"93244ebbd66f3c7a883783542661848a9e6d91dc41bd56f0252a8cbdb8199236","parts":[{"url":"image.bin.part1","bytes":20866662},{"url":"image.bin.part2","bytes":20866662},{"url":"image.bin.part3","bytes":20866662},{"url":"image.bin.part4","bytes":20866662},{"url":"image.bin.part5","bytes":1468008}]},{"url":"tjoc_sm.wasm","type":"application/wasm","bytes":220346264,"sha256":"597fe084f63707e9c88d595637275fdf072cb4ddf54aeb037c9db0cc401d32c1","parts":[{"url":"tjoc_sm.wasm.part1","bytes":20866662},{"url":"tjoc_sm.wasm.part2","bytes":20866662},{"url":"tjoc_sm.wasm.part3","bytes":20866662},{"url":"tjoc_sm.wasm.part4","bytes":20866662},{"url":"tjoc_sm.wasm.part5","bytes":20866662},{"url":"tjoc_sm.wasm.part6","bytes":20866662},{"url":"tjoc_sm.wasm.part7","bytes":20866662},{"url":"tjoc_sm.wasm.part8","bytes":20866662},{"url":"tjoc_sm.wasm.part9","bytes":20866662},{"url":"tjoc_sm.wasm.part10","bytes":20866662},{"url":"tjoc_sm.wasm.part11","bytes":11679644}]}], $('loading-text'), {
+    integrity: {"verifier":{"url":"tjoc_sm_integrity.wasm","bytes":2894},"pak":{"file":"tjoc_sm\\content\\paks\\pakchunk0-windowsnoeditor.pak","sha256":"b9760fa697fc0e5ca295d5aa0e9bebed10a29dfb218f607ad147893d110a50f0","parts":[{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.0?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.1?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.2?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.3?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.4?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.5?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.6?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.7?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.8?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.9?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.10?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.11?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.12?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.13?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.14?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.15?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.16?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.17?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.18?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.19?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.20?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.21?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.22?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.23?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.24?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.25?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.26?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.27?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.28?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.29?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.30?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.31?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.32?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.33?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.34?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.35?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.36?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.37?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.38?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.39?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.40?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.41?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.42?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.43?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.44?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.45?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.46?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.47?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.48?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.49?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.50?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.51?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.52?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.53?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.54?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.55?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.56?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.57?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.58?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.59?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.60?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.61?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.62?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.63?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.64?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.65?v=b9760fa697fc0e5c-c20866662","bytes":20866662},{"url":"game/tjoc_sm/content/paks/pakchunk0-windowsnoeditor.pak.66?v=b9760fa697fc0e5c-c20866662","bytes":2583111}]}},
+    onProgress: ({loadedBytes, totalBytes, phase}) => {
+      status(phase === 'verifying' ? 'Verifying game data…' : phase === 'ready' ? 'Starting game…' : 'Downloading and merging startup files…');
+      bar.style.transition = 'none';
+      bar.parentElement.classList.remove('indeterminate');
+      bar.style.width = (totalBytes ? 100 * loadedBytes / totalBytes : 0).toFixed(2) + '%';
+    }
+  });
+  window.tjocSplitLoader = splitLoader;
+  $('play').onclick = async () => {
+    if (started) return; res = selectedResolution(); rememberQuality(); canvas.width = res[0]; canvas.height = res[1]; mouseX = res[0] / 2; mouseY = res[1] / 2; started = true; grab();
+    startupLogStart = performance.now(); startupLogActive = true; startupLog.classList.add('show'); startupLog.textContent = '[0.0s] Starting…\n';
+    $('play').disabled = true; status('Loading engine…'); bar.parentElement.classList.add('indeterminate');
+    const t0 = performance.now();
+    M = {
+      onExternalURL: openExternalLink,
+      iniSeed: qualitySettings([{"file": "C:/Users/Player/AppData/Local/TJoC_SM/Saved/Config/WindowsNoEditor/Input.ini", "section": "/Script/Engine.InputSettings", "values": {"DefaultViewportMouseCaptureMode": "CapturePermanently_IncludingInitialMouseDown"}}, {"file": "C:/Users/Player/AppData/Local/TJoC_SM/Saved/Config/WindowsNoEditor/Engine.ini", "section": "/Script/Engine.Engine", "values": {"bSmoothFrameRate": "False", "bUseFixedFrameRate": "False"}}, {"file": "C:/Users/Player/AppData/Local/TJoC_SM/Saved/Config/WindowsNoEditor/Engine.ini", "section": "SystemSettings", "values": {"r.VSync": "0", "t.MaxFPS": "0"}}, {"file": "C:/Users/Player/AppData/Local/TJoC_SM/Saved/Config/WindowsNoEditor/GameUserSettings.ini", "section": "/Script/Engine.GameUserSettings", "values": {"bUseVSync": "False", "FrameRateLimit": "0.000000"}}]),
+      fileCacheMB: selectedQuality().cacheMB,
+      canvas, arguments: [launchArgs()], yieldMode: 'mc', fpsCap: 0,
+      gameBase: q.get('base') || GAME_BASE,
+      preRun: [m => { m.ENV.REXCOMP_SCREEN = res.join('x'); Object.assign(m.ENV, PORT_ENV); for (const [k, v] of q) if (k.startsWith('REXCOMP_')) m.ENV[k] = v; m.ENV.REXCOMP_MT = '0'; m.ENV.REXCOMP_CORES = '1'; }],   // debug switches, e.g. ?REXCOMP_INPUT=...
+      print: s => { console.log(s); if (globalThis.__rxcSink) globalThis.__rxcSink.push(s); },
+      printErr: s => { console.error(s); if (globalThis.__rxcSink) globalThis.__rxcSink.push(s); },
+      onDownloadProgress: (loaded, total) => { gameDataComplete = loaded === total; },
+      onStatus: s => { status(/^starting/i.test(s) ? 'Starting game…' : s); },
+      onFirstFrame: () => { flushStartupLog(); startupLogActive = false; bar.parentElement.classList.remove('indeterminate'); bar.style.width = '100%'; $('overlay').classList.add('hidden'); $('hint').classList.add('show'); setTimeout(() => $('hint').classList.remove('show'), 5000); canvas.focus(); notifyFocus(document.hasFocus()); },
+    };
+    window.tjoc_sm = M;
+    // the engine loads levels synchronously (no frames for many seconds): show a spinner whenever frames stop for 1.5 s
+    setInterval(() => { const t = M.__lastPresent; $('busy').classList.toggle('show', !!t && performance.now() - t > 1500); }, 250);
+    if (q.has('logsink')) {
+      globalThis.__rxcSink = [];
+      fetch('/log?start=1', { method: 'POST', body: '' });
+      setInterval(() => { const b = globalThis.__rxcSink; if (!b.length) return; globalThis.__rxcSink = []; fetch('/log', { method: 'POST', body: b.join('\n') + '\n' }); }, 1000);
+      let dumped = 0;
+      setInterval(() => { const t = M.__lastPresent; if (t && performance.now() - t > 12000 && performance.now() - dumped > 60000 && M._rxc_dbg_thrdump) { dumped = performance.now(); M._rxc_dbg_thrdump(); } }, 2000);
+    }
+    await startAudio(M);                   // inside the click: user activation lets the AudioContext start
+    try {
+      status('Downloading and merging startup files…');
+      await splitLoader.download();
+      if (!splitLoader.integrityVerified) throw new Error('PAK integrity check failed. Game startup blocked.');
+      status('Starting game…');
+      TjocSM(M).catch(e => { status('Failed to start: ' + e); console.error(e); });
+    } catch (e) {
+      status('Loading failed: ' + e.message); console.error(e);
+      bar.parentElement.classList.remove('indeterminate');
+    }
+    // the page stays interactive while main() runs on its own JSPI stack; clicking the canvas captures the mouse
+    canvas.focus();
+  };
+  if (q.has('autostart')) $('play').onclick();
+})();
+</script>
+</body></html>
