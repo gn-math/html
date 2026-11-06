@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-gamepad="native"><script>window.__scGame=1</script><meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:14px system-ui,sans-serif}
+canvas{position:fixed;inset:0;margin:auto;width:min(100vw,calc(100dvh*16/9));height:min(100dvh,calc(100vw*9/16));outline:0;cursor:default!important}
+#loading{position:fixed;inset:0;background:#000}
+#bar{position:absolute;left:0;right:0;bottom:0;height:6px;background:rgba(0,0,0,.5)}
+#fill{height:100%;width:0;background:#fff;transition:width .2s}
+#status{position:absolute;left:12px;bottom:14px;text-shadow:0 1px 3px #000}
+#note{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:rgba(0,0,0,.8);padding:8px 14px;border-radius:6px;transition:opacity .3s}
+[hidden]{display:none!important}
+</style>
+<canvas id="canvas" width="1280" height="720" tabindex="0"></canvas>
+<div id="note" hidden></div>
+<div id="loading"><div id="status">Loading...</div><div id="bar"><div id="fill"></div></div></div>
+<script>window.CC_BASE='https://cdn.jsdelivr.net/gh/thirstygithub/castlecrashers@ea13505deba6eee1af52532ca4945ab15bf9d00c/';</script>
+<script>
+self.CC_BASE = window.CC_BASE;
+(function () {
+  var files = ['lazyfs.js', 'gamepad.js', 'ccnet.js', 'app.js'];
+  var index = 0;
+  var status = document.getElementById('status');
+  function next() {
+    if (index >= files.length) return;
+    var name = files[index++];
+    var tries = 0;
+    var tag = document.createElement('script');
+    tag.onload = next;
+    tag.onerror = function () {
+      if (++tries < 6) {
+        setTimeout(function () { tag.src = CC_BASE + name + '?r=' + tries; }, 600 * tries);
+      } else if (status) {
+        status.textContent = 'Could not load ' + name;
+      }
+    };
+    tag.src = CC_BASE + name;
+    document.head.appendChild(tag);
+  }
+  next();
+})();
+</script>
+<script>
+const canvas = document.getElementById('canvas');
+const loading = document.getElementById('loading');
+const status = document.getElementById('status');
+const fill = document.getElementById('fill');
+const params = new URLSearchParams(location.search);
+const debug = params.has('debug');
+const show = text => { status.textContent = text; loading.hidden = false; };
+let aborted = false;
+let logLines = [];
+
+const log = (...a) => { if (debug) logLines.push((performance.now() / 1000).toFixed(1) + ' ' + a.join(' ')); };
+if (debug) setInterval(() => {
+  if (!logLines.length) return;
+  fetch('log', { method: 'POST', body: logLines.join('\n') + '\n' }).catch(() => {});
+  logLines = [];
+}, 1000);
+
+canvas.oncontextmenu = e => e.preventDefault();
+canvas.onclick = () => canvas.focus();
+canvas.ondblclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+
+const unlockAudio = () => {
+  const c = window.game?.peAudio?.context;
+  if (!aborted && c && c.state === 'suspended') c.resume().catch(() => {});
+};
+for (const type of ['pointerdown', 'keydown']) addEventListener(type, unlockAudio, true);
+
+const downAt = new Map(), synthetic = new WeakSet();
+addEventListener('keydown', e => { if (!e.repeat) downAt.set(e.code, performance.now()); }, true);
+addEventListener('keyup', e => {
+  if (e.target !== canvas || synthetic.has(e)) return;
+  const held = performance.now() - (downAt.get(e.code) ?? -1e9);
+  if (held >= 60) return;
+  e.stopImmediatePropagation();
+  const init = { key: e.key, code: e.code, keyCode: e.keyCode, which: e.which, location: e.location, bubbles: true };
+  setTimeout(() => { const up = new KeyboardEvent('keyup', init); synthetic.add(up); canvas.dispatchEvent(up); }, 60 - held);
+}, true);
+
+let noteTimer = 0;
+function note(text) {
+  const el = document.getElementById('note');
+  el.textContent = text;
+  el.hidden = false;
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => el.hidden = true, 2500);
+}
+
+function invite(lobby) {
+  const link = location.origin + location.pathname + '?join=' + lobby.toString(36);
+  navigator.clipboard.writeText(link).then(() => note('Invite link copied'), () => note(link));
+}
+
+function joinArgs() {
+  const code = params.get('join');
+  if (!code || !/^[0-9a-z]{1,7}$/i.test(code)) return {};
+  return { PEWASM_ARGS: '+connect_lobby ' + ((0x01840000n << 32n) | BigInt(parseInt(code, 36))) };
+}
+
+function openUrl(url) {
+  const w = window.open(url, '_blank');
+  if (w) w.opener = null;
+}
+
+function patchMenuText(FS) {
+  const path = '/images/module0.img', at = 0x1e9670;
+  const u16 = str => { const b = new Uint8Array(str.length * 2 + 2); for (let i = 0; i < str.length; i++) b[2 * i] = str.charCodeAt(i); return b; };
+  const img = FS.readFile(path), from = u16('Download Content');
+  if (!from.every((v, i) => img[at + i] === v)) return;
+  img.fill(0, at, at + from.length);
+  img.set(u16('Port By Bog'), at);
+  FS.writeFile(path, img);
+}
+
+function keepSaves(FS) {
+  let syncing = false, soon = 0;
+  const save = () => { if (syncing) return; syncing = true; FS.syncfs(false, () => { syncing = false; }); };
+  const later = () => { clearTimeout(soon); soon = setTimeout(save, 300); };
+  for (const name of ['close', 'rename', 'unlink']) {
+    const original = FS[name];
+    FS[name] = function (target, ...rest) {
+      const result = original.call(this, target, ...rest);
+      if (/^\/(documents|appdata|localappdata)\//.test(typeof target === 'string' ? target : target?.path || '')) later();
+      return result;
+    };
+  }
+  setInterval(save, 3000);
+  addEventListener('pagehide', save);
+  addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+  return save;
+}
+
+function debugStats(app) {
+  let frames = 0, t0 = performance.now(), last = 0, worst = 0, slow = 0, verySlow = 0;
+  app.peOnFrame = () => {
+    const now = performance.now(), gap = now - last;
+    if (last) worst = Math.max(worst, gap), slow += gap > 20, verySlow += gap > 40;
+    last = now;
+  };
+  setInterval(() => {
+    const now = performance.now(), f = app.peD3DFrames || 0;
+    log('fps', ((f - frames) * 1000 / (now - t0)).toFixed(1), 'worst', worst.toFixed(0) + 'ms', '>20ms', slow, '>40ms', verySlow, 'files', app.peLazyStats.loads);
+    frames = f, t0 = now, worst = 0, slow = 0, verySlow = 0;
+  }, 2000);
+  setInterval(async () => {
+    let tab = '';
+    try { tab = ' tab ' + ((await performance.measureUserAgentSpecificMemory()).bytes / 1048576).toFixed(0) + 'MB'; } catch {}
+    log('memory wasm', (app.HEAPU8.length / 1048576).toFixed(0) + 'MB heap', ((app._pe_heap_top32() >>> 0) / 1048576).toFixed(0) + 'MB threads', app._pe_thread_count32() + tab);
+  }, 15000);
+}
+
+async function start() {
+  if (!WebAssembly.Suspending) return show('This browser needs WebAssembly JSPI (Chrome or Edge 137+).');
+  const list = await (await fetch(CC_BASE+'files.json')).json();
+  const pack = await fetchSmallPack(list, (got, total) => {
+    status.textContent = 'Loading game data... ' + (got / 1048576).toFixed(1) + ' MB';
+    fill.style.width = (100 * got / total).toFixed(1) + '%';
+  });
+  status.textContent = 'Loading...';
+  fill.style.width = '0';
+  const script = await (await fetch(CC_BASE+'app.js')).blob();
+  const app = await createPEModule({
+    canvas,
+    mainScriptUrlOrBlob: new Blob(["self.Module=Object.assign(self.Module||{},{locateFile:function(n){return (self.CC_BASE||'')+n}});\n", script]),
+    locateFile: name => (self.CC_BASE || '') + name,
+    print: (...a) => { console.log(...a); log(...a); },
+    printErr: (...a) => { console.warn(...a); log(...a); },
+    setStatus: text => {
+      const m = /\((\d+)\/(\d+)\)/.exec(text || '');
+      if (m) fill.style.width = (100 * m[1] / m[2]).toFixed(1) + '%';
+    },
+    preRun: [m => {
+      Object.assign(m.ENV, { PEWASM_DESKTOP: '1280x720', PEWASM_STEAM_OFFLINE: '1', SteamAppId: '204360', PEWASM_STORE_URL: 'https://truffled.lol' },
+        joinArgs(),
+        debug ? { PEWASM_PERF_STATS: '1', PEWASM_TRACE_STEAM: '1' } : {},
+        Object.fromEntries(params.getAll('env').map(e => e.split('='))));
+      m.peOpenUrl = openUrl;
+      m.peInvite = invite;
+      if (debug) m.peNetLog = log;
+      startNet(m);
+      mountLazyFiles(m, list, pack);
+    }],
+    onAbort: reason => { aborted = true; show('Stopped: ' + reason); },
+  });
+  window.game = app;
+  patchMenuText(app.FS);
+  startGamepads(app);
+
+  status.textContent = 'Loading saves...';
+  for (const dir of ['/documents', '/appdata', '/localappdata']) {
+    try { app.FS.mkdir(dir); } catch {}
+    app.FS.mount(app.FS.filesystems.IDBFS, {}, dir);
+  }
+  await new Promise(done => app.FS.syncfs(true, done));
+  const save = keepSaves(app.FS);
+  if (debug) debugStats(app);
+
+  status.textContent = 'Starting...';
+  const wait = setInterval(() => {
+    if (!(app.peD3DFrames > 1)) return;
+    clearInterval(wait);
+    loading.hidden = true;
+    canvas.blur();
+    canvas.focus();
+    unlockAudio();
+    setTimeout(() => prefetchLazyFiles(list), 2000);
+  }, 200);
+  canvas.focus();
+  try { await app.ccall('pe_run', 'number', [], [], { async: true }); } catch {}
+  save();
+  show('Game exited.');
+}
+
+(function waitForRuntime() {
+  if (!window.createPEModule) return setTimeout(waitForRuntime, 100);
+  start().catch(e => show('Error: ' + e.message));
+})();
+</script></html>
